@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { adminlogin } from "../../features/auth/authSlice";
+import Logout from '../../components/Logout';
 
 
 
@@ -20,13 +21,13 @@ const AdminLogin = () => {
     e.preventDefault();
     dispatch(adminlogin(formData)).then((result) => {
       if (result.payload && result.payload.role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/admindashboard');
       }
     });
   };
 
   return (
-    <div>
+    <div><Logout/>
       <h2>Admin Login</h2>
       <form onSubmit={handleSubmit}>
         <input

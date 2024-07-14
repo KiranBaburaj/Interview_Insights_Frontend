@@ -8,13 +8,14 @@ import EmployerDashboard from './pages/Employer/EmployerDashboard';
 import { useSelector } from 'react-redux';
 import AdminLogin from './pages/Admin/Adminlogin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import ForgotPassword from './pages/Fogotpassword';
 
 const App = () => {
   const { role } = useSelector((state) => state.auth);
   return (
     <Router>
       <Routes>
-
+  <Route path="/forgot-password"  element={<ForgotPassword/>} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendOTP } from '../features/auth/authSlice';
+import { signup } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 const SignupForm = () => {
@@ -38,7 +38,7 @@ const SignupForm = () => {
 
     // Dispatch action to send OTP
     try {
-      await dispatch(sendOTP(data)).unwrap();
+      await dispatch(signup(data)).unwrap();
       // Navigate to verify OTP page after successfully dispatching OTP
       navigate('/verify-otp');
     } catch (error) {

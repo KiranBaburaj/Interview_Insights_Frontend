@@ -85,6 +85,43 @@ export const fetchAdminData = createAsyncThunk(
 );
 
 
+// Thunks for fetching data
+export const fetchJobSeekers = createAsyncThunk(
+  'admin/fetchJobSeekers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/jobseekers/');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : error.message);
+    }
+  }
+);
+
+export const fetchEmployers = createAsyncThunk(
+  'admin/fetchEmployers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/employers/');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : error.message);
+    }
+  }
+);
+
+export const fetchRecruiters = createAsyncThunk(
+  'admin/fetchRecruiters',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get('/api/recruiters/');
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : error.message);
+    }
+  }
+);
+
 // Define initial state and reducers
 const initialState = {
   user: null,
@@ -92,6 +129,9 @@ const initialState = {
   refreshToken: null,
   error: null,
   loading: false,
+  jobSeekers: [],
+  employers: [],
+  recruiters: [],
 };
 
 const authSlice = createSlice({
@@ -144,11 +184,14 @@ const authSlice = createSlice({
       .addCase(adminlogin.pending, (state) => {
         state.loading = true;
         state.error = null;
+
       })
       .addCase(adminlogin.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.role = action.payload.role;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
         localStorage.setItem('accessToken', action.payload.access);
       })
       .addCase(adminlogin.rejected, (state, action) => {
@@ -197,6 +240,39 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAdminData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchJobSeekers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchJobSeekers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.jobSeekers = action.payload;
+      })
+      .addCase(fetchJobSeekers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchEmployers.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchEmployers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.employers = action.payload;
+      })
+      .addCase(fetchEmployers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchRecruiters.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchRecruiters.fulfilled, (state, action) => {
+        state.loading = false;
+        state.recruiters = action.payload;
+      })
+      .addCase(fetchRecruiters.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

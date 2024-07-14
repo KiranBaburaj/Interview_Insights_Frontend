@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { login, clearError,setUser  } from '../features/auth/authSlice';
+import Logout from './Logout';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -38,7 +39,7 @@ const Login = () => {
   }, [role, navigate]);
 
   return (
-    <div>
+    <div><Logout/>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input
