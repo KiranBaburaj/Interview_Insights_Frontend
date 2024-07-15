@@ -9,20 +9,26 @@ import {
   Menu,
   MenuItem,
   Avatar,
+  Tooltip,
+  Container,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const userMenuOpen = Boolean(userMenuAnchorEl);
 
   // Mock logged in state and user info (replace with actual auth logic)
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [user, setUser] = React.useState(null);
+
+  const { user,role } = useSelector((state) => state.auth);
+  console.log(user ? user.full_name : null);
+
+  
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -40,83 +46,139 @@ const Navbar = () => {
     setUserMenuAnchorEl(null);
   };
 
-
-
   const handleLogout = () => {
-    // Implement actual logout logic here
-    setIsLoggedIn(false);
+    dispatch(clearError());
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.replace('/login');
     setUser(null);
     handleUserMenuClose();
   };
 
   return (
     <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Job Portal
-        </Typography>
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-          <Button color="inherit">Home</Button>
-          <Button color="inherit">Jobs</Button>
-          <Button color="inherit">Companies</Button>
-          <Button color="inherit">About</Button>
-          <Button color="inherit">Contact</Button>
-          {isLoggedIn ? (
-            <>
-              <Button color="inherit" onClick={handleUserMenu}>
-                {user.name}
+      <Container maxWidth="xl">
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>JP</Avatar>
+            <Typography variant="h6" component="div" sx={{ display: { xs: 'none', md: 'block' } }}>
+              Job Portal
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 4 }}>
+              <Button color="inherit" onClick={() => navigate('/')}>
+                Home
               </Button>
-              <Menu
-                anchorEl={userMenuAnchorEl}
-                open={userMenuOpen}
-                onClose={handleUserMenuClose}
-              >
-                <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <Button color="inherit" onClick={() => navigate('/login')}>login</Button>
-          )}
-        </Box>
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenu}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={open}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={handleClose}>Home</MenuItem>
-            <MenuItem onClick={handleClose}>Jobs</MenuItem>
-            <MenuItem onClick={handleClose}>Companies</MenuItem>
-            <MenuItem onClick={handleClose}>About</MenuItem>
-            <MenuItem onClick={handleClose}>Contact</MenuItem>
-            {isLoggedIn ? (
-              <MenuItem onClick={handleLogout}>Logout ({user.name})</MenuItem>
+              <Button color="inherit" onClick={() => navigate('/jobs')}>
+                Jobs
+              </Button>
+              <Button color="inherit" onClick={() => navigate('/companies')}>
+                Companies
+              </Button>
+              <Button color="inherit" onClick={() => navigate('/about')}>
+                About
+              </Button>
+              <Button color="inherit" onClick={() => navigate('/contact')}>
+                Contact
+              </Button>
+            </Box>
+
+            {user ? (
+              <>
+                <Tooltip title="Profile">
+                  <IconButton
+                    color="inherit"
+                    onClick={handleUserMenu}
+                    sx={{ ml: 2 }}
+                  >
+                    <Avatar />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  anchorEl={userMenuAnchorEl}
+                  open={userMenuOpen}
+                  onClose={handleUserMenuClose}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                > 
+            <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  {role === 'jobseeker' && (
+                    <MenuItem onClick={() => navigate('/dashboard/jobseeker')}>
+                      Dashboard
+                    </MenuItem>
+                  )}
+                  {role === 'employer' && (
+                    <MenuItem onClick={() => navigate('/dashboard/employer')}>
+                      Employer Dashboard
+                    </MenuItem>
+                  )}
+                  {role === 'recruiter' && (
+                    <MenuItem onClick={() => navigate('/dashboard/recruiter')}>
+                      Recruiter Dashboard
+                    </MenuItem>
+                  )}
+                </Menu>
+              </>
             ) : (
-                <Button color="inherit" onClick={() => navigate('/login')}>login</Button>
+              <Button
+                color="inherit"
+                onClick={() => navigate('/login')}
+                sx={{ ml: 2 }}
+              >
+                Login
+              </Button>
             )}
-          </Menu>
-        </Box>
-      </Toolbar>
+
+            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={handleMenu}
+                sx={{ ml: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>Home</MenuItem>
+                <MenuItem onClick={handleClose}>Jobs</MenuItem>
+                <MenuItem onClick={handleClose}>Companies</MenuItem>
+                <MenuItem onClick={handleClose}>About</MenuItem>
+                <MenuItem onClick={handleClose}>Contact</MenuItem>
+                {user ? (
+                  <MenuItem onClick={handleLogout}>Logout ({user.full_name})</MenuItem>
+                ) : (
+                  <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
+                )}
+              </Menu>
+            </Box>
+          </Box>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };

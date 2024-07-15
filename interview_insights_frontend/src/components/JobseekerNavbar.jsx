@@ -1,8 +1,8 @@
 import React from 'react';
 import { Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Divider } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import BusinessIcon from '@mui/icons-material/Business';
+import WorkIcon from '@mui/icons-material/Work';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -10,7 +10,7 @@ import { clearError } from '../features/auth/authSlice';
 
 const drawerWidth = 240;
 
-const EmployerNavbar = () => {
+const JobseekerNavbar = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -32,7 +32,7 @@ const EmployerNavbar = () => {
       <Toolbar />
       <Divider />
       <List>
-        <ListItem button component={Link} to="/dashboard/employer">
+        <ListItem button component={Link} to="/dashboard/jobseeker">
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
@@ -42,31 +42,19 @@ const EmployerNavbar = () => {
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
-          <ListItemText primary="home" />
+          <ListItemText primary="Home" />
         </ListItem>
-        <ListItem button component={Link} to="/EmployerJobManagement">
+        <ListItem button component={Link} to="/jobs">
           <ListItemIcon>
-            <BusinessIcon />
+            <WorkIcon />
           </ListItemIcon>
-          <ListItemText primary="My Jobs" />
+          <ListItemText primary="Jobs" />
         </ListItem>
-        <ListItem button component={Link} to="/applicants">
+        <ListItem button component={Link} to="/profile">
           <ListItemIcon>
-            <PeopleIcon />
+            <AccountBoxIcon />
           </ListItemIcon>
-          <ListItemText primary="Applicants" />
-        </ListItem>
-        <ListItem button component={Link} to="/interviews">
-          <ListItemIcon>
-            <PeopleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Interviews" />
-        </ListItem>
-        <ListItem button component={Link} to="/EmployerCompanyManagement">
-          <ListItemIcon>
-            <BusinessIcon />
-          </ListItemIcon>
-          <ListItemText primary="Company Management" />
+          <ListItemText primary="Profile" />
         </ListItem>
       </List>
       <Divider />
@@ -80,4 +68,4 @@ const EmployerNavbar = () => {
   );
 };
 
-export default EmployerNavbar;
+export default JobseekerNavbar;

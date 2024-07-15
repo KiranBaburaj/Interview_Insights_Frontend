@@ -13,6 +13,8 @@ import Home from './pages/Home';
 import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagement';
+import Employerjobs from './pages/Employer/Employerjobs';
+
 
 const App = () => {
   return (
@@ -51,6 +53,8 @@ const App = () => {
             </ProtectedRoute>
           }
         /><Route path="EmployerCompanyManagement" element={<EmployerCompanyManagement />} />
+        <Route path="EmployerJobManagement" element={<Employerjobs/>} />
+
         {/* Add other routes here */}
       </Routes>
     </Router>

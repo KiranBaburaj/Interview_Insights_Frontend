@@ -8,7 +8,7 @@ import {
   Button, 
   Grid, 
   Card, 
-  CardContent, 
+  CardContent,
   CardActions,
   Box
 } from '@mui/material';
@@ -25,7 +25,7 @@ const featuredJobs = [
 const Home = () => {
   return (
     <>
-  <Navbar/>
+      <Navbar />
       <Container maxWidth="md" sx={{ mt: 4 }}>
         <Box sx={{ display: 'flex', mb: 4 }}>
           <TextField
@@ -48,13 +48,20 @@ const Home = () => {
             <Grid item xs={12} sm={6} key={index}>
               <Card>
                 <CardContent>
-                  <Typography variant="h6">{job.title}</Typography>
-                  <Typography color="textSecondary">{job.company}</Typography>
-                  <Typography variant="body2">{job.location}</Typography>
+                  <Typography variant="h6" gutterBottom>
+                    {job.title}
+                  </Typography>
+                  <Typography color="textSecondary" variant="body2" gutterBottom>
+                    {job.company} - {job.location}
+                  </Typography>
                 </CardContent>
                 <CardActions>
-                  <Button size="small">Learn More</Button>
-                  <Button size="small" variant="contained">Apply</Button>
+                  <Button size="small" color="primary">
+                    Learn More
+                  </Button>
+                  <Button size="small" variant="contained" color="primary">
+                    Apply
+                  </Button>
                 </CardActions>
               </Card>
             </Grid>
