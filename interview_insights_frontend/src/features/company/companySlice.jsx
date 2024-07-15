@@ -31,6 +31,21 @@ export const createCompany = createAsyncThunk('company/createCompany', async (co
   }
 });
 
+export const approveCompany = createAsyncThunk('company/approveCompany', async (companyId, thunkAPI) => {
+    try {
+      const response = await axios.patch(`${apiUrl}/companies/${companyId}/`, { is_approved: true }, {
+        headers: {
+          Authorization: `Bearer ${thunkAPI.getState().auth.accessToken}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  });
+
+
+
 export const updateCompany = createAsyncThunk('company/updateCompany', async (companyData, thunkAPI) => {
   try {
     const { id, ...rest } = companyData;
@@ -70,6 +85,12 @@ const companySlice = createSlice({
         state.companies.push(action.payload);
       })
       .addCase(updateCompany.fulfilled, (state, action) => {
+        const index = state.companies.findIndex(company => company.id === action.payload.id);
+        if (index !== -1) {
+          state.companies[index] = action.payload;
+        }
+      })
+      .addCase(approveCompany.fulfilled, (state, action) => {
         const index = state.companies.findIndex(company => company.id === action.payload.id);
         if (index !== -1) {
           state.companies[index] = action.payload;
