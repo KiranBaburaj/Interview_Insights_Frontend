@@ -14,8 +14,6 @@ export const signup = createAsyncThunk(
   }
 );
 
-
-
 export const login = createAsyncThunk(
   'auth/login',
   async (userData, { rejectWithValue }) => {
@@ -31,11 +29,14 @@ export const login = createAsyncThunk(
   }
 );
 
-export const adminlogin = createAsyncThunk(
+export const adminLogin = createAsyncThunk(
   'auth/adminLogin',
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post('/api/admin/login/', formData);
+      // Store admin tokens in localStorage
+      localStorage.setItem('adminAccessToken', response.data.accessToken);
+      localStorage.setItem('adminRefreshToken', response.data.refreshToken);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -71,7 +72,6 @@ export const verifyOTPAndSignup = createAsyncThunk(
   }
 );
 
-
 export const fetchAdminData = createAsyncThunk(
   'admin/fetchAdminData',
   async (_, { rejectWithValue }) => {
@@ -83,7 +83,6 @@ export const fetchAdminData = createAsyncThunk(
     }
   }
 );
-
 
 // Thunks for fetching data
 export const fetchJobSeekers = createAsyncThunk(
@@ -125,6 +124,7 @@ export const fetchRecruiters = createAsyncThunk(
 // Define initial state and reducers
 const initialState = {
   user: null,
+  role: null,
   accessToken: null,
   refreshToken: null,
   error: null,
@@ -174,6 +174,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
+        state.role = action.payload.role; // Assuming role is returned from API
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -181,20 +182,21 @@ const authSlice = createSlice({
       })
 
       // Admin login reducers
-      .addCase(adminlogin.pending, (state) => {
+      .addCase(adminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
-
       })
-      .addCase(adminlogin.fulfilled, (state, action) => {
+      .addCase(adminLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
         state.role = action.payload.role;
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
-        localStorage.setItem('accessToken', action.payload.access);
+        // Store admin tokens in localStorage
+        localStorage.setItem('adminAccessToken', action.payload.accessToken);
+        localStorage.setItem('adminRefreshToken', action.payload.refreshToken);
       })
-      .addCase(adminlogin.rejected, (state, action) => {
+      .addCase(adminLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -276,10 +278,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       });
-
   },
 });
 
 // Export actions and reducer
-export const { clearError, setUser, } = authSlice.actions;
+export const { clearError, setUser } = authSlice.actions;
 export default authSlice.reducer;

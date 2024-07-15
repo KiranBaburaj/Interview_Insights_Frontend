@@ -2,8 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, CssBaseline, Toolbar, Typography } from '@mui/material';
 import EmployerNavbar from '../../components/EmployerNavbar';
+import CompanyManagement from '../../components/CompanyManagement';
 
-const EmployerDashboard = () => {
+const EmployerCompanyManagement = () => {
   const { user } = useSelector((state) => state.auth);
 
   return (
@@ -16,7 +17,7 @@ const EmployerDashboard = () => {
       >
         <Toolbar />
         <Typography variant="h4" component="h1" gutterBottom>
-          Welcome, {user ? user.full_name : 'Employer'}
+         <CompanyManagement/>
         </Typography>
         {/* Display employer-specific components and features here */}
       </Box>
@@ -24,4 +25,4 @@ const EmployerDashboard = () => {
   );
 };
 
-export default EmployerDashboard;
+export default EmployerCompanyManagement;

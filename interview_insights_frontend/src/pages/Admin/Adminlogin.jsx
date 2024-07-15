@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { adminlogin } from "../../features/auth/authSlice";
+import { adminLogin } from "../../features/auth/authSlice";
 import Logout from '../../components/Logout';
 import {
   Container,
@@ -25,7 +25,7 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(adminlogin(formData)).then((result) => {
+    dispatch(adminLogin(formData)).then((result) => {
       if (result.payload && result.payload.role === 'admin') {
         navigate('/admindashboard');
       }

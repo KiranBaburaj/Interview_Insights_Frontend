@@ -12,6 +12,7 @@ import ForgotPassword from './pages/Fogotpassword';
 import Home from './pages/Home';
 import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
+import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagement';
 
 const App = () => {
   return (
@@ -45,10 +46,11 @@ const App = () => {
           path="/dashboard/employer"
           element={
             <ProtectedRoute roleRequired="employer">
+              
               <EmployerDashboard />
             </ProtectedRoute>
           }
-        />
+        /><Route path="EmployerCompanyManagement" element={<EmployerCompanyManagement />} />
         {/* Add other routes here */}
       </Routes>
     </Router>
