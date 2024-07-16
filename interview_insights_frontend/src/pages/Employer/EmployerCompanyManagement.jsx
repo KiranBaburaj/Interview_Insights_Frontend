@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Box, CssBaseline, Toolbar, Typography } from '@mui/material';
 import EmployerNavbar from '../../components/EmployerNavbar';
-import CompanyManagement from '../../components/CompanyManagement';
+import CompanyManagement from '../../components/companymanagement';
 
 const EmployerCompanyManagement = () => {
   const { user } = useSelector((state) => state.auth);

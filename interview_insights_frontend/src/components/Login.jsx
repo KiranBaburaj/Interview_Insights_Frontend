@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, clearError, setUser } from '../features/auth/authSlice';
-import Logout from './Logout';
+
 import {
   Container,
   Typography,
@@ -49,7 +49,7 @@ const Login = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Box sx={{ mt: 8 }}>
-        <Logout />
+        
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography component="h1" variant="h5" align="center">
             Login
