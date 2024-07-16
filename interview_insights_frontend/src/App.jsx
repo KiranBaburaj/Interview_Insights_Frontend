@@ -1,4 +1,3 @@
-// App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
@@ -13,8 +12,8 @@ import Home from './pages/Home';
 import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagement';
+import EmployerJobs from './pages/Employer/Employerjobs'; // Corrected component import name
 import Employerjobs from './pages/Employer/Employerjobs';
-
 
 const App = () => {
   return (
@@ -27,35 +26,19 @@ const App = () => {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         
-        <Route
-          path="/admindashboard"
-          element={
-            <ProtectedRoute roleRequired="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard/jobseeker"
-          element={
-            <ProtectedRoute roleRequired="jobseeker">
-              <JobseekerDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/employer"
-          element={
-            <ProtectedRoute roleRequired="employer">
-              
-              <EmployerDashboard />
-            </ProtectedRoute>
-          }
-        /><Route path="EmployerCompanyManagement" element={<EmployerCompanyManagement />} />
-        <Route path="EmployerJobManagement" element={<Employerjobs/>} />
+        <Route path="/admindashboard" element={<AdminDashboard />}/>
+        
+        <Route path="/dashboard/jobseeker" element={<ProtectedRoute roleRequired="jobseeker"><JobseekerDashboard /></ProtectedRoute>} />
+        
+        <Route path="/dashboard/employer" element={<ProtectedRoute roleRequired="employer"><EmployerDashboard /></ProtectedRoute>} />
+        
+        <Route path="/EmployerCompanyManagement" element={<ProtectedRoute roleRequired="employer"><EmployerCompanyManagement /></ProtectedRoute>} />
+        <Route path="/EmployerJobManagement" element={<ProtectedRoute roleRequired="employer"><Employerjobs /></ProtectedRoute>} />
 
         {/* Add other routes here */}
+
+        {/* 404 Not Found Route */}
+       
       </Routes>
     </Router>
   );

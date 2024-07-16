@@ -113,7 +113,7 @@ export const fetchRecruiters = createAsyncThunk(
   'admin/fetchRecruiters',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/recruiters/');
+      const response = await axios.get('/api/recruiters/')
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);

@@ -4,10 +4,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice';
 import companyReducer from '../features/company/companySlice';
 import jobsReducer from '../features/jobs/jobsSlice';
+import jobCategoriesReducer from '../features/jobCategories/jobCategoriesSlice';
 
 const store = configureStore({
   reducer: {
-    auth: authReducer, company: companyReducer,jobs: jobsReducer,
+    auth: authReducer, company: companyReducer ,
+     jobs: jobsReducer,
+      jobCategories: jobCategoriesReducer,
     // other reducers can be added here
   },
   middleware: (getDefaultMiddleware) =>

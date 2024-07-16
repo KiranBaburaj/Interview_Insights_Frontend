@@ -1,7 +1,7 @@
 // src/features/company/companySlice.js
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from '../../axiosConfig';
 
 const apiUrl = 'http://localhost:8000/';  // Django API URL
 
