@@ -7,6 +7,14 @@ export const signup = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post('/api/signup/', userData);
+      if (response.data.user_id) {
+        // Store the user_id in localStorage
+        localStorage.setItem('user_id', response.data.user_id);
+        alert('Signup successful! OTP sent to your email.');
+      } else {
+        alert('Signup failed: ' + response.data.error);
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -53,6 +61,17 @@ export const sendOTP = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
+    }
+  }
+);
+export const resendOTP = createAsyncThunk(
+  'auth/resendOTP',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/api/resend-otp/', userData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
     }
   }
 );
@@ -276,6 +295,17 @@ const authSlice = createSlice({
         state.recruiters = action.payload;
       })
       .addCase(fetchRecruiters.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(resendOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendOTP.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resendOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

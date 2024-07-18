@@ -10,8 +10,9 @@ import {
   Button,
   Box,
   Paper,
-  Alert,
-  CircularProgress,
+  Snackbar,
+  CircularProgress,  Alert,
+  AlertTitle,
   Link as MuiLink
 } from '@mui/material';
 
@@ -20,6 +21,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, role } = useSelector((state) => state.auth);
+  const [openError, setOpenError] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,10 +48,25 @@ const Login = () => {
     }
   }, [role, navigate]);
 
+  useEffect(() => {
+    if (error) {
+      setOpenError(true);
+      if (error.detail === 'Email not verified') {
+        navigate('/verify-otp');
+      }
+    }
+  }, [error,navigate]);
+
+  const handleCloseError = () => {
+    setOpenError(false);
+    dispatch(clearError());
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box sx={{ mt: 8 }}>
-        
+
+
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography component="h1" variant="h5" align="center">
             Login
@@ -89,11 +106,6 @@ const Login = () => {
               {loading ? <CircularProgress size={24} /> : 'Login'}
             </Button>
           </Box>
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {JSON.stringify(error)}
-            </Alert>
-          )}
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
               <MuiLink component={Link} to="/forgot-password" variant="body2">
@@ -108,6 +120,17 @@ const Login = () => {
           </Box>
         </Paper>
       </Box>
+      <Snackbar
+        open={openError}
+        autoHideDuration={5000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+      >
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          <AlertTitle>Error</AlertTitle>
+          {error?.detail ? error.detail : ""}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
