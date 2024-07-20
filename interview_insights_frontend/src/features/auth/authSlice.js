@@ -1,6 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig'; // Assuming axiosConfig.js defines Axios instance
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
+
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (data, { rejectWithValue }) => {
+    try {
+      // Adjust this API call as per your backend's endpoint and payload requirements
+      const response = await axios.post('/api/google-login/', data);
+
+      // Store tokens and user info in localStorage or Redux store as per your app's logic
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
 // Define your async thunks for API calls
 export const signup = createAsyncThunk(
   'auth/signup',
@@ -306,6 +328,16 @@ const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(resendOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

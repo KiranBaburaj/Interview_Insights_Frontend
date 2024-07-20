@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, clearError, setUser } from '../features/auth/authSlice';
-
 import {
   Container,
   Typography,
@@ -11,10 +10,13 @@ import {
   Box,
   Paper,
   Snackbar,
-  CircularProgress,  Alert,
+  CircularProgress,
+  Alert,
   AlertTitle,
   Link as MuiLink
 } from '@mui/material';
+
+import GoogleLoginComponent from './GoogleLoginButton';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -55,7 +57,7 @@ const Login = () => {
         navigate('/verify-otp');
       }
     }
-  }, [error,navigate]);
+  }, [error, navigate]);
 
   const handleCloseError = () => {
     setOpenError(false);
@@ -65,8 +67,6 @@ const Login = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Box sx={{ mt: 8 }}>
-
-
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography component="h1" variant="h5" align="center">
             Login
@@ -117,6 +117,9 @@ const Login = () => {
                 Sign up
               </MuiLink>
             </Typography>
+            <Box sx={{ mt: 2 }}>
+              <GoogleLoginComponent />
+            </Box>
           </Box>
         </Paper>
       </Box>
