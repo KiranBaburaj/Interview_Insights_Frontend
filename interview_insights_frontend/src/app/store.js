@@ -5,12 +5,12 @@ import authReducer from '../features/auth/authSlice';
 import companyReducer from '../features/company/companySlice';
 import jobsReducer from '../features/jobs/jobsSlice';
 import jobCategoriesReducer from '../features/jobCategories/jobCategoriesSlice';
-
+import userReducer from '../features/users/userSlice';
 const store = configureStore({
   reducer: {
     auth: authReducer, company: companyReducer ,
      jobs: jobsReducer,
-      jobCategories: jobCategoriesReducer,
+      jobCategories: jobCategoriesReducer, user: userReducer,
     // other reducers can be added here
   },
   middleware: (getDefaultMiddleware) =>

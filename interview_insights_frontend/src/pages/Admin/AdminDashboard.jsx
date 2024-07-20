@@ -17,6 +17,7 @@ import {
   CssBaseline,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import UserList from '../../components/UserList';
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const AdminDashboard = () => {
         )}
 
         {!selectedCompany ? (
-          <Box>
+          <Box><UserList/>
             <Typography variant="h5">Job Seekers</Typography>
             <List>
               {jobSeekers.length > 0 ? (
