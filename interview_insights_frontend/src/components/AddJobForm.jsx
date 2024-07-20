@@ -5,7 +5,8 @@ import { fetchJobCategories, selectAllCategories, addCategory } from '../feature
 import {
   TextField,
   Checkbox,
-  FormControlLabel,ListItemText,
+  FormControlLabel,
+  ListItemText,
   FormControl,
   InputLabel,
   Select,
@@ -19,7 +20,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Paper,
+  Paper,  Chip
 } from '@mui/material';
 
 const JobManagement = () => {
@@ -45,6 +46,8 @@ const JobManagement = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [error, setError] = useState(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
 
   const categories = useSelector(selectAllCategories);
   const categoriesStatus = useSelector((state) => state.jobCategories.status);
@@ -159,6 +162,11 @@ const JobManagement = () => {
     dispatch(deleteJob(jobId))
       .unwrap()
       .catch((err) => setError(err.message || 'An error occurred while deleting the job.'));
+  };
+
+  const handleViewJob = (job) => {
+    setSelectedJob(job);
+    setViewDialogOpen(true);
   };
 
   const handleAddCategory = () => {
@@ -295,9 +303,7 @@ const JobManagement = () => {
             type="date"
             value={jobData.application_deadline}
             onChange={handleChange}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            InputLabelProps={{ shrink: true }}
           />
           <TextField
             fullWidth
@@ -316,80 +322,125 @@ const JobManagement = () => {
             onChange={handleChange}
           />
           <FormControl fullWidth margin="normal">
-            <InputLabel>Categories</InputLabel>
+            <InputLabel>Job Categories</InputLabel>
             <Select
-              name="categories"
               multiple
-              value={jobData.categories.map((cat) => cat.category)}
+              value={jobData.categories.map((cat) => categories.find((c) => c.name === cat.category)?.id)}
               onChange={handleCategoryChange}
               renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <div>
                   {selected.map((value) => (
-                    <Typography key={value} sx={{ p: 0.5, bgcolor: 'background.paper' }}>
-                      {value}
-                    </Typography>
+                    <Chip key={value} label={categories.find((cat) => cat.id === value)?.name} />
                   ))}
-                </Box>
+                </div>
               )}
             >
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  <Checkbox checked={jobData.categories.some((c) => c.category === cat.name)} />
-                  <ListItemText primary={cat.name} />
+              {categories.map((category) => (
+                <MenuItem key={category.id} value={category.id}>
+                  <Checkbox checked={jobData.categories.some((cat) => cat.category === category.name)} />
+                  <ListItemText primary={category.name} />
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }}>
-            {jobData.id ? 'Update Job' : 'Add Job'}
-          </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+            <Button type="submit" variant="contained" color="primary">
+              {jobData.id ? 'Update Job' : 'Add Job'}
+            </Button>
+            <Button variant="outlined" color="primary" onClick={() => setOpenDialog(true)}>
+              Add Category
+            </Button>
+          </Box>
         </Box>
       </Paper>
-      <Button variant="outlined" color="secondary" onClick={() => setOpenDialog(true)} sx={{ mt: 2 }}>
-        Add New Category
-      </Button>
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Job Listings
+        </Typography>
+        {jobs.map((job) => (
+          <Paper key={job.id} sx={{ p: 2, mt: 2 }}>
+            <Typography variant="h6">{job.title}</Typography>
+            <Typography>{job.description}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => handleViewJob(job)}
+                sx={{ mr: 1 }}
+              >
+                View Job
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => handleEdit(job)}
+                sx={{ mr: 1 }}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => handleDelete(job.id)}
+              >
+                Delete
+              </Button>
+            </Box>
+          </Paper>
+        ))}
+      </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Add New Category</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter the name of the new job category.
+            Please enter the name of the new category you want to add.
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             label="Category Name"
+            type="text"
             fullWidth
-            variant="standard"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddCategory}>Add</Button>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddCategory} color="primary">
+            Add Category
+          </Button>
         </DialogActions>
       </Dialog>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Existing Jobs
-        </Typography>
-        {jobs.length ? (
-          jobs.map((job) => (
-            <Paper key={job.id} elevation={2} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h6">{job.title}</Typography>
-              <Typography variant="body2">{job.description}</Typography>
-              <Button variant="outlined" color="primary" onClick={() => handleEdit(job)} sx={{ mr: 2 }}>
-                Edit
-              </Button>
-              <Button variant="outlined" color="error" onClick={() => handleDelete(job.id)}>
-                Delete
-              </Button>
-            </Paper>
-          ))
-        ) : (
-          <Typography>No jobs available.</Typography>
-        )}
-      </Box>
+      <Dialog open={viewDialogOpen} onClose={() => setViewDialogOpen(false)}>
+        <DialogTitle>Job Details</DialogTitle>
+        <DialogContent>
+          {selectedJob && (
+            <Box>
+              <Typography variant="h6">{selectedJob.title}</Typography>
+              <Typography>Description: {selectedJob.description}</Typography>
+              <Typography>Responsibilities: {selectedJob.responsibilities}</Typography>
+              <Typography>Qualifications: {selectedJob.qualifications}</Typography>
+              <Typography>Nice to Have: {selectedJob.nice_to_have}</Typography>
+              <Typography>Employment Type: {selectedJob.employment_type}</Typography>
+              <Typography>Location: {selectedJob.location}</Typography>
+              <Typography>Salary: {selectedJob.salary_min} - {selectedJob.salary_max}</Typography>
+              <Typography>Remote: {selectedJob.is_remote ? 'Yes' : 'No'}</Typography>
+              <Typography>Application Deadline: {selectedJob.application_deadline}</Typography>
+              <Typography>Experience Level: {selectedJob.experience_level}</Typography>
+              <Typography>Job Function: {selectedJob.job_function}</Typography>
+              <Typography>Categories: {selectedJob.categories.map(cat => cat.category).join(', ')}</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewDialogOpen(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
