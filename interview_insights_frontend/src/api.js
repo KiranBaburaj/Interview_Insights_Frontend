@@ -1,7 +1,7 @@
 // src/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/'; // Change this to your backend URL
+const API_URL = 'http://localhost:8000/api/'; // Change this to your backend URL
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,3 +20,10 @@ export const getUser = (id) => api.get(`users/${id}/`, { headers: getAuthHeader(
 export const createUser = (data) => api.post('users/', data, { headers: getAuthHeader() });
 export const updateUser = (id, data) => api.put(`users/${id}/`, data, { headers: getAuthHeader() });
 export const deleteUser = (id) => api.delete(`users/${id}/`, { headers: getAuthHeader() });
+
+
+export const getJobSeekers = () => api.get('jobseekers/');
+export const getJobSeeker = (id) => api.get(`jobseekers/${id}/`);
+export const createJobSeeker = (data) => api.post('jobseekers/', data);
+export const updateJobSeeker = (id, data) => api.put(`jobseekers/${id}/`, data);
+export const deleteJobSeeker = (id) => api.delete(`jobseekers/${id}/`);

@@ -6,11 +6,14 @@ import companyReducer from '../features/company/companySlice';
 import jobsReducer from '../features/jobs/jobsSlice';
 import jobCategoriesReducer from '../features/jobCategories/jobCategoriesSlice';
 import userReducer from '../features/users/userSlice';
+import jobSeekerReducer from '../features/jobseeker/jobseekerSlice';
+
 const store = configureStore({
   reducer: {
     auth: authReducer, company: companyReducer ,
      jobs: jobsReducer,
-      jobCategories: jobCategoriesReducer, user: userReducer,
+      jobCategories: jobCategoriesReducer, users: userReducer,
+      jobSeeker: jobSeekerReducer,
     // other reducers can be added here
   },
   middleware: (getDefaultMiddleware) =>

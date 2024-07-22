@@ -14,6 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagement';
 import EmployerJobs from './pages/Employer/Employerjobs'; // Corrected component import name
 import Employerjobs from './pages/Employer/Employerjobs';
+import JobSeekerList from './components/JobSeekerList';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
       <Route path="/admindashboard" element={<AdminDashboard />} />
+      <Route path="/jobseekers" element={<JobSeekerList/>} />
       <Route
         path="/dashboard/jobseeker"
         element={
