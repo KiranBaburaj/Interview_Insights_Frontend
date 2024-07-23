@@ -15,6 +15,8 @@ import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagemen
 import EmployerJobs from './pages/Employer/Employerjobs'; // Corrected component import name
 import Employerjobs from './pages/Employer/Employerjobs';
 import JobSeekerList from './components/JobSeekerList';
+import AdminJobSeeker from './pages/Admin/AdminJobseeker';
+import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
 
 const App = () => {
   return (
@@ -26,7 +28,8 @@ const App = () => {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
       <Route path="/admindashboard" element={<AdminDashboard />} />
-      <Route path="/jobseekers" element={<JobSeekerList/>} />
+      <Route path="/jobseekers" element={<AdminJobSeeker/>} />
+      <Route path="/Employers" element={<AdminEmployersManagement/>} />
       <Route
         path="/dashboard/jobseeker"
         element={

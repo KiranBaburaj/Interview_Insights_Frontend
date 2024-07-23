@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchJobSeekers, addJobSeeker, removeJobSeeker, editJobSeeker, selectAllJobSeekers, selectJobSeekerError } from '../features/jobseeker/jobseekerSlice'; // Correct path
+import { fetchJobSeekers, addJobSeeker, removeJobSeeker, editJobSeeker, toggleActiveStatus, selectAllJobSeekers, selectJobSeekerError } from '../features/jobseeker/jobseekerSlice';
 import { Box, Typography, Button, List, ListItem, ListItemText, TextField } from '@mui/material';
-import { Link } from 'react-router-dom';
 
 const JobSeekerList = () => {
   const dispatch = useDispatch();
@@ -16,11 +15,19 @@ const JobSeekerList = () => {
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    dispatch(removeJobSeeker(id));
+    const confirmed = window.confirm("Are you sure you want to delete this job seeker?");
+    if (confirmed) {
+      console.log("Deleting Job Seeker with ID:", id);  // Debugging line
+      if (id) {
+        dispatch(removeJobSeeker(id));
+      } else {
+        console.error("Job seeker ID is undefined");
+      }
+    }
   };
 
   const handleEditClick = (jobSeeker) => {
-    setEditingJobSeeker(jobSeeker.id);
+    setEditingJobSeeker(jobSeeker.user.id);
     setFormData({ email: jobSeeker.user.email, full_name: jobSeeker.user.full_name });
   };
 
@@ -35,7 +42,7 @@ const JobSeekerList = () => {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     if (editingJobSeeker) {
-      dispatch(editJobSeeker({ id: editingJobSeeker, userData: formData })).then(() => {
+      dispatch(editJobSeeker({ id: editingJobSeeker, data: formData })).then(() => {
         setEditingJobSeeker(null);
         setFormData({ email: '', full_name: '' });
       });
@@ -44,6 +51,10 @@ const JobSeekerList = () => {
         setFormData({ email: '', full_name: '' });
       });
     }
+  };
+
+  const handleToggleActive = (id) => {
+    dispatch(toggleActiveStatus(id));
   };
 
   return (
@@ -79,8 +90,8 @@ const JobSeekerList = () => {
       </Box>
       <List>
         {jobSeekers.map((jobSeeker) => (
-          <ListItem key={jobSeeker.id} sx={{ borderBottom: '1px solid #ccc' }}>
-            {editingJobSeeker === jobSeeker.id ? (
+          <ListItem key={jobSeeker.user.id} sx={{ borderBottom: '1px solid #ccc' }}>
+            {editingJobSeeker === jobSeeker.user.id ? (
               <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', width: '100%' }}>
                 <TextField
                   name="email"
@@ -110,16 +121,19 @@ const JobSeekerList = () => {
             ) : (
               <>
                 <ListItemText
-                  primary={jobSeeker.user.email}
-                  secondary={jobSeeker.user.full_name}
+                  primary={`${jobSeeker.user.full_name}`}
+                  secondary={jobSeeker.user.email}
                   sx={{ flex: '1 1 auto' }}
                 />
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button onClick={() => handleEditClick(jobSeeker)} variant="outlined" color="secondary">
                     Edit
                   </Button>
-                  <Button onClick={() => handleDelete(jobSeeker.id)} variant="outlined" color="error">
+                  <Button onClick={() => handleDelete(jobSeeker.user.id)} variant="outlined" color="error">
                     Delete
+                  </Button>
+                  <Button onClick={() => handleToggleActive(jobSeeker.user.id)} variant="outlined" color="warning">
+                    {jobSeeker.user.is_active ? 'Deactivate' : 'Activate'}
                   </Button>
                 </Box>
               </>
@@ -128,7 +142,6 @@ const JobSeekerList = () => {
         ))}
       </List>
       {error && <Typography color="error">Error loading job seekers: {error}</Typography>}
-      <Link to="/add">Add Job Seeker</Link>
     </Box>
   );
 };

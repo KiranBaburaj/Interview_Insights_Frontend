@@ -26,6 +26,13 @@ export const removeJobSeeker = createAsyncThunk('jobSeeker/removeJobSeeker', asy
   return id;
 });
 
+export const toggleActiveStatus = createAsyncThunk('jobseeker/toggleActiveStatus', async (id) => {
+  const response = await axios.post(`/employers/${id}/toggle_active/`);
+  return id;
+});
+
+
+
 const jobSeekerSlice = createSlice({
   name: 'jobSeeker',
   initialState: {
@@ -62,6 +69,10 @@ const jobSeekerSlice = createSlice({
       })
       .addCase(removeJobSeeker.fulfilled, (state, action) => {
         state.jobSeekers = state.jobSeekers.filter(js => js.id !== action.payload);
+      })
+      .addCase(toggleActiveStatus.fulfilled, (state, action) => {
+        const jobSeeker = state.jobSeekers.find(js => js.user.id === action.payload);
+        jobSeeker.user.is_active = !jobSeeker.user.is_active;
       });
   },
 });

@@ -1,28 +1,31 @@
-// src/components/UserList.js
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUsers, addUser, removeUser, editUser, selectAllUsers, selectUserStatus, selectUserError } from '../features/users/userSlice';
+import { fetchJobSeekers, addJobSeeker, removeJobSeeker, editJobSeeker, selectAllJobSeekers, selectJobSeekerError } from '../features/jobseeker/jobseekerSlice';
 import { Box, Typography, Button, List, ListItem, ListItemText, TextField } from '@mui/material';
 
-const UserList = () => {
+const JobSeekerList = () => {
   const dispatch = useDispatch();
-  const users = useSelector(selectAllUsers);
-  const status = useSelector(selectUserStatus);
-  const error = useSelector(selectUserError);
-  const [editingUser, setEditingUser] = useState(null);
+  const jobSeekers = useSelector(selectAllJobSeekers);
+  const error = useSelector(selectJobSeekerError);
+  const [editingJobSeeker, setEditingJobSeeker] = useState(null);
   const [formData, setFormData] = useState({ email: '', full_name: '' });
 
   useEffect(() => {
-    dispatch(fetchUsers());
+    dispatch(fetchJobSeekers());
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    dispatch(removeUser(id));
+    console.log("Deleting Job Seeker with ID:", id);  // Debugging line
+    if (id) {
+      dispatch(removeJobSeeker(id));
+    } else {
+      console.error("Job seeker ID is undefined");
+    }
   };
 
-  const handleEditClick = (user) => {
-    setEditingUser(user.id);
-    setFormData({ email: user.email, full_name: user.full_name });
+  const handleEditClick = (jobSeeker) => {
+    setEditingJobSeeker(jobSeeker.user.id);
+    setFormData({ email: jobSeeker.user.email, full_name: jobSeeker.user.full_name });
   };
 
   const handleInputChange = (e) => {
@@ -35,24 +38,21 @@ const UserList = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    if (editingUser) {
-      dispatch(editUser({ id: editingUser, userData: formData })).then(() => {
-        setEditingUser(null);
+    if (editingJobSeeker) {
+      dispatch(editJobSeeker({ id: editingJobSeeker, data: formData })).then(() => {
+        setEditingJobSeeker(null);
         setFormData({ email: '', full_name: '' });
       });
     } else {
-      dispatch(addUser(formData)).then(() => {
+      dispatch(addJobSeeker(formData)).then(() => {
         setFormData({ email: '', full_name: '' });
       });
     }
   };
 
-  if (status === 'loading') return <Typography>Loading...</Typography>;
-  if (status === 'failed') return <Typography>Error loading users: {error}</Typography>;
-
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-      <Typography variant="h4" gutterBottom>User List</Typography>
+      <Typography variant="h4" gutterBottom>Job Seekers</Typography>
       <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 4 }}>
         <TextField
           name="email"
@@ -73,19 +73,20 @@ const UserList = () => {
           sx={{ flex: 1 }}
         />
         <Button type="submit" variant="contained" color="primary">
-          {editingUser ? 'Save' : 'Create'}
+          {editingJobSeeker ? 'Save' : 'Create'}
         </Button>
-        {editingUser && (
-          <Button onClick={() => setEditingUser(null)} variant="outlined" color="secondary">
+        {editingJobSeeker && (
+          <Button onClick={() => setEditingJobSeeker(null)} variant="outlined" color="secondary">
             Cancel
           </Button>
         )}
       </Box>
       <List>
-        {users.map((user) => (
-          <ListItem key={user.id} sx={{ borderBottom: '1px solid #ccc' }}>
-            {editingUser === user.id ? (
+        {jobSeekers.map((jobSeeker) => (
+          <ListItem key={jobSeeker.user.id} sx={{ borderBottom: '1px solid #ccc' }}>
+            {editingJobSeeker === jobSeeker.user.id ? (
               <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', width: '100%' }}>
+              
                 <TextField
                   name="email"
                   label="Email"
@@ -95,6 +96,16 @@ const UserList = () => {
                   size="small"
                   sx={{ flex: 1 }}
                 />
+                                <TextField
+                  name="email"
+                  label="Email"
+                  value={formData.id}
+                  onChange={handleInputChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ flex: 1 }}
+                />
+
                 <TextField
                   name="full_name"
                   label="Full Name"
@@ -107,22 +118,22 @@ const UserList = () => {
                 <Button type="submit" variant="contained" color="primary">
                   Save
                 </Button>
-                <Button onClick={() => setEditingUser(null)} variant="outlined" color="secondary">
+                <Button onClick={() => setEditingJobSeeker(null)} variant="outlined" color="secondary">
                   Cancel
                 </Button>
               </Box>
             ) : (
               <>
                 <ListItemText
-                  primary={user.email}
-                  secondary={user.full_name}
+                  primary={jobSeeker.user.id}
+                  secondary={jobSeeker.user.full_name}
                   sx={{ flex: '1 1 auto' }}
                 />
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button onClick={() => handleEditClick(user)} variant="outlined" color="secondary">
+                  <Button onClick={() => handleEditClick(jobSeeker)} variant="outlined" color="secondary">
                     Edit
                   </Button>
-                  <Button onClick={() => handleDelete(user.id)} variant="outlined" color="error">
+                  <Button onClick={() => handleDelete(jobSeeker.user.id)} variant="outlined" color="error">
                     Delete
                   </Button>
                 </Box>
@@ -131,8 +142,9 @@ const UserList = () => {
           </ListItem>
         ))}
       </List>
+      {error && <Typography color="error">Error loading job seekers: {error}</Typography>}
     </Box>
   );
 };
 
-export default UserList;
+export default JobSeekerList;
