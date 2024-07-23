@@ -63,34 +63,7 @@ const EmployerManagement = () => {
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
       <Typography variant="h4" gutterBottom>Employers</Typography>
-      <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 4 }}>
-        <TextField
-          name="email"
-          label="Email"
-          value={formData.email}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          sx={{ flex: 1 }}
-        />
-        <TextField
-          name="company_name"
-          label="Company Name"
-          value={formData.company_name}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          sx={{ flex: 1 }}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          {editingEmployer ? 'Save' : 'Create'}
-        </Button>
-        {editingEmployer && (
-          <Button onClick={() => setEditingEmployer(null)} variant="outlined" color="secondary">
-            Cancel
-          </Button>
-        )}
-      </Box>
+      
       <List>
         {employers.map((employer) => (
           <ListItem key={employer.user.id} sx={{ borderBottom: '1px solid #ccc' }}>
@@ -124,7 +97,7 @@ const EmployerManagement = () => {
             ) : (
               <>
                 <ListItemText
-                  primary={`${employer.company_name}`}
+                  primary={`${employer.user.full_name}`}
                   secondary={employer.user.email}
                   sx={{ flex: '1 1 auto' }}
                 />

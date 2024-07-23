@@ -60,34 +60,7 @@ const JobSeekerList = () => {
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
       <Typography variant="h4" gutterBottom>Job Seekers</Typography>
-      <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 4 }}>
-        <TextField
-          name="email"
-          label="Email"
-          value={formData.email}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          sx={{ flex: 1 }}
-        />
-        <TextField
-          name="full_name"
-          label="Full Name"
-          value={formData.full_name}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          sx={{ flex: 1 }}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          {editingJobSeeker ? 'Save' : 'Create'}
-        </Button>
-        {editingJobSeeker && (
-          <Button onClick={() => setEditingJobSeeker(null)} variant="outlined" color="secondary">
-            Cancel
-          </Button>
-        )}
-      </Box>
+      
       <List>
         {jobSeekers.map((jobSeeker) => (
           <ListItem key={jobSeeker.user.id} sx={{ borderBottom: '1px solid #ccc' }}>
