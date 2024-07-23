@@ -6,8 +6,8 @@ import { Box, Typography, Button, List, ListItem, ListItemText, TextField } from
 const CompanyList = () => {
   const dispatch = useDispatch();
   const companies = useSelector((state) => state.company.companies);
-  const status = useSelector((state) => state.company);
-  const error = useSelector((state) => state.company);
+  const status = useSelector((state) => state.company.status);
+  const error = useSelector((state) => state.company.error);
   const [editingCompany, setEditingCompany] = useState(null);
   const [formData, setFormData] = useState({ name: '', is_approved: false });
 
@@ -27,10 +27,10 @@ const CompanyList = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: name === 'is_approved' ? e.target.checked : value,
+      [name]: name === 'is_approved' ? checked : value,
     }));
   };
 
@@ -47,7 +47,7 @@ const CompanyList = () => {
   };
 
   const handleToggleApproval = (id) => {
-    dispatch(toggleCompanyApproval(id));
+    dispatch(toggleCompanyApproval({ id }));
   };
 
   return (
@@ -96,7 +96,7 @@ const CompanyList = () => {
             ) : (
               <>
                 <ListItemText
-                  primary={`${company.name}`}
+                  primary={company.name}
                   secondary={`Status: ${company.is_approved ? 'Approved' : 'Not Approved'}`}
                   sx={{ flex: '1 1 auto' }}
                 />

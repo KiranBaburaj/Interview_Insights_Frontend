@@ -3,7 +3,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig';
 
-const apiUrl = 'http://localhost:8000/';  // Django API URL
+const apiUrl = 'http://localhost:8000/api';  // Django API URL
 
 export const fetchCompanies = createAsyncThunk('company/fetchCompanies', async (_, thunkAPI) => {
   try {
@@ -72,11 +72,22 @@ export const deleteCompany = createAsyncThunk('companies/deleteCompany', async (
   await axios.delete(`/api/companies/${id}/`);
   return id;
 });
-
-export const toggleCompanyApproval = createAsyncThunk('companies/toggleCompanyApproval', async (id) => {
-  const response = await axios.post(`/api/companies/${id}/toggle_approval/`);
-  return response.data;
-});
+export const toggleCompanyApproval = createAsyncThunk(
+  'company/toggleCompanyApproval',
+  async ({ id, token, csrfToken }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`/api/companies/${id}/toggle_approval/`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-CSRFToken': csrfToken,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 const companySlice = createSlice({
   name: 'company',

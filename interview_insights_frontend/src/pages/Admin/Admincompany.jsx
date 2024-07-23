@@ -1,36 +1,26 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, CssBaseline, Typography, CircularProgress, Alert } from '@mui/material';
+import AdminNavbar from './AdminNavbar'; // Adjust import path as needed
+import CompanyList from '../../components/Admincompany'; // Adjust import path as needed
 import { useSelector } from 'react-redux';
 
-const CompanyList = () => {
-  const { companies, status, error } = useSelector(state => state.company);
-
-  // Check if companies is an array before rendering
-  if (!Array.isArray(companies)) {
-    return <Typography>Error: Companies data is not an array.</Typography>;
-  }
-
-  return (
-    <Box>
-      {status === 'loading' && <Typography>Loading...</Typography>}
-      {error && <Typography>Error: {error}</Typography>}
-      {status === 'succeeded' && (
-        companies.map(company => (
-          <Box key={company.id}>
-            <Typography variant="h6">{company.name}</Typography>
-            <Typography>{company.description}</Typography>
-          </Box>
-        ))
-      )}
-    </Box>
-  );
-};
-
 const AdminCompany = () => {
+  const { companies, loading: authLoading, error: authError } = useSelector((state) => state.company);
+
   return (
-    <Box>
-      <Typography variant="h4">Company Management</Typography>
-      <CompanyList />
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      <AdminNavbar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+          Companies
+        </Typography>
+
+        {authLoading && <CircularProgress />}
+        {authError && <Alert severity="error">{authError}</Alert>}
+
+        <CompanyList />
+      </Box>
     </Box>
   );
 };

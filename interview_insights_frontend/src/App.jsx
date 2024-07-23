@@ -18,6 +18,7 @@ import JobSeekerList from './components/JobSeekerList';
 import AdminJobSeeker from './pages/Admin/AdminJobseeker';
 import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
 import AdminCompany from './pages/Admin/Admincompany';
+import CompanyList from './components/Admincompany';
 
 const App = () => {
   return (
