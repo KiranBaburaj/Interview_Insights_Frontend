@@ -104,8 +104,7 @@ export const verifyOTPAndSignup = createAsyncThunk(
     try {
       const response = await axios.post('/api/verify-otp/', userData);
       // Store tokens in localStorage
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+   
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

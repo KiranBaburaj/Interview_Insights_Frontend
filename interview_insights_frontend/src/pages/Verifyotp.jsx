@@ -37,7 +37,7 @@ const VerifyOTP = () => {
 
     // Check if the verification was successful
     if (verifyOTPAndSignup.fulfilled.match(resultAction)) {
-      navigate('/');
+      navigate('/login');
     } else {
       setOpenError(true);
     }

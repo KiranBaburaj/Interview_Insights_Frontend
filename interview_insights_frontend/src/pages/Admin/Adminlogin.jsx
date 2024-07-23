@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { adminLogin } from "../../features/auth/authSlice";
-import Logout from '../../components/Logout';
+
 import {
   Container,
   TextField,
@@ -35,7 +35,7 @@ const AdminLogin = () => {
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 4 }}>
-        <Logout />
+
         <Typography variant="h4" align="center" gutterBottom>
           Admin Login
         </Typography>
