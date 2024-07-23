@@ -114,7 +114,7 @@ const AdminDashboard = () => {
                   <ListItem key={company.id}>
                     <ListItemText
                       primary={company.name}
-                      secondary={`Approved: ${company.is_approved ? 'Yes' : 'No'} - Employer: ${company.employer.user.email}`}
+                      secondary={`Approved: ${company.is_approved ? 'Yes' : 'No'} - Employer: ${company.employer}`}
                     />
                     <ListItemSecondaryAction>
                       <Button

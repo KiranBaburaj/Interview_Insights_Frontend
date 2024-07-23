@@ -10,11 +10,14 @@ import jobSeekerReducer from '../features/jobseeker/jobseekerSlice';
 import employerReducer from '../features/employer/employerSlice';
 
 
+
 const store = configureStore({
   reducer: {
-    auth: authReducer, company: companyReducer ,
+    auth: authReducer,
+     company: companyReducer ,
      jobs: jobsReducer,
-      jobCategories: jobCategoriesReducer, users: userReducer,
+      jobCategories: jobCategoriesReducer, 
+      users: userReducer,
       jobSeeker: jobSeekerReducer,
       employer: employerReducer,
     // other reducers can be added here

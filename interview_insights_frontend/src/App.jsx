@@ -17,6 +17,7 @@ import Employerjobs from './pages/Employer/Employerjobs';
 import JobSeekerList from './components/JobSeekerList';
 import AdminJobSeeker from './pages/Admin/AdminJobseeker';
 import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
+import AdminCompany from './pages/Admin/Admincompany';
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
       <Route path="/admindashboard" element={<AdminDashboard />} />
       <Route path="/jobseekers" element={<AdminJobSeeker/>} />
       <Route path="/Employers" element={<AdminEmployersManagement/>} />
+      <Route path="/companies" element={<AdminCompany/>} />
       <Route
         path="/dashboard/jobseeker"
         element={

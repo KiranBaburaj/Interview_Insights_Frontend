@@ -60,6 +60,24 @@ export const updateCompany = createAsyncThunk('company/updateCompany', async (co
   }
 });
 
+
+
+export const addCompany = createAsyncThunk('companies/addCompany', async (company) => {
+  const response = await axios.post('/api/companies/', company);
+  return response.data;
+});
+
+
+export const deleteCompany = createAsyncThunk('companies/deleteCompany', async (id) => {
+  await axios.delete(`/api/companies/${id}/`);
+  return id;
+});
+
+export const toggleCompanyApproval = createAsyncThunk('companies/toggleCompanyApproval', async (id) => {
+  const response = await axios.post(`/api/companies/${id}/toggle_approval/`);
+  return response.data;
+});
+
 const companySlice = createSlice({
   name: 'company',
   initialState: {
@@ -94,6 +112,18 @@ const companySlice = createSlice({
         const index = state.companies.findIndex(company => company.id === action.payload.id);
         if (index !== -1) {
           state.companies[index] = action.payload;
+        }
+      })
+      .addCase(addCompany.fulfilled, (state, action) => {
+        state.companies.push(action.payload);
+      })
+      .addCase(deleteCompany.fulfilled, (state, action) => {
+        state.companies = state.companies.filter((company) => company.id !== action.payload);
+      })
+      .addCase(toggleCompanyApproval.fulfilled, (state, action) => {
+        const company = state.companies.find((c) => c.id === action.payload.id);
+        if (company) {
+          company.is_approved = action.payload.is_approved;
         }
       });
   }
