@@ -1,123 +1,78 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCompanies, addCompany, updateCompany, deleteCompany, toggleCompanyApproval } from '../features/company/companySlice';
-import { Box, Typography, Button, List, ListItem, ListItemText, TextField } from '@mui/material';
+import { fetchCompanies, toggleCompanyApproval } from '../features/company/companySlice';
+import { Box, Typography, Button, List, ListItem, ListItemText, CircularProgress, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 
 const CompanyList = () => {
   const dispatch = useDispatch();
   const companies = useSelector((state) => state.company.companies);
   const status = useSelector((state) => state.company.status);
   const error = useSelector((state) => state.company.error);
-  const [editingCompany, setEditingCompany] = useState(null);
-  const [formData, setFormData] = useState({ name: '', is_approved: false });
+  const [open, setOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
 
   useEffect(() => {
     dispatch(fetchCompanies());
   }, [dispatch]);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this company?")) {
-      dispatch(deleteCompany(id));
-    }
-  };
-
-  const handleEditClick = (company) => {
-    setEditingCompany(company.id);
-    setFormData({ name: company.name, is_approved: company.is_approved });
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value, checked } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: name === 'is_approved' ? checked : value,
-    }));
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    if (editingCompany) {
-      dispatch(updateCompany({ id: editingCompany, data: formData }));
-      setEditingCompany(null);
-      setFormData({ name: '', is_approved: false });
-    } else {
-      dispatch(addCompany(formData));
-      setFormData({ name: '', is_approved: false });
-    }
-  };
-
   const handleToggleApproval = (id) => {
     dispatch(toggleCompanyApproval({ id }));
+  };
+
+  const handleViewDetails = (company) => {
+    setSelectedCompany(company);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedCompany(null);
   };
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
       <Typography variant="h4" gutterBottom>Companies</Typography>
-      <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 4 }}>
-        <TextField
-          name="name"
-          label="Company Name"
-          value={formData.name}
-          onChange={handleInputChange}
-          variant="outlined"
-          size="small"
-          sx={{ flex: 1 }}
-        />
-        <Button type="submit" variant="contained" color="primary">
-          {editingCompany ? 'Save' : 'Create'}
-        </Button>
-        {editingCompany && (
-          <Button onClick={() => setEditingCompany(null)} variant="outlined" color="secondary">
-            Cancel
-          </Button>
-        )}
-      </Box>
+      {status === 'loading' && <CircularProgress />}
+      {error && <Alert severity="error">{error}</Alert>}
+
       <List>
         {companies.map((company) => (
           <ListItem key={company.id} sx={{ borderBottom: '1px solid #ccc' }}>
-            {editingCompany === company.id ? (
-              <Box component="form" onSubmit={handleFormSubmit} sx={{ display: 'flex', gap: 2, alignItems: 'center', width: '100%' }}>
-                <TextField
-                  name="name"
-                  label="Company Name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  variant="outlined"
-                  size="small"
-                  sx={{ flex: 1 }}
-                />
-                <Button type="submit" variant="contained" color="primary">
-                  Save
-                </Button>
-                <Button onClick={() => setEditingCompany(null)} variant="outlined" color="secondary">
-                  Cancel
-                </Button>
-              </Box>
-            ) : (
-              <>
-                <ListItemText
-                  primary={company.name}
-                  secondary={`Status: ${company.is_approved ? 'Approved' : 'Not Approved'}`}
-                  sx={{ flex: '1 1 auto' }}
-                />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button onClick={() => handleEditClick(company)} variant="outlined" color="secondary">
-                    Edit
-                  </Button>
-                  <Button onClick={() => handleDelete(company.id)} variant="outlined" color="error">
-                    Delete
-                  </Button>
-                  <Button onClick={() => handleToggleApproval(company.id)} variant="outlined" color="warning">
-                    {company.is_approved ? 'Disapprove' : 'Approve'}
-                  </Button>
-                </Box>
-              </>
-            )}
+            <ListItemText
+              primary={company.name}
+              secondary={`Status: ${company.is_approved ? 'Approved' : 'Not Approved'}`}
+              sx={{ flex: '1 1 auto' }}
+            />
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button onClick={() => handleViewDetails(company)} variant="outlined" color="primary">
+                View Details
+              </Button>
+              <Button onClick={() => handleToggleApproval(company.id)} variant="outlined" color="warning">
+                {company.is_approved ? 'Disapprove' : 'Approve'}
+              </Button>
+            </Box>
           </ListItem>
         ))}
       </List>
-      {status === 'loading' && <Typography>Loading...</Typography>}
-      {error && <Typography color="error">Error loading companies: {error}</Typography>}
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Company Details</DialogTitle>
+        <DialogContent>
+          {selectedCompany ? (
+            <DialogContentText>
+              <strong>Name:</strong> {selectedCompany.name}<br />
+              <strong>Status:</strong> {selectedCompany.is_approved ? 'Approved' : 'Not Approved'}<br />
+              <strong>Created At:</strong> {new Date(selectedCompany.created_at).toLocaleString()}<br />
+              <strong>Updated At:</strong> {new Date(selectedCompany.updated_at).toLocaleString()}
+            </DialogContentText>
+          ) : (
+            <CircularProgress />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

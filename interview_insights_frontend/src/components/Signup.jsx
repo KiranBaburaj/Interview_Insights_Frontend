@@ -130,7 +130,7 @@ const SignupForm = () => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Sign Up and Send OTP'}
+              {loading ? <CircularProgress size={24} /> : 'Sign Up'}
             </Button>
           </Box>
           {error && (

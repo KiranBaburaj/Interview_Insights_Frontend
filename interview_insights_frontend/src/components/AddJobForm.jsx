@@ -20,7 +20,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Paper,  Chip
+  Paper,
+  Chip
 } from '@mui/material';
 
 const JobManagement = () => {
@@ -48,6 +49,7 @@ const JobManagement = () => {
   const [error, setError] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false); // State to control form visibility
 
   const categories = useSelector(selectAllCategories);
   const categoriesStatus = useSelector((state) => state.jobCategories.status);
@@ -106,12 +108,18 @@ const JobManagement = () => {
       console.log('Updating job with ID:', jobData.id);
       dispatch(updateJob({ jobId: jobData.id, jobData: jobDataToSend }))
         .unwrap()
-        .then(() => resetForm())
+        .then(() => {
+          resetForm();
+          setIsFormVisible(false);
+        })
         .catch((err) => setError(err.message || 'An error occurred while updating the job.'));
     } else {
       dispatch(addJob(jobDataToSend))
         .unwrap()
-        .then(() => resetForm())
+        .then(() => {
+          resetForm();
+          setIsFormVisible(false);
+        })
         .catch((err) => setError(err.message || 'An error occurred while adding the job.'));
     }
   };
@@ -155,6 +163,7 @@ const JobManagement = () => {
       job_function: job.job_function,
       categories: job.categories.map((cat) => ({ category: cat.name })),
     });
+    setIsFormVisible(true); // Show the form when editing a job
   };
 
   const handleDelete = (jobId) => {
@@ -199,246 +208,230 @@ const JobManagement = () => {
         <Typography variant="h4" gutterBottom>
           Job Management
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mx: 'auto', maxWidth: 600 }}>
-          {error && <Typography color="error">{error}</Typography>}
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Job Title"
-            name="title"
-            value={jobData.title}
-            onChange={handleChange}
-            required
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Job Description"
-            name="description"
-            value={jobData.description}
-            onChange={handleChange}
-            required
-            multiline
-            rows={4}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Responsibilities"
-            name="responsibilities"
-            value={jobData.responsibilities}
-            onChange={handleChange}
-            multiline
-            rows={4}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Qualifications"
-            name="qualifications"
-            value={jobData.qualifications}
-            onChange={handleChange}
-            multiline
-            rows={4}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Nice to Have"
-            name="nice_to_have"
-            value={jobData.nice_to_have}
-            onChange={handleChange}
-            multiline
-            rows={4}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Employment Type"
-            name="employment_type"
-            value={jobData.employment_type}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Location"
-            name="location"
-            value={jobData.location}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Salary Min"
-            name="salary_min"
-            value={jobData.salary_min}
-            onChange={handleChange}
-            type="number"
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Salary Max"
-            name="salary_max"
-            value={jobData.salary_max}
-            onChange={handleChange}
-            type="number"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="is_remote"
-                checked={jobData.is_remote}
-                onChange={handleChange}
-              />
-            }
-            label="Remote"
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Application Deadline"
-            name="application_deadline"
-            type="date"
-            value={jobData.application_deadline}
-            onChange={handleChange}
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Experience Level"
-            name="experience_level"
-            value={jobData.experience_level}
-            onChange={handleChange}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Job Function"
-            name="job_function"
-            value={jobData.job_function}
-            onChange={handleChange}
-          />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Job Categories</InputLabel>
-            <Select
-              multiple
-              value={jobData.categories.map((cat) => categories.find((c) => c.name === cat.category)?.id)}
-              onChange={handleCategoryChange}
-              renderValue={(selected) => (
-                <div>
-                  {selected.map((value) => (
-                    <Chip key={value} label={categories.find((cat) => cat.id === value)?.name} />
-                  ))}
-                </div>
-              )}
-            >
-              {categories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
-                  <Checkbox checked={jobData.categories.some((cat) => cat.category === category.name)} />
-                  <ListItemText primary={category.name} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-            <Button type="submit" variant="contained" color="primary">
-              {jobData.id ? 'Update Job' : 'Add Job'}
-            </Button>
-            <Button variant="outlined" color="primary" onClick={() => setOpenDialog(true)}>
-              Add Category
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Job Listings
-        </Typography>
-        {jobs.map((job) => (
-          <Paper key={job.id} sx={{ p: 2, mt: 2 }}>
-            <Typography variant="h6">{job.title}</Typography>
-            <Typography>{job.description}</Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => handleViewJob(job)}
-                sx={{ mr: 1 }}
+        <Button variant="contained" color="primary" onClick={() => setIsFormVisible(true)}>
+          Create Job
+        </Button>
+        {isFormVisible && (
+          <Box component="form" onSubmit={handleSubmit} sx={{ mx: 'auto', maxWidth: 600 }}>
+            {error && <Typography color="error">{error}</Typography>}
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Job Title"
+              name="title"
+              value={jobData.title}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Job Description"
+              name="description"
+              value={jobData.description}
+              onChange={handleChange}
+              required
+              multiline
+              rows={4}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Responsibilities"
+              name="responsibilities"
+              value={jobData.responsibilities}
+              onChange={handleChange}
+              multiline
+              rows={4}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Qualifications"
+              name="qualifications"
+              value={jobData.qualifications}
+              onChange={handleChange}
+              multiline
+              rows={4}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Nice to Have"
+              name="nice_to_have"
+              value={jobData.nice_to_have}
+              onChange={handleChange}
+              multiline
+              rows={4}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Employment Type"
+              name="employment_type"
+              value={jobData.employment_type}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Location"
+              name="location"
+              value={jobData.location}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Salary Min"
+              name="salary_min"
+              value={jobData.salary_min}
+              onChange={handleChange}
+              type="number"
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Salary Max"
+              name="salary_max"
+              value={jobData.salary_max}
+              onChange={handleChange}
+              type="number"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="is_remote"
+                  checked={jobData.is_remote}
+                  onChange={handleChange}
+                />
+              }
+              label="Remote"
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Application Deadline"
+              name="application_deadline"
+              value={jobData.application_deadline}
+              onChange={handleChange}
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Experience Level"
+              name="experience_level"
+              value={jobData.experience_level}
+              onChange={handleChange}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Job Function"
+              name="job_function"
+              value={jobData.job_function}
+              onChange={handleChange}
+            />
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Categories</InputLabel>
+              <Select
+                multiple
+                value={jobData.categories.map(cat => cat.category)}
+                onChange={handleCategoryChange}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} sx={{ m: 0.5 }} />
+                    ))}
+                  </Box>
+                )}
               >
-                View Job
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    <Checkbox checked={jobData.categories.some(cat => cat.category === category.name)} />
+                    <ListItemText primary={category.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+              <Button variant="contained" color="primary" type="submit">
+                {jobData.id ? 'Update Job' : 'Create Job'}
               </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => handleEdit(job)}
-                sx={{ mr: 1 }}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => handleDelete(job.id)}
-              >
-                Delete
+              <Button variant="outlined" color="secondary" onClick={() => setIsFormVisible(false)}>
+                Cancel
               </Button>
             </Box>
-          </Paper>
+          </Box>
+        )}
+      </Paper>
+      <Paper elevation={3} sx={{ mt: 4, p: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Existing Jobs
+        </Typography>
+        {jobs.map((job) => (
+          <Box key={job.id} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 2 }}>
+            <Typography variant="h6">{job.title}</Typography>
+            <Button variant="contained" color="primary" onClick={() => handleEdit(job)}>
+              Edit
+            </Button>
+            <Button variant="contained" color="secondary" onClick={() => handleDelete(job.id)}>
+              Delete
+            </Button>
+            <Button variant="outlined" color="primary" onClick={() => handleViewJob(job)}>
+              View
+            </Button>
+          </Box>
         ))}
-      </Box>
+      </Paper>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Add New Category</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Please enter the name of the new category you want to add.
+            Enter the name of the new category you want to add.
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             label="Category Name"
-            type="text"
             fullWidth
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddCategory} color="primary">
-            Add Category
-          </Button>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddCategory}>Add</Button>
         </DialogActions>
       </Dialog>
       <Dialog open={viewDialogOpen} onClose={() => setViewDialogOpen(false)}>
         <DialogTitle>Job Details</DialogTitle>
         <DialogContent>
           {selectedJob && (
-            <Box>
-              <Typography variant="h6">{selectedJob.title}</Typography>
-              <Typography>Description: {selectedJob.description}</Typography>
-              <Typography>Responsibilities: {selectedJob.responsibilities}</Typography>
-              <Typography>Qualifications: {selectedJob.qualifications}</Typography>
-              <Typography>Nice to Have: {selectedJob.nice_to_have}</Typography>
-              <Typography>Employment Type: {selectedJob.employment_type}</Typography>
-              <Typography>Location: {selectedJob.location}</Typography>
-              <Typography>Salary: {selectedJob.salary_min} - {selectedJob.salary_max}</Typography>
-              <Typography>Remote: {selectedJob.is_remote ? 'Yes' : 'No'}</Typography>
-              <Typography>Application Deadline: {selectedJob.application_deadline}</Typography>
-              <Typography>Experience Level: {selectedJob.experience_level}</Typography>
-              <Typography>Job Function: {selectedJob.job_function}</Typography>
-              <Typography>Categories: {selectedJob.categories.map(cat => cat.category).join(', ')}</Typography>
-            </Box>
+            <>
+              <Typography variant="h6">Title: {selectedJob.title}</Typography>
+              <Typography variant="body1">Description: {selectedJob.description}</Typography>
+              <Typography variant="body1">Responsibilities: {selectedJob.responsibilities}</Typography>
+              <Typography variant="body1">Qualifications: {selectedJob.qualifications}</Typography>
+              <Typography variant="body1">Nice to Have: {selectedJob.nice_to_have}</Typography>
+              <Typography variant="body1">Employment Type: {selectedJob.employment_type}</Typography>
+              <Typography variant="body1">Location: {selectedJob.location}</Typography>
+              <Typography variant="body1">Salary Min: {selectedJob.salary_min}</Typography>
+              <Typography variant="body1">Salary Max: {selectedJob.salary_max}</Typography>
+              <Typography variant="body1">Remote: {selectedJob.is_remote ? 'Yes' : 'No'}</Typography>
+              <Typography variant="body1">Application Deadline: {selectedJob.application_deadline}</Typography>
+              <Typography variant="body1">Experience Level: {selectedJob.experience_level}</Typography>
+              <Typography variant="body1">Job Function: {selectedJob.job_function}</Typography>
+              <Typography variant="body1">Categories: {selectedJob.categories.map(cat => cat.category).join(', ')}</Typography>
+            </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setViewDialogOpen(false)} color="primary">
-            Close
-          </Button>
+          <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>
