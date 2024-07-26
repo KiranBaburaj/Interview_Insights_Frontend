@@ -6,12 +6,12 @@ import { useSelector } from 'react-redux';
 const ProtectedRoute = ({ children, roleRequired }) => {
   const { role } = useSelector((state) => state.auth);
 
-  if (role !== roleRequired) {
-    // Redirect to login if user is not an admin
+  if (!role || role !== roleRequired) {
+    // Redirect to login if user is not authenticated or does not have the required role
     return <Navigate to="/login" />;
   }
 
-  // Render the children components if the user is an admin
+  // Render the children components if the user has the required role
   return children;
 };
 

@@ -17,6 +17,7 @@ const EmployerNavbar = () => {
     dispatch(clearError());
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
     window.location.replace('/login');
   };
 

@@ -17,6 +17,8 @@ const AdminNavbar = () => {
     dispatch(clearError());
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+
+
     window.location.replace('/login');
   };
 

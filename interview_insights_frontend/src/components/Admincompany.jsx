@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCompanies, toggleCompanyApproval } from '../features/company/companySlice';
-import { Box, Typography, Button, List, ListItem, ListItemText, CircularProgress, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Box, Typography, Button, List, ListItem, ListItemText, CircularProgress, Alert, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Grid } from '@mui/material';
 
 const CompanyList = () => {
   const dispatch = useDispatch();
@@ -29,6 +29,14 @@ const CompanyList = () => {
     setSelectedCompany(null);
   };
 
+  const renderDetailItem = (label, value) => (
+    <Grid item xs={12}>
+      <Typography variant="body1">
+        <strong>{label}:</strong> {value || 'N/A'}
+      </Typography>
+    </Grid>
+  );
+
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
       <Typography variant="h4" gutterBottom>Companies</Typography>
@@ -55,16 +63,40 @@ const CompanyList = () => {
         ))}
       </List>
 
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>Company Details</DialogTitle>
         <DialogContent>
           {selectedCompany ? (
-            <DialogContentText>
-              <strong>Name:</strong> {selectedCompany.name}<br />
-              <strong>Status:</strong> {selectedCompany.is_approved ? 'Approved' : 'Not Approved'}<br />
-              <strong>Created At:</strong> {new Date(selectedCompany.created_at).toLocaleString()}<br />
-              <strong>Updated At:</strong> {new Date(selectedCompany.updated_at).toLocaleString()}
-            </DialogContentText>
+            <Grid container spacing={2}>
+              {renderDetailItem('Name', selectedCompany.name)}
+              {renderDetailItem('Status', selectedCompany.is_approved ? 'Approved' : 'Not Approved')}
+              {renderDetailItem('Logo URL', selectedCompany.logo_url)}
+              {renderDetailItem('Website', selectedCompany.website_url)}
+              {renderDetailItem('Industry', selectedCompany.industry)}
+              {renderDetailItem('Company Size', selectedCompany.company_size)}
+              {renderDetailItem('Founded Date', selectedCompany.founded_date)}
+              {renderDetailItem('Description', selectedCompany.description)}
+              {renderDetailItem('Headquarters', selectedCompany.headquarters_location)}
+              {renderDetailItem('Employee Count', selectedCompany.employee_count)}
+              {renderDetailItem('Tech Stack', JSON.stringify(selectedCompany.tech_stack))}
+              {renderDetailItem('GST Document', selectedCompany.gst_document ? 'Uploaded' : 'Not uploaded')}
+              {renderDetailItem('Created At', new Date(selectedCompany.created_at).toLocaleString())}
+              {renderDetailItem('Updated At', new Date(selectedCompany.updated_at).toLocaleString())}
+              
+              <Grid item xs={12}>
+                <Typography variant="h6">Locations</Typography>
+                {selectedCompany.locations && selectedCompany.locations.map((location, index) => (
+                  <Typography key={index} variant="body2">{location.location}</Typography>
+                ))}
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Typography variant="h6">Social Links</Typography>
+                {selectedCompany.social_links && selectedCompany.social_links.map((link, index) => (
+                  <Typography key={index} variant="body2">{link.platform}: {link.url}</Typography>
+                ))}
+              </Grid>
+            </Grid>
           ) : (
             <CircularProgress />
           )}

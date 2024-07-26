@@ -52,6 +52,7 @@ export const login = createAsyncThunk(
       // Store tokens in localStorage
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', response.data.role);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -161,12 +162,13 @@ export const fetchRecruiters = createAsyncThunk(
   }
 );
 
-// Define initial state and reducers
 const initialState = {
   user: null,
-  role: null,
-  accessToken: null,
-  refreshToken: null,
+  role: localStorage.getItem('role') || null,
+  accessToken: localStorage.getItem('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
+  adminAccessToken: localStorage.getItem('adminAccessToken') || null,
+  adminRefreshToken: localStorage.getItem('adminRefreshToken') || null,
   error: null,
   loading: false,
   jobSeekers: [],
@@ -185,6 +187,14 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.role = action.payload.role;
     },
+    logout: (state) => {
+      state.user = null;
+      state.role = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.adminAccessToken = null;
+      state.adminRefreshToken = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -216,6 +226,9 @@ const authSlice = createSlice({
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
         state.role = action.payload.role; // Assuming role is returned from API
+        localStorage.setItem('accessToken', action.payload.accessToken);
+        localStorage.setItem('role', action.payload.role);
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -231,8 +244,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.role = action.payload.role;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
+        state.adminAccessToken = action.payload.accessToken;
+        state.adminRefreshToken = action.payload.refreshToken;
         // Store admin tokens in localStorage
         localStorage.setItem('adminAccessToken', action.payload.accessToken);
         localStorage.setItem('adminRefreshToken', action.payload.refreshToken);
@@ -344,5 +357,5 @@ const authSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { clearError, setUser } = authSlice.actions;
+export const { clearError, setUser,logout  } = authSlice.actions;
 export default authSlice.reducer;

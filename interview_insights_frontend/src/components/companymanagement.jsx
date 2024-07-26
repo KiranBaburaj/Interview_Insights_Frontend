@@ -14,6 +14,7 @@ import {
 const CompanyManagement = () => {
   const dispatch = useDispatch();
   const { companies, status, error } = useSelector(state => state.company);
+  const { user } = useSelector(state => state.auth); 
   const [companyData, setCompanyData] = useState({
     name: '',
     logo_url: '',
@@ -53,12 +54,18 @@ const CompanyManagement = () => {
   
   const handleSubmit = (e) => {
     e.preventDefault();
+    const companyData2 = {
+      ...companyData,
+      employer: user.id,
+    };
     if (companyData.id) {
+
+
       // If companyData has an id, it means we are updating an existing company
-      dispatch(updateCompany(companyData));
+      dispatch(updateCompany(companyData2));
     } else {
       // Otherwise, we are creating a new company
-      dispatch(createCompany(companyData));
+      dispatch(createCompany(companyData2));
     }
     // Optionally, you can reset the form after submission
     resetForm();
