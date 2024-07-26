@@ -17,9 +17,10 @@ const AdminNavbar = () => {
     dispatch(clearError());
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
 
 
-    window.location.replace('/login');
+    window.location.replace('/adminlogin');
   };
 
   return (

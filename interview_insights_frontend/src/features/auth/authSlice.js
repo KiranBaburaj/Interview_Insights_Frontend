@@ -1,20 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig'; // Assuming axiosConfig.js defines Axios instance
 
-import { GoogleOAuthProvider } from '@react-oauth/google';
-
-
+// Define your async thunks for API calls
 export const googleLogin = createAsyncThunk(
   'auth/googleLogin',
   async (data, { rejectWithValue }) => {
     try {
-      // Adjust this API call as per your backend's endpoint and payload requirements
       const response = await axios.post('/api/google-login/', data);
-
-      // Store tokens and user info in localStorage or Redux store as per your app's logic
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -22,21 +16,17 @@ export const googleLogin = createAsyncThunk(
   }
 );
 
-
-// Define your async thunks for API calls
 export const signup = createAsyncThunk(
   'auth/signup',
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post('/api/signup/', userData);
       if (response.data.user_id) {
-        // Store the user_id in localStorage
         localStorage.setItem('user_id', response.data.user_id);
         alert('Signup successful! OTP sent to your email.');
       } else {
         alert('Signup failed: ' + response.data.error);
       }
-
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -49,25 +39,9 @@ export const login = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post('/api/login/', userData);
-      // Store tokens in localStorage
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', response.data.role);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-export const adminLogin = createAsyncThunk(
-  'auth/adminLogin',
-  async (formData, { rejectWithValue }) => {
-    try {
-      const response = await axios.post('/api/admin/login/', formData);
-      // Store admin tokens in localStorage
-      localStorage.setItem('adminAccessToken', response.data.accessToken);
-      localStorage.setItem('adminRefreshToken', response.data.refreshToken);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -79,14 +53,14 @@ export const sendOTP = createAsyncThunk(
   'auth/sendOTP',
   async (data, { rejectWithValue }) => {
     try {
-      console.log('Data received in sendOTP action:', data);
-      const response = await axios.post('/api/send-otp/', data); // Adjust endpoint as per your API
+      const response = await axios.post('/api/send-otp/', data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
     }
   }
 );
+
 export const resendOTP = createAsyncThunk(
   'auth/resendOTP',
   async (userData, { rejectWithValue }) => {
@@ -104,8 +78,6 @@ export const verifyOTPAndSignup = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post('/api/verify-otp/', userData);
-      // Store tokens in localStorage
-   
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -117,7 +89,7 @@ export const fetchAdminData = createAsyncThunk(
   'admin/fetchAdminData',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/admin/data'); // Adjust endpoint as per your API
+      const response = await axios.get('/api/admin/data');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
@@ -125,7 +97,6 @@ export const fetchAdminData = createAsyncThunk(
   }
 );
 
-// Thunks for fetching data
 export const fetchJobSeekers = createAsyncThunk(
   'admin/fetchJobSeekers',
   async (_, { rejectWithValue }) => {
@@ -154,7 +125,7 @@ export const fetchRecruiters = createAsyncThunk(
   'admin/fetchRecruiters',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/recruiters/')
+      const response = await axios.get('/api/recruiters/');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response ? error.response.data : error.message);
@@ -167,8 +138,6 @@ const initialState = {
   role: localStorage.getItem('role') || null,
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
-  adminAccessToken: localStorage.getItem('adminAccessToken') || null,
-  adminRefreshToken: localStorage.getItem('adminRefreshToken') || null,
   error: null,
   loading: false,
   jobSeekers: [],
@@ -192,13 +161,13 @@ const authSlice = createSlice({
       state.role = null;
       state.accessToken = null;
       state.refreshToken = null;
-      state.adminAccessToken = null;
-      state.adminRefreshToken = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
     }
   },
   extraReducers: (builder) => {
     builder
-      // Signup reducers
       .addCase(signup.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -206,15 +175,12 @@ const authSlice = createSlice({
       .addCase(signup.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
       })
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Login reducers
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -222,40 +188,18 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        console.log(state.user)
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
-        state.role = action.payload.role; // Assuming role is returned from API
+        state.role = action.payload.role;
         localStorage.setItem('accessToken', action.payload.accessToken);
-        localStorage.setItem('role', action.payload.role);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
+        localStorage.setItem('role', action.payload.role);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Admin login reducers
-      .addCase(adminLogin.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(adminLogin.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.role = action.payload.role;
-        state.adminAccessToken = action.payload.accessToken;
-        state.adminRefreshToken = action.payload.refreshToken;
-        // Store admin tokens in localStorage
-        localStorage.setItem('adminAccessToken', action.payload.accessToken);
-        localStorage.setItem('adminRefreshToken', action.payload.refreshToken);
-      })
-      .addCase(adminLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // Send OTP reducers
       .addCase(sendOTP.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -269,7 +213,6 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Verify OTP and Signup reducers
       .addCase(verifyOTPAndSignup.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -292,13 +235,14 @@ const authSlice = createSlice({
       })
       .addCase(fetchAdminData.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user; // Adjust payload structure based on API response
+        state.user = action.payload.user;
         state.error = null;
       })
       .addCase(fetchAdminData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(fetchJobSeekers.pending, (state) => {
         state.loading = true;
       })
@@ -310,6 +254,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(fetchEmployers.pending, (state) => {
         state.loading = true;
       })
@@ -321,6 +266,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(fetchRecruiters.pending, (state) => {
         state.loading = true;
       })
@@ -332,6 +278,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(resendOTP.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -342,20 +289,10 @@ const authSlice = createSlice({
       .addCase(resendOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-      .addCase(googleLogin.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
-      })
-      .addCase(googleLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
       });
-  },
+  }
 });
 
-// Export actions and reducer
-export const { clearError, setUser,logout  } = authSlice.actions;
+export const { clearError, setUser, logout } = authSlice.actions;
+
 export default authSlice.reducer;

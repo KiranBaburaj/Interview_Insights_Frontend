@@ -9,7 +9,7 @@ export const fetchCompanies = createAsyncThunk('company/fetchCompanies', async (
   try {
     const response = await axios.get(`${apiUrl}/companies/`, {
       headers: {
-        Authorization: `Bearer ${thunkAPI.getState().auth.accessToken}`
+        Authorization: `Bearer ${thunkAPI.getState().auth.adminAccessToken}`
       }
     });
     return response.data;

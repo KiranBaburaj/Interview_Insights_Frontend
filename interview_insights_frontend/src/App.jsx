@@ -13,7 +13,6 @@ import Logout from './components/Logout';
 import ProtectedRoute from './components/ProtectedRoute';
 import EmployerCompanyManagement from './pages/Employer/EmployerCompanyManagement';
 import EmployerJobs from './pages/Employer/Employerjobs'; // Corrected component import name
-import Employerjobs from './pages/Employer/Employerjobs';
 import JobSeekerList from './components/JobSeekerList';
 import AdminJobSeeker from './pages/Admin/AdminJobseeker';
 import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
@@ -29,10 +28,40 @@ const App = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
-      <Route path="/admindashboard" element={<AdminDashboard />} />
-      <Route path="/jobseekers" element={<AdminJobSeeker/>} />
-      <Route path="/Employers" element={<AdminEmployersManagement/>} />
-      <Route path="/companies" element={<AdminCompany/>} />
+      
+      <Route
+        path="/admindashboard"
+        element={
+          <ProtectedRoute roleRequired="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/jobseekers"
+        element={
+          <ProtectedRoute roleRequired="admin">
+            <AdminJobSeeker />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employers"
+        element={
+          <ProtectedRoute roleRequired="admin">
+            <AdminEmployersManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/companies"
+        element={
+          <ProtectedRoute roleRequired="admin">
+            <AdminCompany />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/dashboard/jobseeker"
         element={
@@ -61,7 +90,7 @@ const App = () => {
         path="/EmployerJobManagement"
         element={
           <ProtectedRoute roleRequired="employer">
-            <Employerjobs />
+            <EmployerJobs />
           </ProtectedRoute>
         }
       />

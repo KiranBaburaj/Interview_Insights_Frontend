@@ -47,6 +47,9 @@ const Login = () => {
       } else if (role === 'recruiter') {
         navigate('/dashboard/recruiter');
       }
+      else if (role === 'admin') {
+        navigate('/admindashboard');
+      }
     }
   }, [role, navigate]);
 

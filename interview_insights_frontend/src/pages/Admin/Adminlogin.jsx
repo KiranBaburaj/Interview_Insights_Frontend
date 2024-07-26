@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { adminLogin } from "../../features/auth/authSlice";
+
 
 import {
   Container,
@@ -22,6 +22,14 @@ const AdminLogin = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    if (role) {
+      if (role === 'admin') {
+        navigate('/admindashboard');
+      } 
+    }
+  }, [role, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
