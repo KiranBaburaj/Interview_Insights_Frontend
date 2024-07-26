@@ -28,7 +28,7 @@ const App = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/adminlogin" element={<AdminLogin />} />
-      
+
       <Route
         path="/admindashboard"
         element={
@@ -73,7 +73,7 @@ const App = () => {
       <Route
         path="/dashboard/employer"
         element={
-          <ProtectedRoute roleRequired="employer">
+          <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
             <EmployerDashboard />
           </ProtectedRoute>
         }
@@ -89,7 +89,7 @@ const App = () => {
       <Route
         path="/EmployerJobManagement"
         element={
-          <ProtectedRoute roleRequired="employer">
+          <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
             <EmployerJobs />
           </ProtectedRoute>
         }

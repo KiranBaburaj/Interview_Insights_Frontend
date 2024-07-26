@@ -143,6 +143,7 @@ const initialState = {
   jobSeekers: [],
   employers: [],
   recruiters: [],
+  companyDetailsSubmitted: false,
 };
 
 const authSlice = createSlice({
@@ -191,6 +192,7 @@ const authSlice = createSlice({
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
         state.role = action.payload.role;
+        state.companyDetailsSubmitted = action.payload.company_details_submitted;
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);
@@ -293,6 +295,6 @@ const authSlice = createSlice({
   }
 });
 
-export const { clearError, setUser, logout } = authSlice.actions;
+export const { clearError, setUser, logout,user } = authSlice.actions;
 
 export default authSlice.reducer;

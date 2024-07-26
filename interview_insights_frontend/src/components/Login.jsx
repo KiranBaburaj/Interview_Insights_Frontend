@@ -43,7 +43,7 @@ const Login = () => {
       if (role === 'jobseeker') {
         navigate('/dashboard/jobseeker');
       } else if (role === 'employer') {
-        navigate('/dashboard/employer');
+        navigate('/EmployerCompanyManagement');
       } else if (role === 'recruiter') {
         navigate('/dashboard/recruiter');
       }
