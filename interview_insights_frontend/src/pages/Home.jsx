@@ -1,6 +1,8 @@
+// Home.jsx
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobs, selectAllJobs } from '../features/jobs/jobsSlice'; // Adjust the path
+import { Link } from 'react-router-dom';
 import { 
   AppBar, 
   Toolbar, 
@@ -18,6 +20,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import Navbar from '../components/Navbar';
+
 const Home = () => {
   const dispatch = useDispatch();
   const jobs = useSelector(selectAllJobs);
@@ -72,10 +75,10 @@ const Home = () => {
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button size="small" color="primary" component={Link} to={`/job/${job.id}`}>
                       Learn More
                     </Button>
-                    <Button size="small" variant="contained" color="primary">
+                    <Button size="small" variant="contained" color="primary" component={Link} to={`/apply/${job.id}`}>
                       Apply
                     </Button>
                   </CardActions>

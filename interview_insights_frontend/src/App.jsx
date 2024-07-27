@@ -18,6 +18,7 @@ import AdminJobSeeker from './pages/Admin/AdminJobseeker';
 import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
 import AdminCompany from './pages/Admin/Admincompany';
 import CompanyList from './components/Admincompany';
+import JobDetails from './components/JobDetails';
 
 const App = () => {
   return (
@@ -93,6 +94,10 @@ const App = () => {
             <EmployerJobs />
           </ProtectedRoute>
         }
+      />
+        <Route
+        path="/job/:jobId"
+        element={<JobDetails />}
       />
       {/* Add other routes here */}
       {/* 404 Not Found Route */}

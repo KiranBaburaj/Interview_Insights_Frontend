@@ -8,6 +8,11 @@ export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async () => {
   return response.data;
 });
 
+export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (jobId) => {
+  const response = await axiosInstance.get(`${apiUrl}${jobId}/`);
+  return response.data;
+});
+
 export const addJob = createAsyncThunk('jobs/addJob', async (jobData, { getState }) => {
   const state = getState();
   const token = state.auth.token; // Adjust based on where you store the token in your state
@@ -50,6 +55,23 @@ const jobsSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
+      .addCase(fetchJobById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchJobById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const job = action.payload;
+        const existingJob = state.jobs.find((j) => j.id === job.id);
+        if (!existingJob) {
+          state.jobs.push(job);
+        } else {
+          Object.assign(existingJob, job);
+        }
+      })
+      .addCase(fetchJobById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
       .addCase(addJob.fulfilled, (state, action) => {
         state.jobs.push(action.payload);
       })
@@ -69,5 +91,10 @@ const jobsSlice = createSlice({
 export default jobsSlice.reducer;
 
 export const selectAllJobs = (state) => state.jobs.jobs;
-export const selectJobById = (state, jobId) =>
-  state.jobs.jobs.find((job) => job.id === jobId);
+export const selectJobById = (state, jobId) => {
+  console.log('state:', state);
+  console.log('jobId:', jobId);
+  const job = state.jobs.jobs.find((job) => job.id == jobId);
+  console.log('job:', job);
+  return job;
+};

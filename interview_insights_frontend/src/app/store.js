@@ -8,6 +8,7 @@ import jobCategoriesReducer from '../features/jobCategories/jobCategoriesSlice';
 import userReducer from '../features/users/userSlice';
 import jobSeekerReducer from '../features/jobseeker/jobseekerSlice';
 import employerReducer from '../features/employer/employerSlice';
+import jobApplicationReducer from  '../features/jobapplication/jobApplicationSlice';
 
 
 
@@ -19,6 +20,7 @@ const store = configureStore({
       jobCategories: jobCategoriesReducer, 
       users: userReducer,
       jobSeeker: jobSeekerReducer,
+      applications:jobApplicationReducer,
       employer: employerReducer,
     // other reducers can be added here
   },
