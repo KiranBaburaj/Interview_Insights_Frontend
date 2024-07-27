@@ -192,7 +192,7 @@ const authSlice = createSlice({
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
         state.role = action.payload.role;
-        state.companyDetailsSubmitted = action.payload.company_details_submitted;
+        state.companyDetailsSubmitted = action.payload.companyDetailsSubmitted;
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);

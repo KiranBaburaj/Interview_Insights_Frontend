@@ -14,7 +14,7 @@ import {
 const CompanyManagement = () => {
   const dispatch = useDispatch();
   const { companies, status, error } = useSelector(state => state.company);
-  const { user } = useSelector(state => state.auth); 
+  const { user,companyDetailsSubmitted } = useSelector(state => state.auth); 
   const [companyData, setCompanyData] = useState({
     name: '',
     logo_url: '',
@@ -94,6 +94,7 @@ const CompanyManagement = () => {
     setCompanyData(company);
     setIsFormVisible(true); // Show the form when editing
   };
+  console.log(companyDetailsSubmitted)
 
   const handleDelete = (companyId) => {
     // Dispatch an action to delete the company

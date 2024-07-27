@@ -12,6 +12,7 @@ const ProtectedRoute = ({ children, roleRequired, checkCompanyDetails }) => {
   }
 
   if (checkCompanyDetails && !companyDetailsSubmitted) {
+    console.log(companyDetailsSubmitted)
     // Redirect to company details form if the company details have not been submitted
     return <Navigate to="/EmployerCompanyManagement" />;
   }
