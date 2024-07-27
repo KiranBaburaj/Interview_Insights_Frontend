@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice'; // Adjust the path
+import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
+import { applyForJob } from '../features/jobapplication/jobApplicationSlice';
 import {
   Container,
   Typography,
@@ -13,22 +14,39 @@ import {
   Divider,
   Chip,
   Grid,
+  Button,
+  TextField,
+  Alert,
 } from '@mui/material';
-import { Business, LocationOn, CalendarToday } from '@mui/icons-material';
+import {
+  Business,
+  LocationOn,
+  CalendarToday,
+  AttachMoney,
+  DateRange,
+} from '@mui/icons-material';
 
 const JobDetails = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const job = useSelector((state) => selectJobById(state, jobId));
-  const jobsState = useSelector((state) => state.jobs);
   const jobStatus = useSelector((state) => state.jobs.status);
   const jobError = useSelector((state) => state.jobs.error);
+  const applicationStatus = useSelector((state) => state.applications.status);
+  const applicationError = useSelector((state) => state.applications.error);
+
+  const [resumeUrl, setResumeUrl] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
       dispatch(fetchJobById(jobId));
     }
   }, [job, jobId, dispatch, jobStatus]);
+
+  const handleApply = () => {
+    dispatch(applyForJob({ jobId, resume_url: resumeUrl, cover_letter: coverLetter }));
+  };
 
   if (jobStatus === 'loading') {
     return (
@@ -56,6 +74,11 @@ const JobDetails = () => {
     );
   }
 
+  const postedDate = new Date(job.posted_at);
+  const deadlineDate = new Date(job.application_deadline);
+  const isPostedDateValid = !isNaN(postedDate.getTime());
+  const isDeadlineDateValid = !isNaN(deadlineDate.getTime());
+
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Card>
@@ -73,7 +96,13 @@ const JobDetails = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 <CalendarToday sx={{ verticalAlign: 'middle' }} />{' '}
-                Posted on: {new Date(job.created_at).toLocaleDateString()}
+                Posted on: {isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                <DateRange sx={{ verticalAlign: 'middle' }} />{' '}
+                Application Deadline: {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -81,18 +110,12 @@ const JobDetails = () => {
                 <LocationOn sx={{ verticalAlign: 'middle' }} /> {job.location}
               </Typography>
             </Grid>
-            {job.responsibilities && (
-              <Grid item xs={12}>
-                <Typography variant="h6">Responsibilities:</Typography>
-                <Typography variant="body1">{job.responsibilities}</Typography>
-              </Grid>
-            )}
-            {job.qualifications && (
-              <Grid item xs={12}>
-                <Typography variant="h6">Qualifications:</Typography>
-                <Typography variant="body1">{job.qualifications}</Typography>
-              </Grid>
-            )}
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                <AttachMoney sx={{ verticalAlign: 'middle' }} />{' '}
+                Salary: ${job.salary_min} - ${job.salary_max}
+              </Typography>
+            </Grid>
             {job.skills && job.skills.length > 0 && (
               <Grid item xs={12}>
                 <Typography variant="h6">Skills:</Typography>
@@ -101,6 +124,55 @@ const JobDetails = () => {
                 ))}
               </Grid>
             )}
+            <Grid item xs={12}>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                Applications: {job.applications_count}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                Views: {job.views_count}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                Status: {job.status}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              {applicationStatus === 'failed' && (
+                <Alert severity="error">{applicationError}</Alert>
+              )}
+              {applicationStatus === 'succeeded' && (
+                <Alert severity="success">Application submitted successfully!</Alert>
+              )}
+              <TextField
+                label="Resume URL"
+                fullWidth
+                variant="outlined"
+                value={resumeUrl}
+                onChange={(e) => setResumeUrl(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                label="Cover Letter"
+                fullWidth
+                variant="outlined"
+                multiline
+                rows={4}
+                value={coverLetter}
+                onChange={(e) => setCoverLetter(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleApply}
+                disabled={applicationStatus === 'loading'}
+              >
+                {applicationStatus === 'loading' ? 'Applying...' : 'Apply for this Job'}
+              </Button>
+            </Grid>
           </Grid>
         </CardContent>
       </Card>
