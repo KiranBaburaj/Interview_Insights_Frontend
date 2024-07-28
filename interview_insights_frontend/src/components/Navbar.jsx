@@ -14,9 +14,8 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { clearError } from '../features/auth/authSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearError, logout } from '../features/auth/authSlice';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -26,12 +25,8 @@ const Navbar = () => {
   const open = Boolean(anchorEl);
   const userMenuOpen = Boolean(userMenuAnchorEl);
 
-  // Mock logged in state and user info (replace with actual auth logic)
-
-  const { user,role } = useSelector((state) => state.auth);
+  const { user, role } = useSelector((state) => state.auth);
   console.log(user ? user.full_name : null);
-
-  
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -50,13 +45,9 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
+    dispatch(logout());
     dispatch(clearError());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
-
-    window.location.replace('/login');
-    setUser(null);
+    navigate('/login');
     handleUserMenuClose();
   };
 
@@ -113,8 +104,8 @@ const Navbar = () => {
                     vertical: 'top',
                     horizontal: 'right',
                   }}
-                > 
-            <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
+                >
+                  <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   {role === 'jobseeker' && (
                     <MenuItem onClick={() => navigate('/dashboard/jobseeker')}>

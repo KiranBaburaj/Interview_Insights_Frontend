@@ -19,6 +19,7 @@ import AdminEmployersManagement from './pages/Admin/AdminEmployersManagement';
 import AdminCompany from './pages/Admin/Admincompany';
 import CompanyList from './components/Admincompany';
 import JobDetails from './components/JobDetails';
+import ApplicantsList from './components/Employer/ApplicantsList';
 
 const App = () => {
   return (
@@ -92,6 +93,14 @@ const App = () => {
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
             <EmployerJobs />
+          </ProtectedRoute>
+        }
+      />
+         <Route
+        path="/EmployerJobapplicants/:jobId"
+        element={
+          <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
+            <ApplicantsList />
           </ProtectedRoute>
         }
       />

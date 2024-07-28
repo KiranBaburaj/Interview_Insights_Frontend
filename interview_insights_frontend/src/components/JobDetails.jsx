@@ -2,7 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
-import { applyForJob } from '../features/jobapplication/jobApplicationSlice';
+import {
+  applyForJob,
+  checkApplicationStatus,
+  selectUserApplicationStatus,
+  clearApplicationError,
+  clearUserApplicationStatus,
+} from '../features/jobapplication/jobApplicationSlice';
 import {
   Container,
   Typography,
@@ -34,9 +40,11 @@ const JobDetails = () => {
   const jobError = useSelector((state) => state.jobs.error);
   const applicationStatus = useSelector((state) => state.applications.status);
   const applicationError = useSelector((state) => state.applications.error);
+  const userApplicationStatus = useSelector(selectUserApplicationStatus);
 
   const [resumeUrl, setResumeUrl] = useState('');
   const [coverLetter, setCoverLetter] = useState('');
+  const [isApplying, setIsApplying] = useState(false); // Local state for immediate button disable
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
@@ -44,11 +52,34 @@ const JobDetails = () => {
     }
   }, [job, jobId, dispatch, jobStatus]);
 
+  useEffect(() => {
+    if (job) {
+      dispatch(checkApplicationStatus(jobId));
+    }
+  }, [job, dispatch, jobId,isApplying]);
+
+  useEffect(() => {
+    if (applicationStatus === 'failed' || userApplicationStatus.status === 'failed') {
+      const timer = setTimeout(() => {
+        dispatch(clearApplicationError());
+        dispatch(clearUserApplicationStatus());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [applicationStatus, userApplicationStatus, dispatch]);
+
+  useEffect(() => {
+    if (applicationStatus === 'succeeded') {
+      setIsApplying(false); // Reset the local state after successful application
+    }
+  }, [applicationStatus]);
+
   const handleApply = () => {
+    setIsApplying(true);
     dispatch(applyForJob({ jobId, resume_url: resumeUrl, cover_letter: coverLetter }));
   };
 
-  if (jobStatus === 'loading') {
+  if (jobStatus === 'loading' || userApplicationStatus.status === 'loading') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
         <CircularProgress />
@@ -153,6 +184,7 @@ const JobDetails = () => {
                 value={resumeUrl}
                 onChange={(e) => setResumeUrl(e.target.value)}
                 sx={{ mb: 2 }}
+                disabled={isApplying || userApplicationStatus.hasApplied}
               />
               <TextField
                 label="Cover Letter"
@@ -163,14 +195,15 @@ const JobDetails = () => {
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
                 sx={{ mb: 2 }}
+                disabled={isApplying || userApplicationStatus.hasApplied}
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleApply}
-                disabled={applicationStatus === 'loading'}
+                disabled={isApplying || userApplicationStatus.hasApplied}
               >
-                {applicationStatus === 'loading' ? 'Applying...' : 'Apply for this Job'}
+                {userApplicationStatus.hasApplied ? 'Already Applied' : isApplying ? 'Applying...' : 'Apply'}
               </Button>
             </Grid>
           </Grid>
