@@ -67,30 +67,22 @@ const MyApplications = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4">My Applications</Typography>
-      <Typography variant="subtitle1">Keep it up, Jake</Typography>
-      <Typography variant="body2">
-        Here is job applications status from July 19 - July 25.
-      </Typography>
+   
+     
       <Card sx={{ mt: 2, mb: 2 }}>
         <CardContent>
-          <Typography variant="body2" color="textSecondary">
-            New Feature
-          </Typography>
-          <Typography variant="body1">
-            You can request a follow-up 7 days after applying for a job if the
-            application status is in review. Only one follow-up is allowed per
-            job.
-          </Typography>
+         
+          
         </CardContent>
       </Card>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="All (45)" />
-          <Tab label="In Review (34)" />
-          <Tab label="Interviewing (18)" />
-          <Tab label="Assessment (5)" />
-          <Tab label="Offered (2)" />
-          <Tab label="Hired (1)" />
+          <Tab label="All " />
+          <Tab label="In Review " />
+          <Tab label="Interviewing " />
+          <Tab label="Assessment " />
+          <Tab label="Offered " />
+          <Tab label="Hired " />
         </Tabs>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 2 }}>
