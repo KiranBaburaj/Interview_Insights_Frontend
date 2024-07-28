@@ -31,8 +31,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { useParams } from 'react-router-dom';
 
 const ApplicantsList = () => {
-
-    const { jobId } = useParams();
+  const { jobId } = useParams();
   const dispatch = useDispatch();
   const applicants = useSelector((state) => state.applicants.applicants);
   
@@ -88,10 +87,9 @@ const ApplicantsList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Full Name</TableCell>
-                  <TableCell>Score</TableCell>
+                  <TableCell>Email</TableCell>
                   <TableCell>Hiring Stage</TableCell>
                   <TableCell>Applied Date</TableCell>
-                  <TableCell>Job Role</TableCell>
                   <TableCell>Action</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
@@ -101,16 +99,15 @@ const ApplicantsList = () => {
                   <TableRow key={applicant.id}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar src={applicant.avatarUrl} alt={applicant.name} sx={{ mr: 2 }} />
-                        {applicant.name}
+                        <Avatar src={applicant.job_seeker.profile_photo_url} alt={applicant.job_seeker.user.full_name} sx={{ mr: 2 }} />
+                        {applicant.job_seeker.user.full_name}
                       </Box>
                     </TableCell>
-                    <TableCell>{applicant.score}</TableCell>
+                    <TableCell>{applicant.job_seeker.user.email}</TableCell>
                     <TableCell>
-                      <Chip label={applicant.hiringStage} />
+                      <Chip label={applicant.stage || 'N/A'} />
                     </TableCell>
-                    <TableCell>{new Date(applicant.appliedDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{applicant.jobRole}</TableCell>
+                    <TableCell>{new Date(applicant.applied_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button variant="outlined">See Application</Button>
                     </TableCell>

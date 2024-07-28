@@ -20,6 +20,8 @@ import AdminCompany from './pages/Admin/Admincompany';
 import CompanyList from './components/Admincompany';
 import JobDetails from './components/JobDetails';
 import ApplicantsList from './components/Employer/ApplicantsList';
+import MyApplications from './components/Jobseeker/MyApplications';
+
 
 const App = () => {
   return (
@@ -72,6 +74,17 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
+<Route
+        path="/myapplications"
+        element={
+          <ProtectedRoute roleRequired="jobseeker">
+            <MyApplications />
+          </ProtectedRoute>
+        }
+      />
+
+
       <Route
         path="/dashboard/employer"
         element={
