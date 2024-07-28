@@ -134,7 +134,7 @@ export const fetchRecruiters = createAsyncThunk(
 );
 
 const initialState = {
-  user: null,
+  user:localStorage.getItem('user') || null,
   role: localStorage.getItem('role') || null,
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
@@ -196,6 +196,7 @@ const authSlice = createSlice({
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);
+        localStorage.setItem('user', action.payload.user);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
