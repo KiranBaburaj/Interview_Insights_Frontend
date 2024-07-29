@@ -22,6 +22,8 @@ import JobDetails from './components/JobDetails';
 import ApplicantsList from './components/Employer/ApplicantsList';
 import MyApplications from './components/Jobseeker/MyApplications';
 
+import Profile from './components/Jobseeker/JobseekerProfileForm';
+
 
 const App = () => {
   return (
@@ -49,6 +51,7 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/employers"
         element={
@@ -74,12 +77,19 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-
 <Route
         path="/myapplications"
         element={
           <ProtectedRoute roleRequired="jobseeker">
             <MyApplications />
+          </ProtectedRoute>
+        }
+      />
+<Route
+        path="/myprofile"
+        element={
+          <ProtectedRoute roleRequired="jobseeker">
+            <Profile/>
           </ProtectedRoute>
         }
       />

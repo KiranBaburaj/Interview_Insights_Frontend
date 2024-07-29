@@ -143,7 +143,7 @@ const initialState = {
   jobSeekers: [],
   employers: [],
   recruiters: [],
-  companyDetailsSubmitted: false,
+  companyDetailsSubmitted:localStorage.getItem('companyDetailsSubmitted') || false,
 };
 
 const authSlice = createSlice({
@@ -198,6 +198,7 @@ const authSlice = createSlice({
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);
         localStorage.setItem('user', action.payload.user);
+        localStorage.setItem('companyDetailsSubmitted', action.payload.companyDetailsSubmitted);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
