@@ -1,4 +1,3 @@
-// src/components/ApplicantsList.js
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApplicants } from '../../features/applicants/applicantsSlice';
@@ -10,20 +9,18 @@ import {
   Card,
   CardContent,
   Divider,
-  Grid,
-  Button,
   TextField,
-  Alert,
-  Avatar,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Chip,
   IconButton,
+  Button,
+  Avatar,
+  Chip,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
@@ -34,7 +31,6 @@ const ApplicantsList = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const applicants = useSelector((state) => state.applicants.applicants);
-  
   const status = useSelector((state) => state.applicants.status);
   const error = useSelector((state) => state.applicants.error);
 
@@ -99,7 +95,11 @@ const ApplicantsList = () => {
                   <TableRow key={applicant.id}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar src={applicant.job_seeker.profile_photo_url} alt={applicant.job_seeker.user.full_name} sx={{ mr: 2 }} />
+                        <Avatar
+                          src={`http://localhost:8000${applicant.job_seeker.profile_photo}`}
+                          alt={applicant.job_seeker.user.full_name}
+                          sx={{ mr: 2, width: 40, height: 40 }}
+                        />
                         {applicant.job_seeker.user.full_name}
                       </Box>
                     </TableCell>
