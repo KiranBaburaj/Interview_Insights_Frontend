@@ -71,7 +71,7 @@ const Home = () => {
                       {job.title}
                     </Typography>
                     <Typography color="textSecondary" variant="body2" gutterBottom>
-                      {job.company} - {job.location}
+                      {job.company.name} - {job.location}
                     </Typography>
                   </CardContent>
                   <CardActions>

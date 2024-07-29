@@ -1,5 +1,4 @@
-// src/components/MyApplications.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApplications } from '../../features/applications/applicationsSlice';
 import {
@@ -30,13 +29,13 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { useState } from 'react';
 
 const MyApplications = () => {
   const dispatch = useDispatch();
   const applications = useSelector((state) => state.myapplications.applications);
   const status = useSelector((state) => state.myapplications.status);
   const error = useSelector((state) => state.myapplications.error);
+  console.log(applications);
 
   const [tabValue, setTabValue] = useState(0);
 
@@ -67,12 +66,10 @@ const MyApplications = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4">My Applications</Typography>
-   
      
       <Card sx={{ mt: 2, mb: 2 }}>
         <CardContent>
          
-          
         </CardContent>
       </Card>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -120,16 +117,16 @@ const MyApplications = () => {
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
-                      src={application.companyLogoUrl}
-                      alt={application.companyName}
+                      src={application.job_details.company.logoUrl} // Adjust if you have a logo URL
+                      alt={application.job_details.company.name}
                       sx={{ mr: 2 }}
                     />
-                    {application.companyName}
+                    {application.job_details.company.name}
                   </Box>
                 </TableCell>
-                <TableCell>{application.jobRole}</TableCell>
+                <TableCell>{application.job_details.title}</TableCell>
                 <TableCell>
-                  {new Date(application.dateApplied).toLocaleDateString()}
+                  {new Date(application.applied_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <Chip label={application.status} />
