@@ -1,12 +1,8 @@
-// Home.jsx
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobs, selectAllJobs } from '../features/jobs/jobsSlice'; // Adjust the path
 import { Link } from 'react-router-dom';
 import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
   Container, 
   TextField, 
   Button, 
@@ -16,7 +12,7 @@ import {
   CardActions,
   Box,
   CircularProgress,
-  Typography as MuiTypography
+  Typography
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import Navbar from '../components/Navbar';
@@ -27,11 +23,19 @@ const Home = () => {
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   useEffect(() => {
-    if (jobsStatus === 'idle') {
-      dispatch(fetchJobs());
-    }
-  }, [jobsStatus, dispatch]);
+    dispatch(fetchJobs(searchQuery)); // Pass searchQuery to fetchJobs
+  }, [searchQuery, dispatch]);
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearch = () => {
+    dispatch(fetchJobs(searchQuery)); // Trigger fetchJobs with searchQuery
+  };
 
   return (
     <>
@@ -42,9 +46,15 @@ const Home = () => {
             fullWidth
             variant="outlined"
             placeholder="Search for jobs..."
+            value={searchQuery}
+            onChange={handleSearchChange}
             sx={{ mr: 1 }}
           />
-          <Button variant="contained" startIcon={<SearchIcon />}>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            onClick={handleSearch}
+          >
             Search
           </Button>
         </Box>

@@ -3,8 +3,10 @@ import axiosInstance from '../../axiosConfig'; // Adjust the path
 
 const apiUrl = 'api/jobs/';
 
-export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async () => {
-  const response = await axiosInstance.get(apiUrl);
+
+
+export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (query = '') => {
+  const response = await axiosInstance.get(`/api/jobs/?search=${query}`); // Adjust the API endpoint
   return response.data;
 });
 
