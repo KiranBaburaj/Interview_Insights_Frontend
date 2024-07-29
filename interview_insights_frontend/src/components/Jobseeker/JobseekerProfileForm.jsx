@@ -12,6 +12,7 @@ const Profile = () => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isProfilePhotoChanged, setIsProfilePhotoChanged] = useState(false);
+  const [profilePhotoURL, setProfilePhotoURL] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -33,6 +34,22 @@ const Profile = () => {
       setProfilePhoto(profile.profile_photo);
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (profilePhoto) {
+      if (typeof profilePhoto === 'string') {
+        setProfilePhotoURL(profilePhoto);
+      } else if (profilePhoto instanceof File) {
+        setProfilePhotoURL(URL.createObjectURL(profilePhoto));
+      }
+    }
+    return () => {
+      // Cleanup object URL when component unmounts or profilePhoto changes
+      if (profilePhotoURL) {
+        URL.revokeObjectURL(profilePhotoURL);
+      }
+    };
+  }, [profilePhoto]);
 
   const handleChange = (e) => {
     if (e.target.name === 'profile_photo') {
@@ -120,9 +137,9 @@ const Profile = () => {
                 </label>
               </Grid>
               <Grid item xs={12}>
-                {profilePhoto && (
+                {profilePhotoURL && (
                   <Avatar
-                    src={typeof profilePhoto === 'string' ? profilePhoto : URL.createObjectURL(profilePhoto)}
+                    src={profilePhotoURL}
                     alt="Profile Photo"
                     sx={{ width: 100, height: 100 }}
                   />
@@ -215,20 +232,19 @@ const Profile = () => {
           <div>
             <Card>
               <CardActionArea>
-              <CardMedia
-  component="img"
-  height="200"
-  image={typeof profilePhoto === 'string' ? profilePhoto : URL.createObjectURL(profilePhoto)}
-  alt="Profile Photo"
-  sx={{ 
-    borderRadius: '50%', 
-    width: '200px', 
-    height: '200px', 
-    objectFit: 'cover',
-    margin: 'auto'
-  }}
-/>
-
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={profilePhotoURL}
+                  alt="Profile Photo"
+                  sx={{ 
+                    borderRadius: '50%', 
+                    width: '200px', 
+                    height: '200px', 
+                    objectFit: 'cover',
+                    margin: 'auto'
+                  }}
+                />
                 <CardContent>
                   <Typography gutterBottom variant="h5" component="div">
                     {formData.full_name}
@@ -263,8 +279,8 @@ const Profile = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => setIsEditing(true)}
               style={{ marginTop: '16px' }}
+              onClick={() => setIsEditing(true)}
             >
               Edit Profile
             </Button>
