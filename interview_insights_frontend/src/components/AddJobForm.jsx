@@ -56,6 +56,7 @@ const JobManagement = () => {
     categories: [],
   });
   const { user } = useSelector((state) => state.auth);
+  console.log(user)
   const [openDialog, setOpenDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
   const [error, setError] = useState(null);
@@ -64,19 +65,16 @@ const JobManagement = () => {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const categories = useSelector(selectAllCategories);
-  console.log()
   const categoriesStatus = useSelector((state) => state.jobCategories.status);
   const categoriesError = useSelector((state) => state.jobCategories.error);
   const jobs = useSelector(selectAllJobs);
+  console.log(jobs)
   const jobsStatus = useSelector((state) => state.jobs.status);
 
   useEffect(() => {
-
-      dispatch(fetchJobCategories());
-
-      dispatch(fetchJobs());
-    
-  }, [isFormVisible,openDialog]);
+    dispatch(fetchJobCategories());
+    dispatch(fetchJobs());
+  }, [isFormVisible, openDialog]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -111,10 +109,7 @@ const JobManagement = () => {
       employer: user.id,
     };
 
-    console.log('Submitting job data:', jobDataToSend);
-
     if (jobData.id) {
-      console.log('Updating job with ID:', jobData.id);
       dispatch(updateJob({ jobId: jobData.id, jobData: jobDataToSend }))
         .unwrap()
         .then(() => {
@@ -154,7 +149,6 @@ const JobManagement = () => {
   };
 
   const handleEdit = (job) => {
-    console.log('Editing job with ID:', job.id);
     setJobData({
       id: job.id,
       title: job.title,
@@ -176,7 +170,6 @@ const JobManagement = () => {
   };
 
   const handleDelete = (jobId) => {
-    console.log('Deleting job with ID:', jobId);
     dispatch(deleteJob(jobId))
       .unwrap()
       .catch((err) => setError(err.message || 'An error occurred while deleting the job.'));
@@ -203,9 +196,11 @@ const JobManagement = () => {
   };
 
   const handleViewApplicants = (jobId) => {
-    console.log('Viewing applicants for job with ID:', jobId);
     navigate(`/EmployerJobapplicants/${jobId}`);
   };
+
+  // Filter jobs to only show those belonging to the logged-in employer
+  const filteredJobs = jobs.filter((job) => job.employer === user.id);
 
   if (categoriesStatus === 'loading' || jobsStatus === 'loading') {
     return (
@@ -327,13 +322,7 @@ const JobManagement = () => {
               type="number"
             />
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={jobData.is_remote}
-                  onChange={handleChange}
-                  name="is_remote"
-                />
-              }
+              control={<Checkbox checked={jobData.is_remote} onChange={handleChange} name="is_remote" />}
               label="Remote"
             />
             <TextField
@@ -366,7 +355,7 @@ const JobManagement = () => {
               <InputLabel>Categories</InputLabel>
               <Select
                 multiple
-                value={jobData.categories.map(cat => cat.category)}
+                value={jobData.categories.map((cat) => cat.category)}
                 onChange={handleCategoryChange}
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -376,57 +365,62 @@ const JobManagement = () => {
                   </Box>
                 )}
               >
-                {categories.map((cat) => (
-                  <MenuItem key={cat.id} value={cat.id}>
-                    <ListItemText primary={cat.name} />
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    <ListItemText primary={category.name} />
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <Button variant="contained" color="primary" type="submit">
-              {jobData.id ? 'Update Job' : 'Add Job'}
+            <Button type="submit" variant="contained" color="primary">
+              {jobData.id ? 'Update Job' : 'Create Job'}
             </Button>
             <Button
-              variant="outlined"
+              variant="contained"
               color="secondary"
-              onClick={() => {
-                resetForm();
-                setIsFormVisible(false);
-              }}
+              onClick={() => setIsFormVisible(false)}
+              sx={{ ml: 1 }}
             >
               Cancel
             </Button>
           </Box>
         )}
-        <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-          Job Listings
-        </Typography>
-        <Box>
-          {jobs.map((job) => (
-            <Paper key={job.id} elevation={2} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h6">{job.title}</Typography>
-              <Typography variant="body2">{job.description}</Typography>
-              <Button variant="contained" color="primary" onClick={() => handleEdit(job)}>
-                Edit
-              </Button>
-              <Button variant="outlined" color="secondary" onClick={() => handleDelete(job.id)}>
-                Delete
-              </Button>
-              <Button variant="outlined" color="info" onClick={() => handleViewApplicants(job.id)}>
-                View Applicants
-              </Button>
-              <Button variant="outlined" color="info" onClick={() => handleViewJob(job)}>
-                View Details
-              </Button>
-            </Paper>
-          ))}
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Job Listings
+          </Typography>
+          {filteredJobs.length === 0 ? (
+            <Typography>No jobs available</Typography>
+          ) : (
+            filteredJobs.map((job) => (
+              <Box key={job.id} sx={{ mb: 2, border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
+                <Typography variant="h6">{job.title}</Typography>
+                <Typography variant="body2">{job.description}</Typography>
+                <Box sx={{ mt: 1 }}>
+                  <Button variant="contained" color="primary" onClick={() => handleEdit(job)} sx={{ mr: 1 }}>
+                    Edit
+                  </Button>
+                  <Button variant="contained" color="error" onClick={() => handleDelete(job.id)} sx={{ mr: 1 }}>
+                    Delete
+                  </Button>
+                  <Button variant="contained" color="info" onClick={() => handleViewApplicants(job.id)}>
+                    View Applicants
+                  </Button>
+                  <Button variant="contained" color="secondary" onClick={() => handleViewJob(job)}>
+                    View Job
+                  </Button>
+                </Box>
+              </Box>
+            ))
+          )}
         </Box>
       </Paper>
+
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add New Category</DialogTitle>
+        <DialogTitle>Add Category</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter the name of the new category you want to add.
+            Enter the name of the new category.
           </DialogContentText>
           <TextField
             autoFocus
@@ -438,22 +432,32 @@ const JobManagement = () => {
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
           />
-          {error && <Typography color="error">{error}</Typography>}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
           <Button onClick={handleAddCategory}>Add</Button>
         </DialogActions>
       </Dialog>
+
       <Dialog open={viewDialogOpen} onClose={() => setViewDialogOpen(false)}>
-        <DialogTitle>Job Details</DialogTitle>
+        <DialogTitle>View Job</DialogTitle>
         <DialogContent>
           {selectedJob && (
-            <Box>
+            <>
               <Typography variant="h6">{selectedJob.title}</Typography>
               <Typography variant="body2">{selectedJob.description}</Typography>
-              {/* Display other job details as needed */}
-            </Box>
+              <Typography variant="body2">Responsibilities: {selectedJob.responsibilities}</Typography>
+              <Typography variant="body2">Qualifications: {selectedJob.qualifications}</Typography>
+              <Typography variant="body2">Nice to Have: {selectedJob.nice_to_have}</Typography>
+              <Typography variant="body2">Employment Type: {selectedJob.employment_type}</Typography>
+              <Typography variant="body2">Location: {selectedJob.location}</Typography>
+              <Typography variant="body2">Salary: {selectedJob.salary_min} - {selectedJob.salary_max}</Typography>
+              <Typography variant="body2">Remote: {selectedJob.is_remote ? 'Yes' : 'No'}</Typography>
+              <Typography variant="body2">Application Deadline: {selectedJob.application_deadline}</Typography>
+              <Typography variant="body2">Experience Level: {selectedJob.experience_level}</Typography>
+              <Typography variant="body2">Job Function: {selectedJob.job_function}</Typography>
+              <Typography variant="body2">Categories: {selectedJob.categories.map(cat => cat.category).join(', ')}</Typography>
+            </>
           )}
         </DialogContent>
         <DialogActions>
