@@ -20,9 +20,11 @@ import AdminCompany from './pages/Admin/Admincompany';
 import CompanyList from './components/Admincompany';
 import JobDetails from './components/JobDetails';
 import ApplicantsList from './components/Employer/ApplicantsList';
-import MyApplications from './components/Jobseeker/MyApplications';
 
-import Profile from './components/Jobseeker/JobseekerProfileForm';
+
+
+import JobseekerProfile from './pages/Jobseeker/JobseekerProfile';
+import JobseekerJobs from './pages/Jobseeker/JobseekerJobs';
 
 
 const App = () => {
@@ -78,18 +80,18 @@ const App = () => {
         }
       />
 <Route
-        path="/myapplications"
+        path="/jobseekerapplications"
         element={
           <ProtectedRoute roleRequired="jobseeker">
-            <MyApplications />
+            <JobseekerJobs />
           </ProtectedRoute>
         }
       />
 <Route
-        path="/myprofile"
+        path="/jobseekerprofile"
         element={
           <ProtectedRoute roleRequired="jobseeker">
-            <Profile/>
+            <JobseekerProfile/>
           </ProtectedRoute>
         }
       />

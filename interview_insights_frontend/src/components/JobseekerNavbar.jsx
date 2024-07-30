@@ -45,13 +45,13 @@ const JobseekerNavbar = () => {
           </ListItemIcon>
           <ListItemText primary="Home" />
         </ListItem>
-        <ListItem button component={Link} to="/jobs">
+        <ListItem button component={Link} to="/jobseekerapplications">
           <ListItemIcon>
             <WorkIcon />
           </ListItemIcon>
           <ListItemText primary="Jobs" />
         </ListItem>
-        <ListItem button component={Link} to="/profile">
+        <ListItem button component={Link} to="/jobseekerprofile">
           <ListItemIcon>
             <AccountBoxIcon />
           </ListItemIcon>
