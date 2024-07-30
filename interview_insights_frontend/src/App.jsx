@@ -21,7 +21,9 @@ import CompanyList from './components/Admincompany';
 import JobDetails from './components/JobDetails';
 import ApplicantsList from './components/Employer/ApplicantsList';
 
-
+import Chat from './components/Chat';
+import ChatList from './components/ChatList';
+import ChatRoom from './components/ChatRoom';
 
 import JobseekerProfile from './pages/Jobseeker/JobseekerProfile';
 import JobseekerJobs from './pages/Jobseeker/JobseekerJobs';
@@ -113,6 +115,44 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
+<Route
+  path="/chat"
+  element={
+    <ProtectedRoute roleRequired="jobseeker">
+      <Chat />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/chat/:roomId"
+  element={
+    <ProtectedRoute roleRequired="jobseeker">
+      <ChatRoom />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/employer/chat"
+  element={
+    <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
+      <Chat />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/employer/chat/:roomId"
+  element={
+    <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
+      <ChatRoom />
+    </ProtectedRoute>
+  }
+/>
+
+
       <Route
         path="/EmployerJobManagement"
         element={

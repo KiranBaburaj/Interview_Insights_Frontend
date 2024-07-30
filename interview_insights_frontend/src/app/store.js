@@ -13,6 +13,8 @@ import jobApplicationReducer from  '../features/jobapplication/jobApplicationSli
 import applicantsReducer from  '../features/applicants/applicantsSlice';
 import applicationsReducer from '../features/applications/applicationsSlice';
 
+import chatReducer from '../features/chat/chatSlice';
+
 
 const store = configureStore({
   reducer: {
@@ -27,6 +29,7 @@ const store = configureStore({
       employer: employerReducer,
       applicants:applicantsReducer,
       myapplications: applicationsReducer,
+      chat: chatReducer,
 
     // other reducers can be added here
   },
