@@ -40,6 +40,7 @@ const ChatRoom = () => {
 
   return (
     <div>
+      
       <h2>Chat with {currentChatRoom.jobseeker.username} - {currentChatRoom.employer.username}</h2>
       <div style={{ height: '400px', overflowY: 'scroll' }}>
         {messages.map(message => (
@@ -58,7 +59,9 @@ const ChatRoom = () => {
         />
         <button type="submit">Send</button>
       </form>
+      
     </div>
+    
   );
 };
 

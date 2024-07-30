@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchChatRooms, setCurrentChatRoom } from '../features/chat/chatSlice';
+import NewChatForm from './NewChatForm';
 
 const ChatList = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const ChatList = () => {
 
   return (
     <div>
+      <NewChatForm/>
       <h2>Chat Rooms</h2>
       {chatRooms.map(room => (
         <div key={room.id} onClick={() => dispatch(setCurrentChatRoom(room))}>

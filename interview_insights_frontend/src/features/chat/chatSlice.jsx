@@ -13,6 +13,20 @@ export const fetchChatRooms = createAsyncThunk(
   }
 );
 
+
+// New thunk for creating a chat room
+export const createChatRoom = createAsyncThunk(
+  'chat/createChatRoom',
+  async ({ jobseekerId, employerId }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/api/chatrooms/', { jobseekerId, employerId });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const fetchMessages = createAsyncThunk(
   'chat/fetchMessages',
   async (chatRoomId, { rejectWithValue }) => {
@@ -72,6 +86,10 @@ const chatSlice = createSlice({
       })
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.messages.push(action.payload);
+      })
+      .addCase(createChatRoom.fulfilled, (state, action) => {
+        state.chatRooms.push(action.payload); // Add the new chat room to the list
+        state.currentChatRoom = action.payload; // Optionally set as current chat room
       });
   },
 });
