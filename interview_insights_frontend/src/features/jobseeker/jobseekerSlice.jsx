@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getJobSeekers, getJobSeeker, createJobSeeker, updateJobSeeker, deleteJobSeeker } from '../../api';
+import axiosInstance from '../../axiosConfig'; // Adjust the path
+
 
 export const fetchJobSeekers = createAsyncThunk('jobSeeker/fetchJobSeekers', async () => {
   const response = await getJobSeekers();
@@ -27,7 +29,7 @@ export const removeJobSeeker = createAsyncThunk('jobSeeker/removeJobSeeker', asy
 });
 
 export const toggleActiveStatus = createAsyncThunk('jobseeker/toggleActiveStatus', async (id) => {
-  const response = await axios.post(`/employers/${id}/toggle_active/`);
+  const response = await axiosInstance.post(`/api/jobseekers/${id}/toggle_active/`);
   return id;
 });
 
