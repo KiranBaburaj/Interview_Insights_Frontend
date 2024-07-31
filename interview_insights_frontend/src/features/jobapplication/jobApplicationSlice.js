@@ -22,15 +22,17 @@ export const checkApplicationStatus = createAsyncThunk(
 
 export const applyForJob = createAsyncThunk(
   'applications/applyForJob',
-  async ({ jobId, resume_url, cover_letter }, { getState }) => {
-    const { token } = getState().auth; // Assume you have an auth slice managing JWT
-    const response = await axiosInstance.post('/api/applications/', {
-      job: jobId,
-      resume_url,
-      cover_letter,
-    }, {
+  async ({ jobId, resume, cover_letter }, { getState }) => {
+    const { token } = getState().auth;
+    const formData = new FormData();
+    formData.append('job', jobId);
+    formData.append('resume', resume);
+    formData.append('cover_letter', cover_letter);
+
+    const response = await axiosInstance.post('/api/applications/', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
     return response.data;
@@ -68,7 +70,7 @@ const jobApplicationSlice = createSlice({
       })
       .addCase(checkApplicationStatus.fulfilled, (state, action) => {
         state.userApplicationStatus.status = 'succeeded';
-        state.userApplicationStatus.hasApplied = action.payload.hasApplied; // Adjust based on your API response
+        state.userApplicationStatus.hasApplied = action.payload.hasApplied;
       })
       .addCase(checkApplicationStatus.rejected, (state, action) => {
         state.userApplicationStatus.status = 'failed';

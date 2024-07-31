@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import {
-  fetchJobById,
-  selectJobById
-} from '../features/jobs/jobsSlice';
+import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
 import {
   applyForJob,
   checkApplicationStatus,
   selectUserApplicationStatus,
   clearApplicationError,
-  clearUserApplicationStatus
+  clearUserApplicationStatus,
 } from '../features/jobapplication/jobApplicationSlice';
 import {
   Container,
@@ -26,9 +23,6 @@ import {
   Button,
   TextField,
   Alert,
-  IconButton,
-  Tooltip,
-  Avatar
 } from '@mui/material';
 import {
   Business,
@@ -36,10 +30,7 @@ import {
   CalendarToday,
   AttachMoney,
   DateRange,
-  CheckCircle,
-  Error
 } from '@mui/icons-material';
-import Navbar from './Navbar';
 
 const JobDetails = () => {
   const { jobId } = useParams();
@@ -51,7 +42,7 @@ const JobDetails = () => {
   const applicationError = useSelector((state) => state.applications.error);
   const userApplicationStatus = useSelector(selectUserApplicationStatus);
 
-  const [resumeUrl, setResumeUrl] = useState('');
+  const [resume, setResume] = useState(null); // State for file input
   const [coverLetter, setCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
 
@@ -85,7 +76,7 @@ const JobDetails = () => {
 
   const handleApply = () => {
     setIsApplying(true);
-    dispatch(applyForJob({ jobId, resume_url: resumeUrl, cover_letter: coverLetter }));
+    dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter }));
   };
 
   if (jobStatus === 'loading' || userApplicationStatus.status === 'loading') {
@@ -121,39 +112,17 @@ const JobDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Navbar />
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-
-  
-      </Box>
-      <Card elevation={3} sx={{ mb: 4 }}>
+      <Card>
         <CardHeader
           title={job.title}
-          subheader={`${job.company.name} - ${job.location}`}
+          subheader={`${job.company} - ${job.location}`}
           avatar={<Business />}
-          action={
-            job.status === 'open' && !userApplicationStatus.hasApplied && (
-              <Tooltip title="Apply Now">
-                <IconButton
-                  onClick={handleApply}
-                  disabled={isApplying || userApplicationStatus.hasApplied}
-                >
-                  <CheckCircle color={isApplying ? 'disabled' : 'primary'} />
-                </IconButton>
-              </Tooltip>
-            )
-          }
         />
         <Divider />
         <CardContent>
-          <Grid container spacing={3}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography variant="body1" paragraph>
-                {job.description}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-             
+              <Typography variant="body1">{job.description}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
@@ -175,17 +144,15 @@ const JobDetails = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 <AttachMoney sx={{ verticalAlign: 'middle' }} />{' '}
-                Salary: {job.salary_min} - {job.salary_max}
+                Salary: ${job.salary_min} - ${job.salary_max}
               </Typography>
             </Grid>
             {job.skills && job.skills.length > 0 && (
               <Grid item xs={12}>
-                <Typography variant="h6" sx={{ mb: 1 }}>Skills</Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {job.skills.map((skill, index) => (
-                    <Chip key={index} label={skill} color="primary" />
-                  ))}
-                </Box>
+                <Typography variant="h6">Skills:</Typography>
+                {job.skills.map((skill, index) => (
+                  <Chip key={index} label={skill} sx={{ mr: 1, mt: 1 }} />
+                ))}
               </Grid>
             )}
             <Grid item xs={12}>
@@ -205,22 +172,15 @@ const JobDetails = () => {
             </Grid>
             <Grid item xs={12}>
               {applicationStatus === 'failed' && (
-                <Alert severity="error" icon={<Error />}>
-                  {applicationError}
-                </Alert>
+                <Alert severity="error">{applicationError}</Alert>
               )}
               {applicationStatus === 'succeeded' && (
-                <Alert severity="success" icon={<CheckCircle />}>
-                  Application submitted successfully!
-                </Alert>
+                <Alert severity="success">Application submitted successfully!</Alert>
               )}
-              <TextField
-                label="Resume URL"
-                fullWidth
-                variant="outlined"
-                value={resumeUrl}
-                onChange={(e) => setResumeUrl(e.target.value)}
-                sx={{ mb: 2 }}
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setResume(e.target.files[0])}
                 disabled={isApplying || userApplicationStatus.hasApplied}
               />
               <TextField
@@ -240,7 +200,7 @@ const JobDetails = () => {
                 onClick={handleApply}
                 disabled={isApplying || userApplicationStatus.hasApplied}
               >
-                Apply Now
+                {userApplicationStatus.hasApplied ? 'Already Applied' : isApplying ? 'Applying...' : 'Apply'}
               </Button>
             </Grid>
           </Grid>

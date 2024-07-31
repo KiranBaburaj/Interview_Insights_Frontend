@@ -38,6 +38,10 @@ const ApplicantsList = () => {
     dispatch(fetchApplicants(jobId));
   }, [dispatch, jobId]);
 
+  const handleDownloadResume = (resumeUrl) => {
+    window.open(`http://localhost:8000${resumeUrl}`, '_blank');
+  };
+
   if (status === 'loading') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
@@ -109,7 +113,12 @@ const ApplicantsList = () => {
                     </TableCell>
                     <TableCell>{new Date(applicant.applied_at).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Button variant="outlined">See Application</Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleDownloadResume(applicant.resume)}
+                      >
+                        See Application
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <IconButton>
