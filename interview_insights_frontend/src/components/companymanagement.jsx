@@ -14,7 +14,7 @@ import {
 const CompanyManagement = () => {
   const dispatch = useDispatch();
   const { companies, status, error } = useSelector(state => state.company);
-  const { user,companyDetailsSubmitted } = useSelector(state => state.auth); 
+  const { user } = useSelector(state => state.auth); 
   const [companyData, setCompanyData] = useState({
     name: '',
     logo_url: '',
@@ -30,10 +30,22 @@ const CompanyManagement = () => {
     is_approved: false,
   });
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [companyExists, setCompanyExists] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCompanies());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (companies.length > 0) {
+      // Check if the logged-in user already has a company
+      const userCompany = companies.find(company => company.employer === user.id);
+      if (userCompany) {
+        setCompanyExists(true);
+        setCompanyData(userCompany); // Set company data if a company exists
+      }
+    }
+  }, [companies, user.id]);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -59,8 +71,6 @@ const CompanyManagement = () => {
       employer: user.id,
     };
     if (companyData.id) {
-
-
       // If companyData has an id, it means we are updating an existing company
       dispatch(updateCompany(companyData2));
     } else {
@@ -94,7 +104,6 @@ const CompanyManagement = () => {
     setCompanyData(company);
     setIsFormVisible(true); // Show the form when editing
   };
-  console.log(companyDetailsSubmitted)
 
   const handleDelete = (companyId) => {
     // Dispatch an action to delete the company
@@ -109,10 +118,12 @@ const CompanyManagement = () => {
           <Typography variant="h4" gutterBottom>
             Company Management
           </Typography>
-          <Button variant="contained" color="primary" onClick={() => setIsFormVisible(true)}>
-            Create Company
-          </Button>
-          {isFormVisible && (
+          {!companyExists && !isFormVisible && (
+            <Button variant="contained" color="primary" onClick={() => setIsFormVisible(true)}>
+              Create Company
+            </Button>
+          )}
+          {(isFormVisible || !companyExists) && (
             <form onSubmit={handleSubmit} encType="multipart/form-data">
               <TextField
                 fullWidth
@@ -245,24 +256,28 @@ const CompanyManagement = () => {
               {typeof error === 'object' ? JSON.stringify(error) : error}
             </Typography>
           )}
-          <Box sx={{ mt: 4 }}>
-            <Typography variant="h5" gutterBottom>
-              Company List
-            </Typography>
-            <ul>
-              {companies.map(company => (
-                <li key={company.id}>
-                  {company.name}
-                  <Button variant="outlined" color="primary" onClick={() => handleEdit(company)} sx={{ mx: 1 }}>
-                    Edit
-                  </Button>
-                  <Button variant="outlined" color="error" onClick={() => handleDelete(company.id)} sx={{ mx: 1 }}>
-                    Delete
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </Box>
+          {companyExists && (
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h5" gutterBottom>
+                Existing Company
+              </Typography>
+              <ul>
+                {companies
+                  .filter(company => company.employer === user.id)
+                  .map(company => (
+                    <li key={company.id}>
+                      {company.name}
+                      <Button variant="outlined" color="primary" onClick={() => handleEdit(company)} sx={{ mx: 1 }}>
+                        Edit
+                      </Button>
+                      <Button variant="outlined" color="error" onClick={() => handleDelete(company.id)} sx={{ mx: 1 }}>
+                        Delete
+                      </Button>
+                    </li>
+                  ))}
+              </ul>
+            </Box>
+          )}
         </Paper>
       </Box>
     </Container>
