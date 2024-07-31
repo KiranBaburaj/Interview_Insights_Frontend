@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
+import {
+  fetchJobById,
+  selectJobById
+} from '../features/jobs/jobsSlice';
 import {
   applyForJob,
   checkApplicationStatus,
   selectUserApplicationStatus,
   clearApplicationError,
-  clearUserApplicationStatus,
+  clearUserApplicationStatus
 } from '../features/jobapplication/jobApplicationSlice';
 import {
   Container,
@@ -23,6 +26,9 @@ import {
   Button,
   TextField,
   Alert,
+  IconButton,
+  Tooltip,
+  Avatar
 } from '@mui/material';
 import {
   Business,
@@ -30,6 +36,8 @@ import {
   CalendarToday,
   AttachMoney,
   DateRange,
+  CheckCircle,
+  Error
 } from '@mui/icons-material';
 import Navbar from './Navbar';
 
@@ -45,7 +53,7 @@ const JobDetails = () => {
 
   const [resumeUrl, setResumeUrl] = useState('');
   const [coverLetter, setCoverLetter] = useState('');
-  const [isApplying, setIsApplying] = useState(false); // Local state for immediate button disable
+  const [isApplying, setIsApplying] = useState(false);
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
@@ -57,7 +65,7 @@ const JobDetails = () => {
     if (job) {
       dispatch(checkApplicationStatus(jobId));
     }
-  }, [job, dispatch, jobId,isApplying]);
+  }, [job, dispatch, jobId, isApplying]);
 
   useEffect(() => {
     if (applicationStatus === 'failed' || userApplicationStatus.status === 'failed') {
@@ -71,7 +79,7 @@ const JobDetails = () => {
 
   useEffect(() => {
     if (applicationStatus === 'succeeded') {
-      setIsApplying(false); // Reset the local state after successful application
+      setIsApplying(false);
     }
   }, [applicationStatus]);
 
@@ -113,18 +121,39 @@ const JobDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Navbar/>
-      <Card>
+      <Navbar />
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+
+  
+      </Box>
+      <Card elevation={3} sx={{ mb: 4 }}>
         <CardHeader
           title={job.title}
           subheader={`${job.company.name} - ${job.location}`}
           avatar={<Business />}
+          action={
+            job.status === 'open' && !userApplicationStatus.hasApplied && (
+              <Tooltip title="Apply Now">
+                <IconButton
+                  onClick={handleApply}
+                  disabled={isApplying || userApplicationStatus.hasApplied}
+                >
+                  <CheckCircle color={isApplying ? 'disabled' : 'primary'} />
+                </IconButton>
+              </Tooltip>
+            )
+          }
         />
         <Divider />
         <CardContent>
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Typography variant="body1">{job.description}</Typography>
+              <Typography variant="body1" paragraph>
+                {job.description}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+             
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
@@ -151,10 +180,12 @@ const JobDetails = () => {
             </Grid>
             {job.skills && job.skills.length > 0 && (
               <Grid item xs={12}>
-                <Typography variant="h6">Skills:</Typography>
-                {job.skills.map((skill, index) => (
-                  <Chip key={index} label={skill} sx={{ mr: 1, mt: 1 }} />
-                ))}
+                <Typography variant="h6" sx={{ mb: 1 }}>Skills</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {job.skills.map((skill, index) => (
+                    <Chip key={index} label={skill} color="primary" />
+                  ))}
+                </Box>
               </Grid>
             )}
             <Grid item xs={12}>
@@ -174,10 +205,14 @@ const JobDetails = () => {
             </Grid>
             <Grid item xs={12}>
               {applicationStatus === 'failed' && (
-                <Alert severity="error">{applicationError}</Alert>
+                <Alert severity="error" icon={<Error />}>
+                  {applicationError}
+                </Alert>
               )}
               {applicationStatus === 'succeeded' && (
-                <Alert severity="success">Application submitted successfully!</Alert>
+                <Alert severity="success" icon={<CheckCircle />}>
+                  Application submitted successfully!
+                </Alert>
               )}
               <TextField
                 label="Resume URL"
@@ -205,7 +240,7 @@ const JobDetails = () => {
                 onClick={handleApply}
                 disabled={isApplying || userApplicationStatus.hasApplied}
               >
-                {userApplicationStatus.hasApplied ? 'Already Applied' : isApplying ? 'Applying...' : 'Apply'}
+                Apply Now
               </Button>
             </Grid>
           </Grid>
