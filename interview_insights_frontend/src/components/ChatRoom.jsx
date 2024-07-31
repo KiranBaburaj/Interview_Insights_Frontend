@@ -20,7 +20,12 @@ const ChatRoom = () => {
     if (currentChatRoom && token) {
       dispatch(fetchMessages(currentChatRoom.id));
       const socket = connectWebSocket(currentChatRoom.id, (message) => {
-        dispatch(addMessage(message));
+        // Assuming the message object has an 'id' field
+        if (message.id) {
+          dispatch(addMessage(message));
+        } else {
+          console.error('Received message without id:', message);
+        }
       }, token);
 
       return () => {
@@ -78,21 +83,24 @@ const ChatRoom = () => {
           backgroundColor: '#fafafa',
         }}
       >
-        {messages.map(message => (
-          <Paper
-            key={`${message.id}-${message.timestamp}`} // Improved key assignment
-            sx={{
-              mb: 1,
-              p: 1,
-              borderRadius: 1,
-              backgroundColor:  '#f1f8e9',
-            }}
-          >
-            <Typography variant="body2" gutterBottom>
-              <strong>{message.id}:</strong> {message.content}
-            </Typography>
-          </Paper>
-        ))}
+     {messages.map(message => (
+  <Paper
+    key={message.id || `temp-${message.timestamp}`}
+    sx={{
+      mb: 1,
+      p: 1,
+      borderRadius: 1,
+      backgroundColor: '#f1f8e9',
+    }}
+  >
+    <Typography variant="body2" gutterBottom>
+      <strong>{message.sender?.name || message.sender?.id || 'Unknown'}:</strong> {message.content}
+    </Typography>
+    <Typography variant="caption" color="textSecondary">
+      {new Date(message.timestamp).toLocaleString()}
+    </Typography>
+  </Paper>
+))}
         <div ref={messagesEndRef} />
       </Box>
 

@@ -55,15 +55,28 @@ export const fetchMessages = createAsyncThunk(
     }
   }
 );
-
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ chatRoomId, content }, { rejectWithValue }) => {
+  async ({ chatRoomId, content }, { getState, dispatch }) => {
+    const state = getState();
+    const user = state.auth.user;
+    const tempMessage = {
+      id: `temp-${Date.now()}`,
+      content,
+      sender: {
+        id: user.id,
+        name: user.name
+      },
+      timestamp: new Date().toISOString(),
+    };
+    dispatch(addMessage(tempMessage));
+
     try {
-      const response = await axiosInstance.post(`/api/chatrooms/${chatRoomId}/messages/`, { chatRoomId,content });
+      const response = await axiosInstance.post(`/api/chatrooms/${chatRoomId}/messages/`, { content });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      dispatch(removeMessage(tempMessage.id));
+      throw error;
     }
   }
 );
@@ -82,7 +95,14 @@ const chatSlice = createSlice({
       state.currentChatRoom = action.payload;
     },
     addMessage: (state, action) => {
-      state.messages.push(action.payload);
+      const newMessage = {
+        ...action.payload,
+        id: action.payload.id || `temp-${Date.now()}`,
+      };
+      state.messages.push(newMessage);
+    },
+    removeMessage: (state, action) => {
+      state.messages = state.messages.filter(message => message.id !== action.payload);
     },
   },
   extraReducers: (builder) => {
