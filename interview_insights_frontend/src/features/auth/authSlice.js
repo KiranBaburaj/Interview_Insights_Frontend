@@ -40,6 +40,7 @@ export const login = createAsyncThunk(
     try {
       const response = await axios.post('/api/login/', userData);
       localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('userid', response.data.user.id);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', response.data.role);
       return response.data;
@@ -134,10 +135,11 @@ export const fetchRecruiters = createAsyncThunk(
 );
 
 const initialState = {
-  user:localStorage.getItem('user') || null,
+  user:localStorage.getItem('user') || {},
   role: localStorage.getItem('role') || null,
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
+  userid:localStorage.getItem('userid') || null,
   error: null,
   loading: false,
   jobSeekers: [],
@@ -193,6 +195,7 @@ const authSlice = createSlice({
         state.accessToken = action.payload.accessToken;
         state.refreshToken = action.payload.refreshToken;
         state.role = action.payload.role;
+        state.userid = action.payload.user.id;
         state.companyDetailsSubmitted = action.payload.companyDetailsSubmitted;
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);

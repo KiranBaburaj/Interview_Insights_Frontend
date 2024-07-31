@@ -39,7 +39,7 @@ const CompanyList = () => {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Companies</Typography>
+
       {status === 'loading' && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
 

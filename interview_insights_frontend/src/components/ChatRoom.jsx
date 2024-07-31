@@ -1,36 +1,33 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessages, sendMessage, getOrCreateChatRoom, addMessage } from '../features/chat/chatSlice';
+import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSlice';
 import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from '../utils/websocket';
 import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/material';
 
 const ChatRoom = () => {
-  const { jobseekerId, employerId } = useParams();
   const dispatch = useDispatch();
   const currentChatRoom = useSelector(state => state.chat.currentChatRoom);
+  console.log(currentChatRoom)
   const messages = useSelector(state => state.chat.messages);
+  console.log(messages)
+  const token = useSelector(state => state.auth.accessToken); // Assuming you have token in auth slice
+  const user = useSelector(state => state.auth.user); // Assuming you have userId in auth slice
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
+  const userid = useSelector(state => state.auth.userid);
 
   useEffect(() => {
-    if (jobseekerId && employerId) {
-      dispatch(getOrCreateChatRoom({ jobseekerId, employerId }));
-    }
-  }, [dispatch, jobseekerId, employerId]);
-
-  useEffect(() => {
-    if (currentChatRoom) {
+    if (currentChatRoom && token) {
       dispatch(fetchMessages(currentChatRoom.id));
       const socket = connectWebSocket(currentChatRoom.id, (message) => {
         dispatch(addMessage(message));
-      });
+      }, token);
 
       return () => {
-        socket.close();
+        closeWebSocket();
       };
     }
-  }, [dispatch, currentChatRoom]);
+  }, [dispatch, currentChatRoom, token]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,9 +35,17 @@ const ChatRoom = () => {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (newMessage.trim() && currentChatRoom) {
+    if (newMessage.trim()) {
+      const messagePayload = {
+        type: 'chat_message',
+        message: newMessage,
+        user_id: userid, // Include user_id in the payload
+        timestamp: new Date().toISOString() // Optional: Include timestamp if needed
+      };
+
       dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
-      sendWebSocketMessage(newMessage);
+      sendWebSocketMessage(messagePayload); // Send the payload with user_id
+      
       setNewMessage('');
     }
   };
@@ -59,7 +64,7 @@ const ChatRoom = () => {
       }}
     >
       <Typography variant="h5" gutterBottom>
-        Chat with {currentChatRoom.jobseeker.username} - {currentChatRoom.employer.username}
+        Chat with {currentChatRoom.jobseeker.id} - {currentChatRoom.employer.id}
       </Typography>
 
       <Box
@@ -75,16 +80,16 @@ const ChatRoom = () => {
       >
         {messages.map(message => (
           <Paper
-            key={message.id}
+            key={`${message.id}-${message.timestamp}`} // Improved key assignment
             sx={{
               mb: 1,
               p: 1,
               borderRadius: 1,
-              backgroundColor: message.sender.username === currentChatRoom.jobseeker.username ? '#e3f2fd' : '#f1f8e9',
+              backgroundColor:  '#f1f8e9',
             }}
           >
             <Typography variant="body2" gutterBottom>
-              <strong>{message.sender.username}:</strong> {message.content}
+              <strong>{message.id}:</strong> {message.content}
             </Typography>
           </Paper>
         ))}

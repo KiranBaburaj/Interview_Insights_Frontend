@@ -60,7 +60,7 @@ export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async ({ chatRoomId, content }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(`/api/chatrooms/${chatRoomId}/messages/`, { content });
+      const response = await axiosInstance.post(`/api/chatrooms/${chatRoomId}/messages/`, { chatRoomId,content });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
