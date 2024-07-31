@@ -151,6 +151,14 @@ const App = () => {
     </ProtectedRoute>
   }
 />
+<Route
+  path="/chat/:jobseekerId/:employerId"
+  element={
+    <ProtectedRoute roleRequired={["jobseeker", "employer"]}>
+      <ChatRoom />
+    </ProtectedRoute>
+  }
+/>
 
 
       <Route

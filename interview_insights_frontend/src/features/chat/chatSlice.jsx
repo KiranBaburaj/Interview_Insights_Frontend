@@ -13,19 +13,36 @@ export const fetchChatRooms = createAsyncThunk(
   }
 );
 
-
-// New thunk for creating a chat room
 export const createChatRoom = createAsyncThunk(
   'chat/createChatRoom',
   async ({ jobseekerId, employerId }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/api/chatrooms/', { jobseekerId, employerId });
+      const response = await axiosInstance.post('/api/chatrooms/', { jobseeker_id: jobseekerId, employer_id: employerId });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 400 && error.response.data.existing_room) {
+        // If the room already exists, return the existing room
+        return error.response.data.existing_room;
+      }
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const getOrCreateChatRoom = createAsyncThunk(
+  'chat/getOrCreateChatRoom',
+  async ({ jobseekerId, employerId }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/api/chatrooms/get_or_create/', { jobseeker_id: jobseekerId, employer_id: employerId });
+      dispatch(setCurrentChatRoom(response.data));
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
   }
 );
+
+
 
 export const fetchMessages = createAsyncThunk(
   'chat/fetchMessages',

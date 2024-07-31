@@ -31,6 +31,7 @@ import {
   AttachMoney,
   DateRange,
 } from '@mui/icons-material';
+import Navbar from './Navbar';
 
 const JobDetails = () => {
   const { jobId } = useParams();
@@ -112,6 +113,7 @@ const JobDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Navbar/>
       <Card>
         <CardHeader
           title={job.title}
