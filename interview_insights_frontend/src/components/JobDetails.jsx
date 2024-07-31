@@ -117,7 +117,7 @@ const JobDetails = () => {
       <Card>
         <CardHeader
           title={job.title}
-          subheader={`${job.company} - ${job.location}`}
+          subheader={`${job.company.name} - ${job.location}`}
           avatar={<Business />}
         />
         <Divider />
@@ -146,7 +146,7 @@ const JobDetails = () => {
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 <AttachMoney sx={{ verticalAlign: 'middle' }} />{' '}
-                Salary: ${job.salary_min} - ${job.salary_max}
+                Salary: {job.salary_min} - {job.salary_max}
               </Typography>
             </Grid>
             {job.skills && job.skills.length > 0 && (

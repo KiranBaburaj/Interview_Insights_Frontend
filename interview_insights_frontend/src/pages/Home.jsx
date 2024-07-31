@@ -12,7 +12,9 @@ import {
   CardActions,
   Box,
   CircularProgress,
-  Typography
+  Typography,
+  Paper,
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import Navbar from '../components/Navbar';
@@ -40,26 +42,48 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <Container maxWidth="md" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', mb: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            mb: 4, 
+            px: 3, 
+            py: 2, 
+            backgroundColor: '#f5f5f5', 
+            borderRadius: 2, 
+            boxShadow: 1 
+          }}
+        >
           <TextField
             fullWidth
             variant="outlined"
             placeholder="Search for jobs..."
             value={searchQuery}
             onChange={handleSearchChange}
-            sx={{ mr: 1 }}
+            sx={{ mr: 2 }}
+            size="small"
+            InputProps={{
+              style: {
+                padding: '10px 12px'
+              }
+            }}
           />
           <Button
             variant="contained"
             startIcon={<SearchIcon />}
             onClick={handleSearch}
+            size="small"
+            sx={{ 
+              borderRadius: '20px',
+              px: 3
+            }}
           >
             Search
           </Button>
         </Box>
 
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
           Featured Jobs
         </Typography>
 
@@ -72,10 +96,10 @@ const Home = () => {
             <Typography color="error">Error: {jobsError}</Typography>
           </Box>
         ) : (
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {jobs.map((job) => (
-              <Grid item xs={12} sm={6} key={job.id}>
-                <Card>
+              <Grid item xs={12} sm={6} md={4} key={job.id}>
+                <Card elevation={4} sx={{ borderRadius: 2 }}>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
                       {job.title}
@@ -83,13 +107,14 @@ const Home = () => {
                     <Typography color="textSecondary" variant="body2" gutterBottom>
                       {job.company.name} - {job.location}
                     </Typography>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="body2">
+                      {job.description.substring(0, 100)}...
+                    </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary" component={Link} to={`/job/${job.id}`}>
+                    <Button size="small" color="primary" component={Link} to={`/job/${job.id}`} sx={{ borderRadius: 20 }}>
                       Learn More
-                    </Button>
-                    <Button size="small" variant="contained" color="primary" component={Link} to={`/apply/${job.id}`}>
-                      Apply
                     </Button>
                   </CardActions>
                 </Card>
@@ -99,8 +124,8 @@ const Home = () => {
         )}
       </Container>
 
-      <Box component="footer" sx={{ bgcolor: 'background.paper', p: 6, mt: 4 }}>
-        <Typography variant="body2" color="text.secondary" align="center">
+      <Box component="footer" sx={{ bgcolor: 'background.paper', p: 4, mt: 6, textAlign: 'center', borderTop: '1px solid #e0e0e0' }}>
+        <Typography variant="body2" color="text.secondary">
           © 2024 Job Portal. All rights reserved.
         </Typography>
       </Box>
