@@ -19,7 +19,7 @@ const JobSeekerList = () => {
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
-      <Typography variant="h4" gutterBottom>Job Seekers</Typography>
+
       
       <List>
         {jobSeekers.map((jobSeeker) => (

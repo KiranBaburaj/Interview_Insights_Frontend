@@ -31,6 +31,7 @@ import {
   AttachMoney,
   DateRange,
 } from '@mui/icons-material';
+import Navbar from './Navbar';
 
 const JobDetails = () => {
   const { jobId } = useParams();
@@ -45,6 +46,8 @@ const JobDetails = () => {
   const [resume, setResume] = useState(null); // State for file input
   const [coverLetter, setCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
@@ -60,17 +63,22 @@ const JobDetails = () => {
 
   useEffect(() => {
     if (applicationStatus === 'failed' || userApplicationStatus.status === 'failed') {
+      setShowError(true);
       const timer = setTimeout(() => {
+        setShowError(false);
         dispatch(clearApplicationError());
         dispatch(clearUserApplicationStatus());
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [applicationStatus, userApplicationStatus, dispatch]);
+  }, [applicationStatus, userApplicationStatus.status, dispatch]);
 
   useEffect(() => {
     if (applicationStatus === 'succeeded') {
       setIsApplying(false);
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
     }
   }, [applicationStatus]);
 
@@ -112,6 +120,7 @@ const JobDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Navbar/>
       <Card>
         <CardHeader
           title={job.title}
@@ -171,10 +180,10 @@ const JobDetails = () => {
               </Typography>
             </Grid>
             <Grid item xs={12}>
-              {applicationStatus === 'failed' && (
+              {showError && (
                 <Alert severity="error">{applicationError}</Alert>
               )}
-              {applicationStatus === 'succeeded' && (
+              {showSuccess && (
                 <Alert severity="success">Application submitted successfully!</Alert>
               )}
               <input

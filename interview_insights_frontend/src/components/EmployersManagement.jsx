@@ -5,7 +5,8 @@ import {
   selectAllEmployers,
   selectEmployerError,
 } from '../features/employer/employerSlice';
-import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Avatar, Divider } from '@mui/material';
+import { Business } from '@mui/icons-material';
 
 const EmployerManagement = () => {
   const dispatch = useDispatch();
@@ -17,40 +18,24 @@ const EmployerManagement = () => {
   }, [dispatch]);
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Employers</Typography>
+    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 2, backgroundColor: '#f9f9f9', borderRadius: 2 }}>
 
+      
       <List>
         {employers.map((employer) => (
-          <ListItem key={employer.user.id} sx={{ borderBottom: '1px solid #ccc', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <ListItemText
-              primary={`${employer.user.full_name} (${employer.company_name})`}
-              secondary={
-                <>
-                  <Typography component="span" variant="body2" color="textPrimary">
-                    Email: {employer.user.email}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="textPrimary">
-                    Company Name: {employer.company_name}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="textPrimary">
-                    Company Address: {employer.company_address}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="textPrimary">
-                    Phone: {employer.phone_number}
-                  </Typography>
-                  <br />
-                  <Typography component="span" variant="body2" color="textPrimary">
-                    Website: {employer.website_url}
-                  </Typography>
-                </>
-              }
-              sx={{ flex: '1 1 auto' }}
-            />
-          </ListItem>
+          <React.Fragment key={employer.user.id}>
+            <ListItem sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Avatar sx={{ bgcolor: 'secondary.main', width: 56, height: 56 }}>
+                <Business fontSize="large" />
+              </Avatar>
+              <ListItemText
+                primary={<Typography variant="h6">{employer.user.full_name}</Typography>}
+                secondary={`Email: ${employer.user.email}`}
+                sx={{ flex: '1 1 auto' }}
+              />
+            </ListItem>
+            <Divider />
+          </React.Fragment>
         ))}
       </List>
       {error && <Typography color="error">Error loading employers: {error}</Typography>}
