@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSlice';
@@ -82,7 +84,7 @@ const ChatRoom = () => {
           backgroundColor: '#fafafa',
         }}
       >
-   {messages.map(message => (
+  {messages.map(message => (
   <Paper
     key={message.id || `temp-${message.timestamp}`}
     sx={{
@@ -100,6 +102,7 @@ const ChatRoom = () => {
     </Typography>
   </Paper>
 ))}
+
 
         <div ref={messagesEndRef} />
       </Box>
