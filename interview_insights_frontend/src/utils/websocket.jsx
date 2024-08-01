@@ -20,24 +20,31 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
   };
 
   // When a message is received from the server
-  socket.onmessage = (event) => {
+  // When a message is received from the server
+socket.onmessage = (event) => {
   try {
     const data = JSON.parse(event.data);
+    console.log("Received data:", data);
     if (data.error) {
       console.error('WebSocket error:', data.error);
     } else if (data.message) {
+      // Ensure message content is properly formatted
+      const messageContent = data.message.content || Object.values(data.message).join('');
       // Add a timestamp and ensure sender information is included
       const messageWithDetails = {
         ...data.message,
+        content: messageContent, // Ensure message content is properly assigned
         timestamp: data.message.timestamp || new Date().toISOString(),
-        sender: data.message.sender || { id: data.message.user_id, name: 'User ' + data.message.user_id }
+        sender: data.message.sender || { id: data.user_id, name: 'User ' + data.user_id }
       };
+      console.log("Processed message:", messageWithDetails);
       onMessageReceived(messageWithDetails);
     }
   } catch (e) {
     console.error('Failed to parse WebSocket message:', e);
   }
 };
+
 
   // When an error occurs
   socket.onerror = (error) => {
@@ -68,6 +75,7 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
 export const sendWebSocketMessage = (messagePayload) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(messagePayload));
+
   } else {
     console.warn('WebSocket is not open. Message not sent.');
   }

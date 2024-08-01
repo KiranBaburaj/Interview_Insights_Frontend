@@ -47,6 +47,7 @@ const ChatRoom = () => {
   
       // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
+      console.log(messagePayload)
       dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
       
       setNewMessage('');
@@ -92,13 +93,14 @@ const ChatRoom = () => {
     }}
   >
     <Typography variant="body2" gutterBottom>
-      <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content}
+      <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content || 'No content'}
     </Typography>
     <Typography variant="caption" color="textSecondary">
       {new Date(message.timestamp).toLocaleString()}
     </Typography>
   </Paper>
 ))}
+
         <div ref={messagesEndRef} />
       </Box>
 
