@@ -45,17 +45,9 @@ const ChatRoom = () => {
         timestamp: new Date().toISOString()
       };
   
-      // Add message to local state immediately
-      const tempMessage = {
-        id: `temp-${Date.now()}`,
-        content: newMessage,
-        sender: { id: userid, name: user.name }, // Include the user's name
-        timestamp: new Date().toISOString()
-      };
-      dispatch(addMessage(tempMessage));
-  
-      dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
+      // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
+      dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
       
       setNewMessage('');
     }
@@ -89,18 +81,18 @@ const ChatRoom = () => {
           backgroundColor: '#fafafa',
         }}
       >
-    {messages.map(message => (
+   {messages.map(message => (
   <Paper
     key={message.id || `temp-${message.timestamp}`}
     sx={{
       mb: 1,
       p: 1,
       borderRadius: 1,
-      backgroundColor: '#f1f8e9',
+      backgroundColor: message.sender.id === userid ? '#e3f2fd' : '#f1f8e9',
     }}
   >
     <Typography variant="body2" gutterBottom>
-      <strong>{message.sender?.name || message.sender?.id || 'Unknown'}:</strong> {message.content}
+      <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content}
     </Typography>
     <Typography variant="caption" color="textSecondary">
       {new Date(message.timestamp).toLocaleString()}
