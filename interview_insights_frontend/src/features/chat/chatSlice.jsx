@@ -95,10 +95,11 @@ const chatSlice = createSlice({
       state.currentChatRoom = action.payload;
     },
     addMessage: (state, action) => {
-      const newMessage = {
-        ...action.payload,
-        id: action.payload.id || `temp-${Date.now()}`,
-      };
+      const newMessage = action.payload;
+      // Ensure the sender information is included
+      if (!newMessage.sender) {
+        newMessage.sender = { id: newMessage.user_id, name: `User ${newMessage.user_id}` };
+      }
       state.messages.push(newMessage);
     },
     removeMessage: (state, action) => {

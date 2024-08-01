@@ -20,14 +20,11 @@ const ChatRoom = () => {
     if (currentChatRoom && token) {
       dispatch(fetchMessages(currentChatRoom.id));
       const socket = connectWebSocket(currentChatRoom.id, (message) => {
-        // Assuming the message object has an 'id' field
-        if (message.id) {
-          dispatch(addMessage(message));
-        } else {
-          console.error('Received message without id:', message);
-        }
+        // Add a temporary id if the message doesn't have one
+        const messageWithId = message.id ? message : { ...message, id: `temp-${Date.now()}` };
+        dispatch(addMessage(messageWithId));
       }, token);
-
+  
       return () => {
         closeWebSocket();
       };
@@ -44,12 +41,21 @@ const ChatRoom = () => {
       const messagePayload = {
         type: 'chat_message',
         message: newMessage,
-        user_id: userid, // Include user_id in the payload
-        timestamp: new Date().toISOString() // Optional: Include timestamp if needed
+        user_id: userid,
+        timestamp: new Date().toISOString()
       };
-
+  
+      // Add message to local state immediately
+      const tempMessage = {
+        id: `temp-${Date.now()}`,
+        content: newMessage,
+        sender: { id: userid, name: user.name }, // Include the user's name
+        timestamp: new Date().toISOString()
+      };
+      dispatch(addMessage(tempMessage));
+  
       dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
-      sendWebSocketMessage(messagePayload); // Send the payload with user_id
+      sendWebSocketMessage(messagePayload);
       
       setNewMessage('');
     }
@@ -83,7 +89,7 @@ const ChatRoom = () => {
           backgroundColor: '#fafafa',
         }}
       >
-     {messages.map(message => (
+    {messages.map(message => (
   <Paper
     key={message.id || `temp-${message.timestamp}`}
     sx={{

@@ -22,12 +22,17 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
   // When a message is received from the server
   socket.onmessage = (event) => {
     try {
-      console.log(onmessage)
       const data = JSON.parse(event.data);
       if (data.error) {
         console.error('WebSocket error:', data.error);
       } else if (data.message) {
-        onMessageReceived(data.message);
+        // Add a timestamp and ensure sender information is included
+        const messageWithDetails = {
+          ...data.message,
+          timestamp: data.message.timestamp || new Date().toISOString(),
+          sender: data.message.sender || { id: data.message.user_id, name: 'User ' + data.message.user_id }
+        };
+        onMessageReceived(messageWithDetails);
       }
     } catch (e) {
       console.error('Failed to parse WebSocket message:', e);
@@ -61,7 +66,6 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
  * @param {Object} messagePayload - The message payload to send.
  */
 export const sendWebSocketMessage = (messagePayload) => {
-  console.log(messagePayload)
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(messagePayload));
   } else {
