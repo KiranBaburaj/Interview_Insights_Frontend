@@ -99,7 +99,7 @@ const ChatRoom = () => {
             }}
           >
             <Typography variant="body2" gutterBottom>
-              <strong>{message.sender.full_name || `User ${message.sender.full_name}`}:</strong> {message.content || 'No content'}
+              <strong>{message.sender.full_name || `${message.sender.name}`}:</strong> {message.content || 'No content'}
             </Typography>
             <Typography variant="caption" color="textSecondary">
               {new Date(message.timestamp).toLocaleString()}

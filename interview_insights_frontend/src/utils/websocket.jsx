@@ -35,7 +35,7 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
           ...data.message,
           content: messageContent,
           timestamp: data.message.timestamp || new Date().toISOString(),
-          sender: data.message.sender || { id: data.user_id, name: 'User ' + data.user_id }
+          sender: data.message.sender || { id: data.user_id, name:  data.full_name }
         };
         console.log("Processed message:", messageWithDetails);
         onMessageReceived(messageWithDetails);
