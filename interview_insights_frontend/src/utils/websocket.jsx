@@ -15,6 +15,7 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
     return socket;
   }
 
+
   socket = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/?token=${token}`);
 
   socket.onopen = () => {
