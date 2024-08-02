@@ -10,22 +10,18 @@ const maxReconnectAttempts = 5; // Limit the number of reconnection attempts
  * @returns {WebSocket} - The WebSocket connection.
  */
 export const connectWebSocket = (roomId, onMessageReceived, token) => {
-  // Check if socket already exists
   if (socket) {
     console.warn('WebSocket already connected.');
     return socket;
   }
 
-  // Establish the WebSocket connection
   socket = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/?token=${token}`);
 
-  // When the connection is established
   socket.onopen = () => {
     console.log('WebSocket connection established.');
     reconnectAttempts = 0; // Reset reconnect attempts on successful connection
   };
 
-  // When a message is received from the server
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
@@ -33,12 +29,10 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
       if (data.error) {
         console.error('WebSocket error:', data.error);
       } else if (data.message) {
-        // Ensure message content is properly formatted
         const messageContent = data.message.content || Object.values(data.message).join('');
-        // Add a timestamp and ensure sender information is included
         const messageWithDetails = {
           ...data.message,
-          content: messageContent, // Ensure message content is properly assigned
+          content: messageContent,
           timestamp: data.message.timestamp || new Date().toISOString(),
           sender: data.message.sender || { id: data.user_id, name: 'User ' + data.user_id }
         };
@@ -50,20 +44,17 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
     }
   };
 
-  // When an error occurs
   socket.onerror = (error) => {
     console.error('WebSocket error:', error);
   };
 
-  // When the connection is closed
   socket.onclose = (event) => {
     console.log('WebSocket connection closed:', event);
     if (reconnectAttempts < maxReconnectAttempts) {
-      // Attempt to reconnect after a delay
       setTimeout(() => {
         reconnectAttempts++;
         connectWebSocket(roomId, onMessageReceived, token);
-      }, 3000); // Reconnect after 3 seconds
+      }, 5000); // Increase delay to 5 seconds
     } else {
       console.error('Max reconnect attempts reached. Could not reconnect.');
     }
@@ -72,24 +63,19 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
   return socket;
 };
 
-/**
- * Send a message via WebSocket.
- * @param {Object} messagePayload - The message payload to send.
- */
 export const sendWebSocketMessage = (messagePayload) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(messagePayload));
+    console.log("Message sent:", messagePayload);
   } else {
     console.warn('WebSocket is not open. Message not sent.');
   }
 };
 
-/**
- * Close the WebSocket connection.
- */
 export const closeWebSocket = () => {
   if (socket) {
     socket.close();
     socket = null; // Clear the socket reference
+    console.log('WebSocket connection closed.');
   }
 };
