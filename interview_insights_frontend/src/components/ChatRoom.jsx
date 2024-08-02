@@ -7,12 +7,16 @@ import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/materia
 const ChatRoom = () => {
   const dispatch = useDispatch();
   const currentChatRoom = useSelector(state => state.chat.currentChatRoom);
+  console.log(currentChatRoom)
   const messages = useSelector(state => state.chat.messages);
   const token = useSelector(state => state.auth.accessToken); // Assuming you have token in auth slice
   const user = useSelector(state => state.auth.user); // Assuming you have userId in auth slice
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
   const userid = useSelector(state => state.auth.userid);
+  const full_name = useSelector(state => state.auth.full_name);
+  console.log(full_name)
+
 
   useEffect(() => {
     if (currentChatRoom && token) {
@@ -40,6 +44,7 @@ const ChatRoom = () => {
         type: 'chat_message',
         message: newMessage,
         user_id: userid,
+        full_name:full_name,
         timestamp: new Date().toISOString()
       };
   
@@ -63,7 +68,7 @@ const ChatRoom = () => {
       }}
     >
       <Typography variant="h5" gutterBottom>
-        Chat with {currentChatRoom.jobseeker.id} - {currentChatRoom.employer.id}
+        Chat with {currentChatRoom.jobseeker.full_name} - {currentChatRoom.employer.full_name}
       </Typography>
 
       <Box
@@ -94,7 +99,7 @@ const ChatRoom = () => {
             }}
           >
             <Typography variant="body2" gutterBottom>
-              <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content || 'No content'}
+              <strong>{message.sender.full_name || `User ${message.sender.full_name}`}:</strong> {message.content || 'No content'}
             </Typography>
             <Typography variant="caption" color="textSecondary">
               {new Date(message.timestamp).toLocaleString()}

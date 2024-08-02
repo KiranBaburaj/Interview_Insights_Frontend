@@ -41,6 +41,7 @@ export const login = createAsyncThunk(
       const response = await axios.post('/api/login/', userData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('userid', response.data.user.id);
+
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', response.data.role);
       return response.data;
@@ -140,6 +141,7 @@ const initialState = {
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
   userid:localStorage.getItem('userid') || null,
+  full_name:localStorage.getItem('full_name') || null,
   error: null,
   loading: false,
   jobSeekers: [],
@@ -196,11 +198,13 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
         state.role = action.payload.role;
         state.userid = action.payload.user.id;
+        state.full_name = action.payload.user.full_name;
         state.companyDetailsSubmitted = action.payload.companyDetailsSubmitted;
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);
         localStorage.setItem('user', action.payload.user);
+        localStorage.setItem('full_name', action.payload.user.full_name);
         localStorage.setItem('companyDetailsSubmitted', action.payload.companyDetailsSubmitted);
       })
       .addCase(login.rejected, (state, action) => {
