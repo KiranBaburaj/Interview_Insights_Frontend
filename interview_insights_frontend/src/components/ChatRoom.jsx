@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSlice';
@@ -9,9 +7,7 @@ import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/materia
 const ChatRoom = () => {
   const dispatch = useDispatch();
   const currentChatRoom = useSelector(state => state.chat.currentChatRoom);
-  console.log(currentChatRoom)
   const messages = useSelector(state => state.chat.messages);
-  console.log(messages)
   const token = useSelector(state => state.auth.accessToken); // Assuming you have token in auth slice
   const user = useSelector(state => state.auth.user); // Assuming you have userId in auth slice
   const [newMessage, setNewMessage] = useState('');
@@ -49,9 +45,6 @@ const ChatRoom = () => {
   
       // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
-      console.log(messagePayload)
-      
-      
       setNewMessage('');
     }
   };
@@ -63,7 +56,7 @@ const ChatRoom = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
+        height: '100vh', // Adjust to fit your layout
         maxWidth: '600px',
         margin: '0 auto',
         padding: 2,
@@ -82,28 +75,32 @@ const ChatRoom = () => {
           borderRadius: 1,
           p: 2,
           backgroundColor: '#fafafa',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '80vh', // Adjust to fit your layout
         }}
       >
-  {messages.map(message => (
-  <Paper
-    key={message.id || `temp-${message.timestamp}`}
-    sx={{
-      mb: 1,
-      p: 1,
-      borderRadius: 1,
-      backgroundColor: message.sender.id === userid ? '#e3f2fd' : '#f1f8e9',
-    }}
-  >
-    <Typography variant="body2" gutterBottom>
-      <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content || 'No content'}
-    </Typography>
-    <Typography variant="caption" color="textSecondary">
-      {new Date(message.timestamp).toLocaleString()}
-    </Typography>
-  </Paper>
-))}
-
-
+        {messages.map(message => (
+          <Paper
+            key={message.id || `temp-${message.timestamp}`}
+            sx={{
+              mb: 1,
+              p: 1,
+              borderRadius: 1,
+              backgroundColor: message.sender.id === userid ? '#e3f2fd' : '#f1f8e9',
+              alignSelf: message.sender.id === userid ? 'flex-end' : 'flex-start',
+              maxWidth: '75%',
+              wordBreak: 'break-word',
+            }}
+          >
+            <Typography variant="body2" gutterBottom>
+              <strong>{message.sender.name || `User ${message.sender.id}`}:</strong> {message.content || 'No content'}
+            </Typography>
+            <Typography variant="caption" color="textSecondary">
+              {new Date(message.timestamp).toLocaleString()}
+            </Typography>
+          </Paper>
+        ))}
         <div ref={messagesEndRef} />
       </Box>
 
