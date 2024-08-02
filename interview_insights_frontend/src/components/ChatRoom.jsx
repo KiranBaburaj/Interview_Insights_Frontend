@@ -50,7 +50,7 @@ const ChatRoom = () => {
       // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
       console.log(messagePayload)
-      dispatch(sendMessage({ chatRoomId: currentChatRoom.id, content: newMessage }));
+      
       
       setNewMessage('');
     }
