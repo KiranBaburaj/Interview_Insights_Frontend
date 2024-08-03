@@ -16,7 +16,7 @@ import {
   Link as MuiLink
 } from '@mui/material';
 
-import GoogleLoginComponent from './GoogleLoginButton';
+import   GoogleLoginButton  from './GoogleLoginButton';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -121,7 +121,7 @@ const Login = () => {
               </MuiLink>
             </Typography>
             <Box sx={{ mt: 2 }}>
-              <GoogleLoginComponent />
+              <GoogleLoginButton />
             </Box>
           </Box>
         </Paper>

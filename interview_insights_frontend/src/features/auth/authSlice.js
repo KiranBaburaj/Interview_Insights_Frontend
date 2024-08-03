@@ -1,17 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig'; // Assuming axiosConfig.js defines Axios instance
 
-// Define your async thunks for API calls
 export const googleLogin = createAsyncThunk(
   'auth/googleLogin',
-  async (data, { rejectWithValue }) => {
+  async (credential, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/google-login/', data);
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      return response.data;
+      const response = await fetch('http://localhost:8000/dj-rest-auth/google/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ access_token: credential }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.access_token);
+        return data;
+      } else {
+        return rejectWithValue(data);
+      }
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -300,6 +309,18 @@ const authSlice = createSlice({
       })
       .addCase(resendOTP.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(googleLogin.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.access_token;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload;
       });
   }
