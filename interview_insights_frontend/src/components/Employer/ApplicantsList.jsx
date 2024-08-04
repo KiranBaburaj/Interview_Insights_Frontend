@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchApplicants } from '../../features/applicants/applicantsSlice';
+import { fetchApplicants, updateApplicantStatus } from '../../features/applicants/applicantsSlice';
 import {
   Container,
   Typography,
@@ -21,6 +21,8 @@ import {
   Button,
   Avatar,
   Chip,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
@@ -37,6 +39,12 @@ const ApplicantsList = () => {
   useEffect(() => {
     dispatch(fetchApplicants(jobId));
   }, [dispatch, jobId]);
+
+  const handleStatusChange = (applicantId, newStatus) => {
+    dispatch(updateApplicantStatus({ applicantId, status: newStatus })).then(() => {
+      dispatch(fetchApplicants(jobId)); // Re-fetch applicants to get the updated status
+    });
+  };
 
   const handleDownloadResume = (resumeUrl) => {
     window.open(`http://localhost:8000${resumeUrl}`, '_blank');
@@ -109,7 +117,16 @@ const ApplicantsList = () => {
                     </TableCell>
                     <TableCell>{applicant.job_seeker.user.email}</TableCell>
                     <TableCell>
-                      <Chip label={applicant.stage || 'N/A'} />
+                      <Select
+                        value={applicant.status || 'N/A'}
+                        onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
+                      >
+                        <MenuItem value="applied">Applied</MenuItem>
+                        <MenuItem value="reviewed">Reviewed</MenuItem>
+                        <MenuItem value="interviewed">Interviewed</MenuItem>
+                        <MenuItem value="hired">Hired</MenuItem>
+                        <MenuItem value="rejected">Rejected</MenuItem>
+                      </Select>
                     </TableCell>
                     <TableCell>{new Date(applicant.applied_at).toLocaleDateString()}</TableCell>
                     <TableCell>
