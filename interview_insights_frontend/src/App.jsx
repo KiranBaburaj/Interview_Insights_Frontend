@@ -27,6 +27,7 @@ import ChatRoom from './components/ChatRoom';
 
 import JobseekerProfile from './pages/Jobseeker/JobseekerProfile';
 import JobseekerJobs from './pages/Jobseeker/JobseekerJobs';
+import InterviewScheduler from './components/Employer/InterviewScheduler';
 
 
 const App = () => {
@@ -177,6 +178,15 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+             <Route
+        path="/schedule-interview/:applicantId"
+        element={
+          <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
+            <InterviewScheduler />
+          </ProtectedRoute>
+        }
+      />
+
         <Route
         path="/job/:jobId"
         element={<JobDetails />}

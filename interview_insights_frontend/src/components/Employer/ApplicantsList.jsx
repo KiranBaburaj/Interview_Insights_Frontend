@@ -20,18 +20,18 @@ import {
   IconButton,
   Button,
   Avatar,
-  Chip,
   Select,
   MenuItem,
 } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const ApplicantsList = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate
   const applicants = useSelector((state) => state.applicants.applicants);
   const status = useSelector((state) => state.applicants.status);
   const error = useSelector((state) => state.applicants.error);
@@ -48,6 +48,10 @@ const ApplicantsList = () => {
 
   const handleDownloadResume = (resumeUrl) => {
     window.open(`http://localhost:8000${resumeUrl}`, '_blank');
+  };
+
+  const handleScheduleInterview = (applicantId) => {
+    navigate(`/schedule-interview/${applicantId}`); // Navigate to InterviewScheduler with applicantId
   };
 
   if (status === 'loading') {
@@ -135,6 +139,13 @@ const ApplicantsList = () => {
                         onClick={() => handleDownloadResume(applicant.resume)}
                       >
                         See Application
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleScheduleInterview(applicant.id)} // Add button for scheduling interview
+                        sx={{ ml: 2 }}
+                      >
+                        Schedule Interview
                       </Button>
                     </TableCell>
                     <TableCell>

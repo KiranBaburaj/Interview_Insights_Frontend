@@ -12,6 +12,8 @@ import employerReducer from '../features/employer/employerSlice';
 import jobApplicationReducer from  '../features/jobapplication/jobApplicationSlice';
 import applicantsReducer from  '../features/applicants/applicantsSlice';
 import applicationsReducer from '../features/applications/applicationsSlice';
+import interviewReducer from '../features/interview/interviewSlice';
+
 
 import chatReducer from '../features/chat/chatSlice';
 
@@ -30,7 +32,7 @@ const store = configureStore({
       applicants:applicantsReducer,
       myapplications: applicationsReducer,
       chat: chatReducer,
-
+      interview: interviewReducer,
     // other reducers can be added here
   },
   middleware: (getDefaultMiddleware) =>
