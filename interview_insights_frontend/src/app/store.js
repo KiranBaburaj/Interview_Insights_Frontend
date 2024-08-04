@@ -32,7 +32,7 @@ const store = configureStore({
       applicants:applicantsReducer,
       myapplications: applicationsReducer,
       chat: chatReducer,
-      interview: interviewReducer,
+      interviews: interviewReducer,
     // other reducers can be added here
   },
   middleware: (getDefaultMiddleware) =>

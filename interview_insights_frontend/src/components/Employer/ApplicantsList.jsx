@@ -26,15 +26,15 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ApplicantsList = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
   const applicants = useSelector((state) => state.applicants.applicants);
   const status = useSelector((state) => state.applicants.status);
   const error = useSelector((state) => state.applicants.error);
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchApplicants(jobId));
@@ -48,10 +48,6 @@ const ApplicantsList = () => {
 
   const handleDownloadResume = (resumeUrl) => {
     window.open(`http://localhost:8000${resumeUrl}`, '_blank');
-  };
-
-  const handleScheduleInterview = (applicantId) => {
-    navigate(`/schedule-interview/${applicantId}`); // Navigate to InterviewScheduler with applicantId
   };
 
   if (status === 'loading') {
@@ -140,15 +136,15 @@ const ApplicantsList = () => {
                       >
                         See Application
                       </Button>
+                    </TableCell>
+                    <TableCell>
                       <Button
-                        variant="outlined"
-                        onClick={() => handleScheduleInterview(applicant.id)} // Add button for scheduling interview
-                        sx={{ ml: 2 }}
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate(`/schedule-interview/${applicant.id}`)}
                       >
                         Schedule Interview
                       </Button>
-                    </TableCell>
-                    <TableCell>
                       <IconButton>
                         <MoreVertIcon />
                       </IconButton>
