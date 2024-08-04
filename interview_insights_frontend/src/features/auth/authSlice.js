@@ -1,16 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig'; // Assuming axiosConfig.js defines Axios instance
 
+
 export const googleLogin = createAsyncThunk(
   'auth/googleLogin',
-  async (credential, { rejectWithValue }) => {
+  async ({ access_token, role }, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:8000/dj-rest-auth/google/', {
+      const response = await fetch('http://localhost:8000/api/google/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ access_token: credential }),
+        body: JSON.stringify({ access_token, role }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -317,7 +318,19 @@ const authSlice = createSlice({
       .addCase(googleLogin.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.access_token;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.role = action.payload.role;
+        state.userid = action.payload.user.id;
+        state.full_name = action.payload.user.full_name;
+        state.companyDetailsSubmitted = action.payload.companyDetailsSubmitted;
+        localStorage.setItem('accessToken', action.payload.accessToken);
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
+        localStorage.setItem('role', action.payload.role);
+        localStorage.setItem('user', action.payload.user);
+        localStorage.setItem('full_name', action.payload.user.full_name);
+        localStorage.setItem('companyDetailsSubmitted', action.payload.companyDetailsSubmitted);
+        
       })
       .addCase(googleLogin.rejected, (state, action) => {
         state.isLoading = false;
