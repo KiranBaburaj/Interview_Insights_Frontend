@@ -1,4 +1,3 @@
-// features/notifications/notificationWebSocket.js
 import { addNotification } from '../features/notifications/notificationSlice';
 
 let notificationSocket = null;
@@ -41,6 +40,22 @@ export const connectNotificationWebSocket = (token, dispatch) => {
   };
 };
 
+/**
+ * Send a notification through WebSocket.
+ * @param {Object} notificationPayload - The notification data to be sent.
+ */
+export const sendNotificationWebSocketMessage = (notificationPayload) => {
+  if (notificationSocket) {
+    notificationSocket.send(JSON.stringify(notificationPayload));
+    console.log("hi",notificationPayload)
+  } else {
+    console.warn('Notification WebSocket is not connected.');
+  }
+};
+
+/**
+ * Close the WebSocket connection.
+ */
 export const closeNotificationWebSocket = () => {
   if (notificationSocket) {
     notificationSocket.close();

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSlice';
 import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from '../utils/websocket';
 import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/material';
-
+import { connectNotificationWebSocket, sendNotificationWebSocketMessage } from '../utils/notificationWebSocket';
 const ChatRoom = () => {
   const dispatch = useDispatch();
   const currentChatRoom = useSelector(state => state.chat.currentChatRoom);
@@ -26,6 +26,8 @@ const ChatRoom = () => {
         const messageWithId = message.id ? message : { ...message, id: `temp-${Date.now()}` };
         dispatch(addMessage(messageWithId));
       }, token);
+
+      const notificationSocket = connectNotificationWebSocket(token, dispatch);
   
       return () => {
         closeWebSocket();
@@ -50,6 +52,17 @@ const ChatRoom = () => {
   
       // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
+
+      const notificationPayload = {
+        type: 'notification',
+        message: `New message from ${full_name}`,
+        user_id: userid
+      };
+
+      sendNotificationWebSocketMessage(notificationPayload);
+
+
+      
       setNewMessage('');
     }
   };
