@@ -33,13 +33,8 @@ const localizer = dateFnsLocalizer({
 });
 
 const parseDuration = (duration) => {
-  // Expected format: HH:mm:ss
-  const parts = duration.split(':').map(part => parseInt(part, 10));
-  const hours = parts[0] || 0;
-  const minutes = parts[1] || 0;
-  const seconds = parts[2] || 0;
-
-  return (hours * 3600 + minutes * 60 + seconds) * 1000; // Convert to milliseconds
+  const [hours, minutes] = duration.split(':').map(Number);
+  return (hours || 0) * 3600000 + (minutes || 0) * 60000; // Duration in milliseconds
 };
 
 const InterviewScheduler = () => {
@@ -50,7 +45,7 @@ const InterviewScheduler = () => {
   const [interviewData, setInterviewData] = useState({
     job_application: applicantId,
     scheduled_time: new Date(),
-    duration: '00:00:00', // Default duration format
+    duration: '00:00:00', // Default duration
     location: '',
     notes: '',
   });
@@ -65,10 +60,15 @@ const InterviewScheduler = () => {
 
   useEffect(() => {
     if (existingInterview) {
+      const durationInMilliseconds = parseDuration(existingInterview.duration);
+      const totalMinutes = durationInMilliseconds / 60000;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
       setInterviewData({
         job_application: applicantId,
         scheduled_time: new Date(existingInterview.scheduled_time),
-        duration: existingInterview.duration, // Keep duration as is
+        duration: `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`,
         location: existingInterview.location,
         notes: existingInterview.notes,
       });
@@ -83,11 +83,13 @@ const InterviewScheduler = () => {
     setInterviewData({ ...interviewData, scheduled_time: date });
   };
 
-  const isTimeConflict = (existingInterviews, newInterview) => {
+  const isTimeConflict = (existingInterviews, newInterview, interviewToExcludeId) => {
     return existingInterviews.some(interview => {
+      if (interview.id === interviewToExcludeId) return false; // Exclude the interview being updated
+
       const existingStart = new Date(interview.scheduled_time);
-      const durationInMilliseconds = parseDuration(interview.duration);
-      const existingEnd = new Date(existingStart.getTime() + durationInMilliseconds);
+      const existingDurationInMilliseconds = parseDuration(interview.duration);
+      const existingEnd = new Date(existingStart.getTime() + existingDurationInMilliseconds);
 
       const newStart = new Date(newInterview.scheduled_time);
       const newDurationInMilliseconds = parseDuration(newInterview.duration);
@@ -102,8 +104,10 @@ const InterviewScheduler = () => {
     setConflictError('');
     setSuccessMessage('');
 
+    const interviewToExcludeId = existingInterview ? existingInterview.id : null;
+
     // Check for time conflicts
-    if (isTimeConflict(interviews, interviewData)) {
+    if (isTimeConflict(interviews, interviewData, interviewToExcludeId)) {
       setConflictError('This time slot conflicts with an existing interview.');
       return;
     }
@@ -131,7 +135,6 @@ const InterviewScheduler = () => {
 
   const events = interviews.map(interview => {
     const durationInMilliseconds = parseDuration(interview.duration);
-
     const start = new Date(interview.scheduled_time);
     const end = new Date(start.getTime() + durationInMilliseconds);
 
@@ -165,14 +168,13 @@ const InterviewScheduler = () => {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Duration"
+                    label="Duration (HH:mm)"
                     type="text"
                     id="duration"
                     name="duration"
                     value={interviewData.duration}
                     onChange={handleChange}
                     variant="outlined"
-                    placeholder="HH:mm:ss"
                   />
                 </Grid>
                 <Grid item xs={12}>
