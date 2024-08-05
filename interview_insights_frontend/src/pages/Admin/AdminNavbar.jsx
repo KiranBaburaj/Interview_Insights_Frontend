@@ -20,7 +20,7 @@ const AdminNavbar = () => {
     localStorage.removeItem('role');
 
 
-    window.location.replace('/adminlogin');
+    window.location.replace('/login');
   };
 
   return (
