@@ -8,6 +8,7 @@ import { connectNotificationWebSocket, closeNotificationWebSocket } from '../uti
 const NotificationList = () => {
   const dispatch = useDispatch();
   const notifications = useSelector(state => state.notifications.notifications);
+  console.log(notifications);
   const token = useSelector(state => state.auth.accessToken);
   const userid = useSelector(state => state.auth.userid);
 
@@ -17,7 +18,21 @@ const NotificationList = () => {
 
     // Connect WebSocket
     const notificationSocket = connectNotificationWebSocket(token, userid, (notification) => {
-      dispatch(addNotification(notification));
+      // Ensure notification has a nested payload
+      if (notification.payload) {
+        const { id, message, is_read, user_id, notification_type, timestamp } = notification.payload;
+        dispatch(addNotification({
+          id,
+          message,
+          is_read,
+          user: user_id, // Adjust field names as necessary
+          notification_type,
+          created_at: timestamp || notification.payload.created_at, // Handle timestamp
+        }));
+        console.log('Notification received:', notification.payload);
+      } else {
+        console.warn('Unexpected notification format:', notification);
+      }
     });
 
     // Cleanup WebSocket on component unmount

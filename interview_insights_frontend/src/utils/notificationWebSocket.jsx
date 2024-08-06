@@ -27,8 +27,16 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
       console.log('WebSocket message:', data);
 
       if (data.notification) {
-        dispatch(addNotification(data.notification));
-        console.log('WebSocket message:', data);
+        const notification = {
+          id: data.notification.id,
+          message: data.notification.message,
+          is_read: data.notification.is_read,
+          user: data.notification.user_id, // Map user_id to user
+          notification_type: data.notification.notification_type,
+          created_at: data.notification.timestamp, // Map timestamp to created_at
+        };
+        dispatch(addNotification(notification));
+        console.log('Dispatched notification:', notification);
       }
     } catch (e) {
       console.error('Failed to parse notification WebSocket message:', e);
