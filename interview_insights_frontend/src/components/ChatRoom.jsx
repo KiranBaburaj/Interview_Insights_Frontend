@@ -27,7 +27,8 @@ const ChatRoom = () => {
         dispatch(addMessage(messageWithId));
       }, token);
 
-      const notificationSocket = connectNotificationWebSocket(token, dispatch);
+      const notificationSocket = connectNotificationWebSocket(token, userid, dispatch);
+    
   
       return () => {
         closeWebSocket();
@@ -56,7 +57,8 @@ const ChatRoom = () => {
       const notificationPayload = {
         type: 'notification',
         message: `New message from ${full_name}`,
-        user_id: userid
+        user_id: userid,
+        room_id:currentChatRoom.id,
       };
 
       sendNotificationWebSocketMessage(notificationPayload);

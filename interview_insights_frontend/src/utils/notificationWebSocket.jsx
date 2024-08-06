@@ -5,15 +5,17 @@ let notificationSocket = null;
 /**
  * Connect to WebSocket for notifications.
  * @param {string} token - JWT token for authentication.
+ * @param {number} userId - The user ID for the notifications.
  * @param {function} dispatch - Redux dispatch function.
+ * @returns {WebSocket} - The WebSocket instance.
  */
-export const connectNotificationWebSocket = (token, dispatch) => {
+export const connectNotificationWebSocket = (token, userId, dispatch) => {
   if (notificationSocket) {
     console.warn('Notification WebSocket already connected.');
-    return;
+    return notificationSocket;
   }
 
-  notificationSocket = new WebSocket(`ws://localhost:8000/ws/notifications/?token=${token}`);
+  notificationSocket = new WebSocket(`ws://localhost:8000/ws/notifications/${userId}/?token=${token}`);
 
   notificationSocket.onopen = () => {
     console.log('Notification WebSocket connection established.');
@@ -22,8 +24,11 @@ export const connectNotificationWebSocket = (token, dispatch) => {
   notificationSocket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
+      console.log('WebSocket message:', data);
+
       if (data.notification) {
         dispatch(addNotification(data.notification));
+        console.log('WebSocket message:', data);
       }
     } catch (e) {
       console.error('Failed to parse notification WebSocket message:', e);
@@ -38,6 +43,8 @@ export const connectNotificationWebSocket = (token, dispatch) => {
     console.log('Notification WebSocket connection closed:', event);
     // Handle reconnection logic if needed
   };
+
+  return notificationSocket;  // Return the WebSocket instance
 };
 
 /**
@@ -47,7 +54,7 @@ export const connectNotificationWebSocket = (token, dispatch) => {
 export const sendNotificationWebSocketMessage = (notificationPayload) => {
   if (notificationSocket) {
     notificationSocket.send(JSON.stringify(notificationPayload));
-    console.log("hi",notificationPayload)
+    console.log("Sent notification:", notificationPayload);
   } else {
     console.warn('Notification WebSocket is not connected.');
   }
