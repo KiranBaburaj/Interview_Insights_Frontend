@@ -194,12 +194,12 @@ const navigate = useNavigate();
             )}
             <Grid item xs={12}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                Applications: {job.applications_count}
+        
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                Views: {job.views_count}
+            
               </Typography>
             </Grid>
             <Grid item xs={12}>
