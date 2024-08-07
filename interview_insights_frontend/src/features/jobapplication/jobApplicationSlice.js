@@ -11,7 +11,6 @@ const initialState = {
     error: null,
   },
 };
-
 export const checkApplicationStatus = createAsyncThunk(
   'applications/checkStatus',
   async (jobId, { getState }) => {
@@ -22,12 +21,13 @@ export const checkApplicationStatus = createAsyncThunk(
 
 export const applyForJob = createAsyncThunk(
   'applications/applyForJob',
-  async ({ jobId, resume, cover_letter }, { getState }) => {
+  async ({ jobId, resume, cover_letter, use_profile_resume }, { getState }) => {
     const { token } = getState().auth;
     const formData = new FormData();
     formData.append('job', jobId);
     formData.append('resume', resume);
     formData.append('cover_letter', cover_letter);
+    formData.append('use_profile_resume', use_profile_resume);
 
     const response = await axiosInstance.post('/api/applications/', formData, {
       headers: {

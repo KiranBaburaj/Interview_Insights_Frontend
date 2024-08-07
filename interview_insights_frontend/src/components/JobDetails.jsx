@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
+import { fetchProfile } from '../features/jobseeker/jobseekerSlice2';
 import {
   applyForJob,
   checkApplicationStatus,
@@ -23,6 +24,8 @@ import {
   Button,
   TextField,
   Alert,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import {
   Business,
@@ -42,17 +45,21 @@ const JobDetails = () => {
   const applicationStatus = useSelector((state) => state.applications.status);
   const applicationError = useSelector((state) => state.applications.error);
   const userApplicationStatus = useSelector(selectUserApplicationStatus);
+  const userProfile = useSelector((state) => state.profile.data);
+  console.log(userProfile)
 
-  const [resume, setResume] = useState(null); // State for file input
   const [coverLetter, setCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [useProfileResume, setUseProfileResume] = useState(true);
+  const [customResume, setCustomResume] = useState(null);
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
       dispatch(fetchJobById(jobId));
     }
+    dispatch(fetchProfile());
   }, [job, jobId, dispatch, jobStatus]);
 
   useEffect(() => {
@@ -84,7 +91,9 @@ const JobDetails = () => {
 
   const handleApply = () => {
     setIsApplying(true);
-    dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter }));
+
+    const resume = useProfileResume ? userProfile.resume : customResume;
+    dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter, use_profile_resume: useProfileResume }));
   };
 
   if (jobStatus === 'loading' || userApplicationStatus.status === 'loading') {
@@ -120,7 +129,7 @@ const JobDetails = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Navbar/>
+      <Navbar />
       <Card>
         <CardHeader
           title={job.title}
@@ -186,30 +195,43 @@ const JobDetails = () => {
               {showSuccess && (
                 <Alert severity="success">Application submitted successfully!</Alert>
               )}
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setResume(e.target.files[0])}
-                disabled={isApplying || userApplicationStatus.hasApplied}
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={useProfileResume}
+                    onChange={(e) => setUseProfileResume(e.target.checked)}
+                    disabled={isApplying || userApplicationStatus.hasApplied}
+                  />
+                }
+                label="Use resume from profile"
               />
+              {!useProfileResume && (
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setCustomResume(e.target.files[0])}
+                  disabled={isApplying || userApplicationStatus.hasApplied}
+                />
+              )}
               <TextField
                 label="Cover Letter"
-                fullWidth
-                variant="outlined"
                 multiline
                 rows={4}
+                fullWidth
+                variant="outlined"
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
-                sx={{ mb: 2 }}
                 disabled={isApplying || userApplicationStatus.hasApplied}
+                sx={{ mt: 2 }}
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleApply}
                 disabled={isApplying || userApplicationStatus.hasApplied}
+                sx={{ mt: 2 }}
               >
-                {userApplicationStatus.hasApplied ? 'Already Applied' : isApplying ? 'Applying...' : 'Apply'}
+                {isApplying ? 'Applying...' : 'Apply'}
               </Button>
             </Grid>
           </Grid>
