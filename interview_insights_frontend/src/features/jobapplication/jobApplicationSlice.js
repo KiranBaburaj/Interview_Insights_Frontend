@@ -15,7 +15,7 @@ const initialState = {
 export const checkApplicationStatus = createAsyncThunk(
   'applications/checkStatus',
   async (jobId, { getState }) => {
-    const response = await axiosInstance.get(`/api/jobs/${jobId}/applications/status/`);
+    const response = await axiosInstance.get(`/api/jobs/${jobId}/check-application-status/`);
     return response.data;
   }
 );
