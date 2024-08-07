@@ -10,9 +10,12 @@ const Profile = () => {
   const { data: profile, status, error } = useSelector((state) => state.profile);
   const [formData, setFormData] = useState({});
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [resume, setResume] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isProfilePhotoChanged, setIsProfilePhotoChanged] = useState(false);
+  const [isResumeChanged, setIsResumeChanged] = useState(false);
   const [profilePhotoURL, setProfilePhotoURL] = useState(null);
+  const [resumeURL, setResumeURL] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -27,15 +30,16 @@ const Profile = () => {
         bio: profile.bio || '',
         linkedin_url: profile.linkedin_url || '',
         portfolio_url: profile.portfolio_url || '',
-        resume_url: profile.resume_url || '',
         current_job_title: profile.current_job_title || '',
         job_preferences: profile.job_preferences || '',
       });
       setProfilePhoto(profile.profile_photo);
+      setResume(profile.resume);
     }
   }, [profile]);
 
   useEffect(() => {
+    console.log('Profile Photo updated:', profilePhoto);
     if (profilePhoto) {
       if (typeof profilePhoto === 'string') {
         setProfilePhotoURL(profilePhoto);
@@ -44,17 +48,35 @@ const Profile = () => {
       }
     }
     return () => {
-      // Cleanup object URL when component unmounts or profilePhoto changes
       if (profilePhotoURL) {
         URL.revokeObjectURL(profilePhotoURL);
       }
     };
   }, [profilePhoto]);
 
+  useEffect(() => {
+    console.log('Resume updated:', resume);
+    if (resume) {
+      if (typeof resume === 'string') {
+        setResumeURL(resume);
+      } else if (resume instanceof File) {
+        setResumeURL(URL.createObjectURL(resume));
+      }
+    }
+    return () => {
+      if (resumeURL) {
+        URL.revokeObjectURL(resumeURL);
+      }
+    };
+  }, [resume]);
+
   const handleChange = (e) => {
     if (e.target.name === 'profile_photo') {
       setProfilePhoto(e.target.files[0]);
       setIsProfilePhotoChanged(true);
+    } else if (e.target.name === 'resume') {
+      setResume(e.target.files[0]);
+      setIsResumeChanged(true);
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
@@ -68,6 +90,9 @@ const Profile = () => {
     }
     if (isProfilePhotoChanged) {
       updatedProfile.append('profile_photo', profilePhoto);
+    }
+    if (isResumeChanged) {
+      updatedProfile.append('resume', resume);
     }
     dispatch(updateProfile(updatedProfile));
     setIsEditing(false);
@@ -181,15 +206,19 @@ const Profile = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Resume URL"
-                  name="resume_url"
-                  value={formData.resume_url || ''}
+                <input
+                  accept="application/pdf"
+                  style={{ display: 'none' }}
+                  id="resume"
+                  name="resume"
+                  type="file"
                   onChange={handleChange}
-                  fullWidth
-                  variant="outlined"
-                  margin="normal"
                 />
+                <label htmlFor="resume">
+                  <Button variant="contained" color="primary" component="span" fullWidth>
+                    Upload Resume
+                  </Button>
+                </label>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -259,14 +288,16 @@ const Profile = () => {
                     <strong>Bio:</strong> {formData.bio}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>LinkedIn URL:</strong> {formData.linkedin_url}
+                    <strong>LinkedIn URL:</strong> <a href={formData.linkedin_url}>{formData.linkedin_url}</a>
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Portfolio URL:</strong> {formData.portfolio_url}
+                    <strong>Portfolio URL:</strong> <a href={formData.portfolio_url}>{formData.portfolio_url}</a>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Resume URL:</strong> {formData.resume_url}
-                  </Typography>
+                  {resumeURL && (
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <strong>Resume:</strong> <a href={resumeURL} target="_blank" rel="noopener noreferrer">View Resume</a>
+                    </Typography>
+                  )}
                   <Typography variant="body2" color="textSecondary" component="p">
                     <strong>Current Job Title:</strong> {formData.current_job_title}
                   </Typography>
@@ -279,8 +310,8 @@ const Profile = () => {
             <Button
               variant="contained"
               color="primary"
-              style={{ marginTop: '16px' }}
               onClick={() => setIsEditing(true)}
+              style={{ marginTop: '16px' }}
             >
               Edit Profile
             </Button>

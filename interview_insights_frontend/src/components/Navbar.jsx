@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -11,22 +11,34 @@ import {
   Avatar,
   Tooltip,
   Container,
+  Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
+import { fetchNotifications, markNotificationAsRead } from '../features/notifications/notificationSlice';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState(null);
+  const [notificationAnchorEl, setNotificationAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const userMenuOpen = Boolean(userMenuAnchorEl);
+  const notificationMenuOpen = Boolean(notificationAnchorEl);
 
   const { user, role } = useSelector((state) => state.auth);
-  console.log(user ? user.full_name : null);
+  const notifications = useSelector((state) => state.notifications.notifications);
+  const unreadCount = notifications.filter(notification => !notification.is_read).length;
+
+  useEffect(() => {
+    // Fetch initial notifications
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -44,11 +56,25 @@ const Navbar = () => {
     setUserMenuAnchorEl(null);
   };
 
+  const handleNotificationMenu = (event) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationMenuClose = () => {
+    setNotificationAnchorEl(null);
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearError());
     navigate('/login');
     handleUserMenuClose();
+  };
+
+  const handleNotificationClick = (notification) => {
+    dispatch(markNotificationAsRead(notification.id));
+    handleNotificationMenuClose();
+    navigate('/notifications'); // Redirect to a notifications page or detail view
   };
 
   return (
@@ -80,6 +106,41 @@ const Navbar = () => {
                 Contact
               </Button>
             </Box>
+
+            <IconButton
+              color="inherit"
+              onClick={handleNotificationMenu}
+              sx={{ ml: 2 }}
+            >
+              <Badge badgeContent={unreadCount} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+
+            <Menu
+              anchorEl={notificationAnchorEl}
+              open={notificationMenuOpen}
+              onClose={handleNotificationMenuClose}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              PaperProps={{
+                style: {
+                  maxHeight: 300,
+                },
+              }}
+            >
+              {notifications.map(notification => (
+                <MenuItem key={notification.id} onClick={() => handleNotificationClick(notification)}>
+                  {notification.message}
+                </MenuItem>
+              ))}
+            </Menu>
 
             {user ? (
               <>

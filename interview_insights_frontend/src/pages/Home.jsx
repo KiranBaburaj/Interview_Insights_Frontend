@@ -18,7 +18,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import Navbar from '../components/Navbar';
-import NotificationList from '../components/NotificationList';
+
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -86,7 +86,7 @@ const Home = () => {
 
         <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
           Featured Jobs
-        </Typography><NotificationList/>
+        </Typography>
 
         {jobsStatus === 'loading' ? (
           <Box sx={{ textAlign: 'center', mt: 4 }}>
