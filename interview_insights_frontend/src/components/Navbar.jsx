@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
@@ -24,9 +23,9 @@ import { fetchNotifications, markNotificationAsRead } from '../features/notifica
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState(null);
-  const [notificationAnchorEl, setNotificationAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const userMenuOpen = Boolean(userMenuAnchorEl);
   const notificationMenuOpen = Boolean(notificationAnchorEl);
@@ -36,7 +35,6 @@ const Navbar = () => {
   const unreadCount = notifications.filter(notification => !notification.is_read).length;
 
   useEffect(() => {
-    // Fetch initial notifications
     dispatch(fetchNotifications());
   }, [dispatch]);
 
@@ -102,9 +100,11 @@ const Navbar = () => {
               <Button color="inherit" onClick={() => navigate('/about')}>
                 About
               </Button>
-              <Button color="inherit" onClick={() => navigate('/contact')}>
-                Contact
-              </Button>
+              {(role === 'jobseeker' || role === 'employer') && (
+                <Button color="inherit" onClick={() => navigate('/chat')}>
+                  Chat
+                </Button>
+              )}
             </Box>
 
             <IconButton
@@ -221,11 +221,13 @@ const Navbar = () => {
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Home</MenuItem>
-                <MenuItem onClick={handleClose}>Jobs</MenuItem>
-                <MenuItem onClick={handleClose}>Companies</MenuItem>
-                <MenuItem onClick={handleClose}>About</MenuItem>
-                <MenuItem onClick={handleClose}>Contact</MenuItem>
+                <MenuItem onClick={() => navigate('/')}>Home</MenuItem>
+                <MenuItem onClick={() => navigate('/jobs')}>Jobs</MenuItem>
+                <MenuItem onClick={() => navigate('/companies')}>Companies</MenuItem>
+                <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
+                {(role === 'jobseeker' || role === 'employer') && (
+                  <MenuItem onClick={() => navigate('/chat')}>Chat</MenuItem>
+                )}
                 {user ? (
                   <MenuItem onClick={handleLogout}>Logout ({user.full_name})</MenuItem>
                 ) : (
