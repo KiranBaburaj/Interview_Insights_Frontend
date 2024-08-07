@@ -3,7 +3,20 @@ import axiosInstance from '../../axiosConfig'; // Adjust the path
 
 const apiUrl = 'api/jobs/';
 
+export const fetchSavedJobs = createAsyncThunk('jobs/fetchSavedJobs', async () => {
+  const response = await axiosInstance.get('/api/saved-jobs/');
+  return response.data;
+});
 
+export const saveJob = createAsyncThunk('jobs/saveJob', async (jobId) => {
+  const response = await axiosInstance.post('/api/saved-jobs/', { job: jobId });
+  return response.data;
+});
+
+export const unsaveJob = createAsyncThunk('jobs/unsaveJob', async (savedJobId) => {
+  await axiosInstance.delete(`/api/saved-jobs/${savedJobId}/`);
+  return savedJobId;
+});
 
 export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (query = '') => {
   const response = await axiosInstance.get(`/api/jobs/?search=${query}`); // Adjust the API endpoint
@@ -40,6 +53,7 @@ const jobsSlice = createSlice({
   name: 'jobs',
   initialState: {
     jobs: [],
+    savedJobs: [],
     status: 'idle',
     error: null,
   },
@@ -86,6 +100,24 @@ const jobsSlice = createSlice({
       })
       .addCase(deleteJob.fulfilled, (state, action) => {
         state.jobs = state.jobs.filter((job) => job.id !== action.payload);
+      })
+
+      .addCase(fetchSavedJobs.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchSavedJobs.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.savedJobs = action.payload;
+      })
+      .addCase(fetchSavedJobs.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(saveJob.fulfilled, (state, action) => {
+        state.savedJobs.push(action.payload);
+      })
+      .addCase(unsaveJob.fulfilled, (state, action) => {
+        state.savedJobs = state.savedJobs.filter((job) => job.id !== action.payload);
       });
   },
 });
@@ -100,3 +132,5 @@ export const selectJobById = (state, jobId) => {
   console.log('job:', job);
   return job;
 };
+
+export const selectSavedJobs = (state) => state.jobs.savedJobs; // New selector

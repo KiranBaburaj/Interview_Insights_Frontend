@@ -75,6 +75,14 @@ const Navbar = () => {
     navigate('/notifications'); // Redirect to a notifications page or detail view
   };
 
+  const handleChatNavigation = () => {
+    if (role === 'employer') {
+      navigate('/Employer/chat');
+    } else {
+      navigate('/chat');
+    }
+  };
+
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -101,7 +109,7 @@ const Navbar = () => {
                 About
               </Button>
               {(role === 'jobseeker' || role === 'employer') && (
-                <Button color="inherit" onClick={() => navigate('/chat')}>
+                <Button color="inherit" onClick={handleChatNavigation}>
                   Chat
                 </Button>
               )}
@@ -226,7 +234,7 @@ const Navbar = () => {
                 <MenuItem onClick={() => navigate('/companies')}>Companies</MenuItem>
                 <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
                 {(role === 'jobseeker' || role === 'employer') && (
-                  <MenuItem onClick={() => navigate('/chat')}>Chat</MenuItem>
+                  <MenuItem onClick={handleChatNavigation}>Chat</MenuItem>
                 )}
                 {user ? (
                   <MenuItem onClick={handleLogout}>Logout ({user.full_name})</MenuItem>

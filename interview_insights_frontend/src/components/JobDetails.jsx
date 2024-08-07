@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
 import { fetchProfile } from '../features/jobseeker/jobseekerSlice2';
 import {
@@ -33,17 +33,20 @@ import {
   CalendarToday,
   AttachMoney,
   DateRange,
+  Work,
+  Assignment,
+  AssignmentInd,
+  VerifiedUser,
+  Home,
+  Layers,
 } from '@mui/icons-material';
 import Navbar from './Navbar';
-import { getOrCreateChatRoom,createChatRoom } from '../features/chat/chatSlice'; // Add this import
-import { useNavigate } from 'react-router-dom';
-
+import { createChatRoom } from '../features/chat/chatSlice';
 
 const JobDetails = () => {
-  // Inside your JobDetails component
-const navigate = useNavigate();
   const { jobId } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const job = useSelector((state) => selectJobById(state, jobId));
   const jobStatus = useSelector((state) => state.jobs.status);
   const jobError = useSelector((state) => state.jobs.error);
@@ -95,19 +98,16 @@ const navigate = useNavigate();
 
   const handleApply = () => {
     setIsApplying(true);
-
     const resume = useProfileResume ? userProfile.resume : customResume;
     dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter, use_profile_resume: useProfileResume }));
   };
 
   const handleChat = () => {
-    // Assuming userProfile.id is the jobseeker's ID and job.employerId is the employer's ID
     if (userid && job.employer) {
       dispatch(createChatRoom({ jobseekerId: userid, employerId: job.employer }))
         .unwrap()
         .then(() => {
-          // Navigate to the chat page after successfully creating the chat room
-          navigate('/chat'); // Adjust the path as needed
+          navigate('/chat');
         })
         .catch((error) => {
           console.error('Failed to create chat room:', error);
@@ -152,7 +152,7 @@ const navigate = useNavigate();
       <Card>
         <CardHeader
           title={job.title}
-          subheader={`${job.company} - ${job.location}`}
+          subheader={`${job.company.name} - ${job.location}`}
           avatar={<Business />}
         />
         <Divider />
@@ -163,14 +163,12 @@ const navigate = useNavigate();
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                <CalendarToday sx={{ verticalAlign: 'middle' }} />{' '}
-                Posted on: {isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
+                <CalendarToday sx={{ verticalAlign: 'middle' }} /> Posted on: {isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                <DateRange sx={{ verticalAlign: 'middle' }} />{' '}
-                Application Deadline: {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
+                <DateRange sx={{ verticalAlign: 'middle' }} /> Application Deadline: {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -180,39 +178,69 @@ const navigate = useNavigate();
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                <AttachMoney sx={{ verticalAlign: 'middle' }} />{' '}
-                Salary: ${job.salary_min} - ${job.salary_max}
+                <AttachMoney sx={{ verticalAlign: 'middle' }} /> Salary: ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}
               </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <Assignment sx={{ verticalAlign: 'middle' }} /> Responsibilities:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.responsibilities}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <VerifiedUser sx={{ verticalAlign: 'middle' }} /> Qualifications:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.qualifications}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <AssignmentInd sx={{ verticalAlign: 'middle' }} /> Nice to Have:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.nice_to_have}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <Work sx={{ verticalAlign: 'middle' }} /> Employment Type:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.employment_type}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <Layers sx={{ verticalAlign: 'middle' }} /> Experience Level:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.experience_level}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <Work sx={{ verticalAlign: 'middle' }} /> Job Function:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.job_function}</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                <Home sx={{ verticalAlign: 'middle' }} /> Remote:
+              </Typography>
+              <Typography variant="body2" color="textSecondary">{job.is_remote ? 'Yes' : 'No'}</Typography>
             </Grid>
             {job.skills && job.skills.length > 0 && (
               <Grid item xs={12}>
-                <Typography variant="h6">Skills:</Typography>
+                <Typography variant="h6" gutterBottom>Skills:</Typography>
                 {job.skills.map((skill, index) => (
-                  <Chip key={index} label={skill} sx={{ mr: 1, mt: 1 }} />
+                  <Chip key={index} label={skill} sx={{ mr: 1, mb: 1 }} />
                 ))}
               </Grid>
             )}
             <Grid item xs={12}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-        
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-            
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body2" color="textSecondary" gutterBottom>
-                Status: {job.status}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
               {showError && (
-                <Alert severity="error">{applicationError}</Alert>
+                <Alert severity="error" onClose={() => setShowError(false)}>
+                  {applicationError || userApplicationStatus.error}
+                </Alert>
               )}
               {showSuccess && (
-                <Alert severity="success">Application submitted successfully!</Alert>
+                <Alert severity="success" onClose={() => setShowSuccess(false)}>
+                  Application submitted successfully!
+                </Alert>
               )}
               <FormControlLabel
                 control={
@@ -222,12 +250,11 @@ const navigate = useNavigate();
                     disabled={isApplying || userApplicationStatus.hasApplied}
                   />
                 }
-                label="Use resume from profile"
+                label="Use profile resume"
               />
               {!useProfileResume && (
-                <input
+                <TextField
                   type="file"
-                  accept=".pdf"
                   onChange={(e) => setCustomResume(e.target.files[0])}
                   disabled={isApplying || userApplicationStatus.hasApplied}
                 />
@@ -236,28 +263,27 @@ const navigate = useNavigate();
                 label="Cover Letter"
                 multiline
                 rows={4}
-                fullWidth
-                variant="outlined"
                 value={coverLetter}
                 onChange={(e) => setCoverLetter(e.target.value)}
+                variant="outlined"
+                fullWidth
+                margin="normal"
                 disabled={isApplying || userApplicationStatus.hasApplied}
-                sx={{ mt: 2 }}
               />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={handleApply}
                 disabled={isApplying || userApplicationStatus.hasApplied}
-                sx={{ mt: 2 }}
               >
-                {isApplying ? 'Applying...' : 'Apply'}
+                {userApplicationStatus.hasApplied ? 'Already Applied' : 'Apply Now'}
               </Button>
               <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleChat}
-                sx={{ mt: 2, ml: 2 }}
-                disabled={isApplying}
+                disabled={!job.employer || !userid}
+                sx={{ ml: 2 }}
               >
                 Chat with Employer
               </Button>

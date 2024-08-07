@@ -15,6 +15,8 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+
+
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
   async (profileData, { rejectWithValue }) => {
