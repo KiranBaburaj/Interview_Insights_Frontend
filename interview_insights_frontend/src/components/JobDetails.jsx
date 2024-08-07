@@ -35,8 +35,13 @@ import {
   DateRange,
 } from '@mui/icons-material';
 import Navbar from './Navbar';
+import { getOrCreateChatRoom,createChatRoom } from '../features/chat/chatSlice'; // Add this import
+import { useNavigate } from 'react-router-dom';
+
 
 const JobDetails = () => {
+  // Inside your JobDetails component
+const navigate = useNavigate();
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const job = useSelector((state) => selectJobById(state, jobId));
@@ -46,8 +51,7 @@ const JobDetails = () => {
   const applicationError = useSelector((state) => state.applications.error);
   const userApplicationStatus = useSelector(selectUserApplicationStatus);
   const userProfile = useSelector((state) => state.profile.data);
-  console.log(userProfile)
-
+  const userid = useSelector(state => state.auth.userid);
   const [coverLetter, setCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -94,6 +98,21 @@ const JobDetails = () => {
 
     const resume = useProfileResume ? userProfile.resume : customResume;
     dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter, use_profile_resume: useProfileResume }));
+  };
+
+  const handleChat = () => {
+    // Assuming userProfile.id is the jobseeker's ID and job.employerId is the employer's ID
+    if (userid && job.employer) {
+      dispatch(createChatRoom({ jobseekerId: userid, employerId: job.employer }))
+        .unwrap()
+        .then(() => {
+          // Navigate to the chat page after successfully creating the chat room
+          navigate('/chat'); // Adjust the path as needed
+        })
+        .catch((error) => {
+          console.error('Failed to create chat room:', error);
+        });
+    }
   };
 
   if (jobStatus === 'loading' || userApplicationStatus.status === 'loading') {
@@ -232,6 +251,15 @@ const JobDetails = () => {
                 sx={{ mt: 2 }}
               >
                 {isApplying ? 'Applying...' : 'Apply'}
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleChat}
+                sx={{ mt: 2, ml: 2 }}
+                disabled={isApplying}
+              >
+                Chat with Employer
               </Button>
             </Grid>
           </Grid>
