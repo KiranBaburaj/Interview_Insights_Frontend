@@ -14,7 +14,9 @@ import {
   CircularProgress,
   Typography,
   Divider,
-  IconButton
+  IconButton,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -28,12 +30,21 @@ const Home = () => {
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
   const [searchQuery, setSearchQuery] = useState('');
-  const [savingStatus, setSavingStatus] = useState('idle'); // To handle saving status
+  const [showSavedOnly, setShowSavedOnly] = useState(false); // State for filter option
+  const [savingStatus, setSavingStatus] = useState({}); // To handle saving status for each job
 
   useEffect(() => {
     dispatch(fetchJobs(searchQuery)); // Fetch jobs with searchQuery
     dispatch(fetchSavedJobs()); // Fetch saved jobs on component mount
   }, [searchQuery, dispatch]);
+
+  useEffect(() => {
+    if (showSavedOnly) {
+      dispatch(fetchSavedJobs()); // Fetch saved jobs if showing saved only
+    } else {
+      dispatch(fetchJobs(searchQuery)); // Fetch all jobs if not filtering
+    }
+  }, [showSavedOnly, searchQuery, dispatch]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -43,22 +54,28 @@ const Home = () => {
     dispatch(fetchJobs(searchQuery)); // Trigger fetchJobs with searchQuery
   };
 
+  const handleFilterChange = (event) => {
+    setShowSavedOnly(event.target.checked); // Toggle filter option
+  };
+
   const isJobSaved = (jobId) => {
-    // Check if the job is in the savedJobs list
-    return savedJobs.some(job => job.job === jobId); // Adjust to match your data structure
+    return savedJobs.some(savedJob => savedJob.job === jobId); // Check if job ID is in the savedJobs array
   };
 
   const handleSaveJob = async (job) => {
+    setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'loading' }));
     if (isJobSaved(job.id)) {
-      setSavingStatus('loading');
       await dispatch(unsaveJob(job.id)); // Dispatch unsaveJob action
-      setSavingStatus('idle');
     } else {
-      setSavingStatus('loading');
       await dispatch(saveJob(job.id)); // Dispatch saveJob action
-      setSavingStatus('idle');
     }
+    await dispatch(fetchSavedJobs()); // Refresh saved jobs
+    setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
+
+  const displayedJobs = showSavedOnly
+    ? jobs.filter(job => isJobSaved(job.id)) // Filter jobs based on saved status
+    : jobs; // Show all jobs if not filtering
 
   return (
     <>
@@ -104,8 +121,21 @@ const Home = () => {
           </Button>
         </Box>
 
+        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showSavedOnly}
+                onChange={handleFilterChange}
+                color="primary"
+              />
+            }
+            label="Show Only Saved Jobs"
+          />
+        </Box>
+
         <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
-          Featured Jobs
+          {showSavedOnly ? 'Saved Jobs' : 'Featured Jobs'}
         </Typography>
 
         {jobsStatus === 'loading' ? (
@@ -118,7 +148,7 @@ const Home = () => {
           </Box>
         ) : (
           <Grid container spacing={4}>
-            {jobs.map((job) => (
+            {displayedJobs.map((job) => (
               <Grid item xs={12} sm={6} md={4} key={job.id}>
                 <Card
                   elevation={4}
@@ -147,7 +177,7 @@ const Home = () => {
                     <IconButton 
                       onClick={() => handleSaveJob(job)} 
                       sx={{ ml: 'auto' }} 
-                      disabled={savingStatus === 'loading'}
+                      disabled={savingStatus[job.id] === 'loading'}
                     >
                       {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
                     </IconButton>
