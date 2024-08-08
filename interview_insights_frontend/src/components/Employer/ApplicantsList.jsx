@@ -33,6 +33,7 @@ const ApplicantsList = () => {
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const applicants = useSelector((state) => state.applicants.applicants);
+  console.log(applicants)
   const status = useSelector((state) => state.applicants.status);
   const error = useSelector((state) => state.applicants.error);
   const navigate = useNavigate();

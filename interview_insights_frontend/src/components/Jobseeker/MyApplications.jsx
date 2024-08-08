@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApplications } from '../../features/applications/applicationsSlice';
 import { fetchInterviews } from '../../features/interview/interviewSlice';
+import { createChatRoom } from '../../features/chat/chatSlice';
 import {
   Container,
   Typography,
@@ -32,8 +34,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 const MyApplications = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const applications = useSelector((state) => state.myapplications.applications);
+  console.log(applications)
   const applicationsStatus = useSelector((state) => state.myapplications.status);
   const applicationsError = useSelector((state) => state.myapplications.error);
 
@@ -42,6 +46,8 @@ const MyApplications = () => {
   const interviewsError = useSelector((state) => state.interviews.error);
 
   const [tabValue, setTabValue] = useState(0);
+
+  const userid = useSelector((state) => state.auth.userid);
 
   useEffect(() => {
     dispatch(fetchApplications());
@@ -52,6 +58,19 @@ const MyApplications = () => {
     setTabValue(newValue);
   };
 
+
+  const handleChat = (userid, mployer) => {
+    if (userid && mployer) {
+      dispatch(createChatRoom({ jobseekerId: userid, employerId: mployer }))
+        .unwrap()
+        .then(() => {
+          navigate('/chat');
+        })
+        .catch((error) => {
+          console.error('Failed to create chat room:', error);
+        });
+    }
+  };
   if (applicationsStatus === 'loading' || interviewsStatus === 'loading') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
@@ -75,6 +94,11 @@ const MyApplications = () => {
       </Box>
     );
   }
+
+  const handleDownloadResume = (resumeUrl) => {
+    window.open(`${resumeUrl}`, '_blank');
+  };
+
 
   const getInterviewForApplication = (applicationId) => {
     return interviews.find(interview => interview.job_application === applicationId);
@@ -124,7 +148,7 @@ const MyApplications = () => {
               <TableCell>Status</TableCell>
               <TableCell>Interview</TableCell>
               <TableCell>Action</TableCell>
-              <TableCell></TableCell>
+              <TableCell>Chat</TableCell> {/* Added Chat column */}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -163,12 +187,18 @@ const MyApplications = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Button variant="outlined">See Application</Button>
+                  <Button
+                        variant="outlined"
+                        onClick={() => handleDownloadResume(application.resume)}
+
+                      >
+                        See Application
+                      </Button>
                   </TableCell>
                   <TableCell>
-                    <IconButton>
-                      <MoreVertIcon />
-                    </IconButton>
+                   
+                    <Button onClick={() => handleChat(userid,application.job_details.employer)}> Chat</Button>
+         
                   </TableCell>
                 </TableRow>
               );
