@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchJobById, selectJobById } from '../features/jobs/jobsSlice';
+import { fetchJobById, selectJobById,saveJob, unsaveJob, fetchSavedJobs, selectSavedJobs  } from '../features/jobs/jobsSlice';
 import { fetchProfile } from '../features/jobseeker/jobseekerSlice2';
 import {
   applyForJob,
@@ -10,6 +10,8 @@ import {
   clearApplicationError,
   clearUserApplicationStatus,
 } from '../features/jobapplication/jobApplicationSlice';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import {
   Container,
   Typography,
@@ -20,7 +22,7 @@ import {
   CardHeader,
   Divider,
   Chip,
-  Grid,
+  Grid,  IconButton,
   Button,
   TextField,
   Alert,
@@ -44,9 +46,11 @@ import Navbar from './Navbar';
 import { createChatRoom } from '../features/chat/chatSlice';
 
 const JobDetails = () => {
+  const role = useSelector((state) => state.auth.role); 
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const savedJobs = useSelector(selectSavedJobs); // Select saved jobs
   const job = useSelector((state) => selectJobById(state, jobId));
   const jobStatus = useSelector((state) => state.jobs.status);
   const jobError = useSelector((state) => state.jobs.error);
@@ -61,6 +65,7 @@ const JobDetails = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [useProfileResume, setUseProfileResume] = useState(true);
   const [customResume, setCustomResume] = useState(null);
+  const [savingStatus, setSavingStatus] = useState({}); 
 
   useEffect(() => {
     if (!job && jobStatus === 'idle') {
@@ -101,7 +106,9 @@ const JobDetails = () => {
     const resume = useProfileResume ? userProfile.resume : customResume;
     dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter, use_profile_resume: useProfileResume }));
   };
-
+  const isJobSaved = (jobId) => {
+    return savedJobs.some(savedJob => savedJob.job === jobId); // Check if job ID is in the savedJobs array
+  };
   const handleChat = () => {
     if (userid && job.employer) {
       dispatch(createChatRoom({ jobseekerId: userid, employerId: job.employer }))
@@ -113,6 +120,17 @@ const JobDetails = () => {
           console.error('Failed to create chat room:', error);
         });
     }
+  };
+
+  const handleSaveJob = async (job) => {
+    setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'loading' }));
+    if (isJobSaved(job.id)) {
+      await dispatch(unsaveJob(job.id)); // Dispatch unsaveJob action
+    } else {
+      await dispatch(saveJob(job.id)); // Dispatch saveJob action
+    }
+    await dispatch(fetchSavedJobs()); // Refresh saved jobs
+    setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
   if (jobStatus === 'loading' || userApplicationStatus.status === 'loading') {
@@ -149,12 +167,28 @@ const JobDetails = () => {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Navbar />
-      <Card>
+      <Card
+                  elevation={4}
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: isJobSaved(job.id) ? '#e3f2fd' : 'white', // Apply blue background for saved jobs
+                    transition: 'background-color 0.3s'
+                  }}
+                >
+    
         <CardHeader
           title={job.title}
           subheader={`${job.company.name} - ${job.location}`}
           avatar={<Business />}
-        />
+        /> {role !== 'employer' && (
+          <IconButton 
+            onClick={() => handleSaveJob(job)} 
+            sx={{ ml: 'auto' }} 
+            disabled={savingStatus[job.id] === 'loading'}
+          > Save Job
+            {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+          </IconButton>
+        )}
         <Divider />
         <CardContent>
           <Grid container spacing={2}>
@@ -181,7 +215,7 @@ const JobDetails = () => {
                 <AttachMoney sx={{ verticalAlign: 'middle' }} /> Salary: ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12}  sm={6}>
               <Typography variant="h6" gutterBottom>
                 <Assignment sx={{ verticalAlign: 'middle' }} /> Responsibilities:
               </Typography>
@@ -276,7 +310,7 @@ const JobDetails = () => {
                 sx={{ ml: 2 }}
               >
                 Chat with Employer
-              </Button>
+              </Button>  
             </Grid>
           </Grid>
         </CardContent>
