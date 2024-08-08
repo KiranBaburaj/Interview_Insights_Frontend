@@ -29,6 +29,7 @@ const Home = () => {
   const savedJobs = useSelector(selectSavedJobs); // Select saved jobs
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
+  const role = useSelector((state) => state.auth.role); // Access user role from auth slice
   const [searchQuery, setSearchQuery] = useState('');
   const [showSavedOnly, setShowSavedOnly] = useState(false); // State for filter option
   const [savingStatus, setSavingStatus] = useState({}); // To handle saving status for each job
@@ -39,12 +40,12 @@ const Home = () => {
   }, [searchQuery, dispatch]);
 
   useEffect(() => {
-    if (showSavedOnly) {
-      dispatch(fetchSavedJobs()); // Fetch saved jobs if showing saved only
+    if (showSavedOnly && role !== 'employer') {
+      dispatch(fetchSavedJobs()); // Fetch saved jobs if showing saved only and role is not 'employer'
     } else {
-      dispatch(fetchJobs(searchQuery)); // Fetch all jobs if not filtering
+      dispatch(fetchJobs(searchQuery)); // Fetch all jobs if not filtering or role is 'employer'
     }
-  }, [showSavedOnly, searchQuery, dispatch]);
+  }, [showSavedOnly, searchQuery, dispatch, role]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -73,9 +74,9 @@ const Home = () => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
-  const displayedJobs = showSavedOnly
-    ? jobs.filter(job => isJobSaved(job.id)) // Filter jobs based on saved status
-    : jobs; // Show all jobs if not filtering
+  const displayedJobs = showSavedOnly && role !== 'employer'
+    ? jobs.filter(job => isJobSaved(job.id)) // Filter jobs based on saved status if not 'employer'
+    : jobs; // Show all jobs if not filtering or role is 'employer'
 
   return (
     <>
@@ -121,18 +122,21 @@ const Home = () => {
           </Button>
         </Box>
 
-        <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={showSavedOnly}
-                onChange={handleFilterChange}
-                color="primary"
-              />
-            }
-            label="Show Only Saved Jobs"
-          />
-        </Box>
+        {/* Conditionally render checkbox based on role */}
+        {role !== 'employer' && (
+          <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showSavedOnly}
+                  onChange={handleFilterChange}
+                  color="primary"
+                />
+              }
+              label="Show Only Saved Jobs"
+            />
+          </Box>
+        )}
 
         <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
           {showSavedOnly ? 'Saved Jobs' : 'Featured Jobs'}
@@ -174,13 +178,16 @@ const Home = () => {
                     <Button size="small" color="primary" component={Link} to={`/job/${job.id}`} sx={{ borderRadius: 20 }}>
                       Learn More
                     </Button>
-                    <IconButton 
-                      onClick={() => handleSaveJob(job)} 
-                      sx={{ ml: 'auto' }} 
-                      disabled={savingStatus[job.id] === 'loading'}
-                    >
-                      {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
-                    </IconButton>
+                    {/* Conditionally render save job button based on role */}
+                    {role !== 'employer' && (
+                      <IconButton 
+                        onClick={() => handleSaveJob(job)} 
+                        sx={{ ml: 'auto' }} 
+                        disabled={savingStatus[job.id] === 'loading'}
+                      >
+                        {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+                      </IconButton>
+                    )}
                   </CardActions>
                 </Card>
               </Grid>

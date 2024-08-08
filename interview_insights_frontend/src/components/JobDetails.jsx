@@ -259,17 +259,7 @@ const JobDetails = () => {
                   disabled={isApplying || userApplicationStatus.hasApplied}
                 />
               )}
-              <TextField
-                label="Cover Letter"
-                multiline
-                rows={4}
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                disabled={isApplying || userApplicationStatus.hasApplied}
-              />
+             
               <Button
                 variant="contained"
                 color="primary"
