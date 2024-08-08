@@ -82,15 +82,16 @@ const Navbar = () => {
       navigate('/chat');
     }
   };
+  const avatarImageUrl = '/logo.PNG';
 
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>JP</Avatar>
+          <Avatar src={avatarImageUrl} sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ display: { xs: 'none', md: 'block' } }}>
-              Job Portal
+              Interview Insights
             </Typography>
           </Box>
 

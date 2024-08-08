@@ -1,6 +1,8 @@
 import { addNotification } from '../features/notifications/notificationSlice';
 
 let notificationSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
 
 /**
  * Connect to WebSocket for notifications.
@@ -10,7 +12,7 @@ let notificationSocket = null;
  * @returns {WebSocket} - The WebSocket instance.
  */
 export const connectNotificationWebSocket = (token, userId, dispatch) => {
-  if (notificationSocket) {
+  if (notificationSocket && notificationSocket.readyState === WebSocket.OPEN) {
     console.warn('Notification WebSocket already connected.');
     return notificationSocket;
   }
@@ -19,6 +21,7 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
 
   notificationSocket.onopen = () => {
     console.log('Notification WebSocket connection established.');
+    reconnectAttempts = 0; // Reset reconnect attempts on successful connection
   };
 
   notificationSocket.onmessage = (event) => {
@@ -31,9 +34,9 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
           id: data.notification.id,
           message: data.notification.message,
           is_read: data.notification.is_read,
-          user: data.notification.user_id, // Map user_id to user
+          user: data.notification.user_id,
           notification_type: data.notification.notification_type,
-          created_at: data.notification.timestamp, // Map timestamp to created_at
+          created_at: data.notification.timestamp,
         };
         dispatch(addNotification(notification));
         console.log('Dispatched notification:', notification);
@@ -49,10 +52,18 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
 
   notificationSocket.onclose = (event) => {
     console.log('Notification WebSocket connection closed:', event);
-    // Handle reconnection logic if needed
+    if (reconnectAttempts < maxReconnectAttempts) {
+      setTimeout(() => {
+        reconnectAttempts++;
+        console.log(`Reconnection attempt ${reconnectAttempts}...`);
+        connectNotificationWebSocket(token, userId, dispatch);
+      }, 5000); // Increase delay to 5 seconds
+    } else {
+      console.error('Max reconnect attempts reached. Could not reconnect.');
+    }
   };
 
-  return notificationSocket;  // Return the WebSocket instance
+  return notificationSocket;
 };
 
 /**
@@ -60,7 +71,7 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
  * @param {Object} notificationPayload - The notification data to be sent.
  */
 export const sendNotificationWebSocketMessage = (notificationPayload) => {
-  if (notificationSocket) {
+  if (notificationSocket && notificationSocket.readyState === WebSocket.OPEN) {
     notificationSocket.send(JSON.stringify(notificationPayload));
     console.log("Sent notification:", notificationPayload);
   } else {

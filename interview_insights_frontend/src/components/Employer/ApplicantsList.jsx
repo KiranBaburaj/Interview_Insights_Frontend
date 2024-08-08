@@ -19,7 +19,7 @@ import {
   TableRow,
   IconButton,
   Button,
-  Avatar,
+  Avatar, CssBaseline,
   Select,
   MenuItem,
 } from '@mui/material';
@@ -27,6 +27,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate, useParams } from 'react-router-dom';
+import EmployerNavbar from '../EmployerNavbar';
 
 const ApplicantsList = () => {
   const { jobId } = useParams();
@@ -67,7 +68,11 @@ const ApplicantsList = () => {
   }
 
   return (
+    <Box sx={{ display: 'flex' }}>
+    <CssBaseline />
+    <EmployerNavbar />
     <Container maxWidth="lg" sx={{ mt: 4 }}>
+    
       <Card>
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
@@ -145,9 +150,7 @@ const ApplicantsList = () => {
                       >
                         Schedule Interview
                       </Button>
-                      <IconButton>
-                        <MoreVertIcon />
-                      </IconButton>
+               
                     </TableCell>
                   </TableRow>
                 ))}
@@ -156,7 +159,7 @@ const ApplicantsList = () => {
           </TableContainer>
         </CardContent>
       </Card>
-    </Container>
+    </Container></Box>
   );
 };
 

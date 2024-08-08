@@ -16,9 +16,10 @@ import {
   Paper,
   TextField,
   Typography,
-  Snackbar,
+  Snackbar,CssBaseline,
   Alert,
 } from '@mui/material';
+import EmployerNavbar from '../EmployerNavbar';
 
 const locales = {
   'en-US': enUS,
@@ -146,6 +147,10 @@ const InterviewScheduler = () => {
   });
 
   return (
+
+    <Box sx={{ display: 'flex' }}>
+    <CssBaseline />
+    <EmployerNavbar />
     <Container maxWidth="lg">
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -237,7 +242,7 @@ const InterviewScheduler = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Container>
+    </Container> </Box>
   );
 };
 

@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Snackbar, IconButton, Badge, Menu, MenuItem } from '@mui/material';
+import { Snackbar, IconButton, Badge, Menu, MenuItem, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { markNotificationAsRead, fetchNotifications, addNotification } from '../features/notifications/notificationSlice';
 import { connectNotificationWebSocket, closeNotificationWebSocket } from '../utils/notificationWebSocket';
+import { styled } from '@mui/material/styles';
+
+// Styled MenuItem for unread notifications
+const StyledMenuItem = styled(MenuItem)(({ theme, unread }) => ({
+  backgroundColor: unread ? theme.palette.action.hover : 'transparent',
+  color: unread ? theme.palette.text.primary : theme.palette.text.secondary,
+  fontWeight: unread ? 'bold' : 'normal',
+}));
 
 const NotificationList = () => {
   const dispatch = useDispatch();
@@ -13,7 +21,7 @@ const NotificationList = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [currentNotification, setCurrentNotification] = useState(null);
-  
+
   const token = useSelector(state => state.auth.accessToken);
   const userid = useSelector(state => state.auth.userid);
 
@@ -33,7 +41,7 @@ const NotificationList = () => {
           notification_type,
           created_at: timestamp || notification.payload.created_at,
         }));
-        // Update unread count
+        // Update unread count if not read
         if (!is_read) {
           setUnreadCount(prevCount => prevCount + 1);
         }
@@ -66,8 +74,7 @@ const NotificationList = () => {
     dispatch(markNotificationAsRead(notification.id));
     setCurrentNotification(notification);
     setOpen(true);
-    // Update unread count to reflect notification read status
-    setUnreadCount(prevCount => prevCount - 1);
+    // Do not update unread count here
   };
 
   const handleMenuClick = (event) => {
@@ -106,11 +113,17 @@ const NotificationList = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        {recentNotifications.length > 0 ? (
-          recentNotifications.map((notification) => (
-            <MenuItem key={notification.id} onClick={() => handleNotificationClick(notification)}>
-              {notification.message}
-            </MenuItem>
+        {unreadNotifications.length > 0 ? (
+          unreadNotifications.map((notification) => (
+            <StyledMenuItem
+              key={notification.id}
+              onClick={() => handleNotificationClick(notification)}
+              unread={!notification.is_read}  // Apply conditional styling based on read status
+            >
+              <Typography variant="body2" noWrap>
+                {notification.message}
+              </Typography>
+            </StyledMenuItem>
           ))
         ) : (
           <MenuItem disabled>No new notifications</MenuItem>
