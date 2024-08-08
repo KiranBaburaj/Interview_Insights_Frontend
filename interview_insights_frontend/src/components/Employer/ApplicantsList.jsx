@@ -28,6 +28,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate, useParams } from 'react-router-dom';
 import EmployerNavbar from '../EmployerNavbar';
+import { createChatRoom } from '../../features/chat/chatSlice';
 
 const ApplicantsList = () => {
   const { jobId } = useParams();
@@ -37,6 +38,9 @@ const ApplicantsList = () => {
   const status = useSelector((state) => state.applicants.status);
   const error = useSelector((state) => state.applicants.error);
   const navigate = useNavigate();
+  
+  const userid = useSelector((state) => state.auth.userid);
+
 
   useEffect(() => {
     dispatch(fetchApplicants(jobId));
@@ -46,6 +50,19 @@ const ApplicantsList = () => {
     dispatch(updateApplicantStatus({ applicantId, status: newStatus })).then(() => {
       dispatch(fetchApplicants(jobId)); // Re-fetch applicants to get the updated status
     });
+  };
+
+  const handleChat = (userid, mployer) => {
+    if (userid && mployer) {
+      dispatch(createChatRoom({ jobseekerId: userid, employerId: mployer }))
+        .unwrap()
+        .then(() => {
+          navigate('/Employer/chat');
+        })
+        .catch((error) => {
+          console.error('Failed to create chat room:', error);
+        });
+    }
   };
 
   const handleDownloadResume = (resumeUrl) => {
@@ -105,6 +122,7 @@ const ApplicantsList = () => {
                   <TableCell>Hiring Stage</TableCell>
                   <TableCell>Applied Date</TableCell>
                   <TableCell>Action</TableCell>
+                  <TableCell>Chat</TableCell>
                   <TableCell></TableCell>
                 </TableRow>
               </TableHead>
@@ -152,7 +170,10 @@ const ApplicantsList = () => {
                         Schedule Interview
                       </Button>
                
-                    </TableCell>
+                    </TableCell> 
+                    <TableCell>
+                    <Button onClick={() => handleChat(applicant.job_seeker.user.id,userid)}> Chat</Button>
+                    </TableCell> 
                   </TableRow>
                 ))}
               </TableBody>
