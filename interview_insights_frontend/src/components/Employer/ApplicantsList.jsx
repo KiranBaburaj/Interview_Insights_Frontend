@@ -147,6 +147,7 @@ const ApplicantsList = () => {
                       >
                         <MenuItem value="applied">Applied</MenuItem>
                         <MenuItem value="reviewed">Reviewed</MenuItem>
+                              <MenuItem value="interview_scheduled">Interview Scheduled</MenuItem>
                         <MenuItem value="interviewed">Interviewed</MenuItem>
                         <MenuItem value="hired">Hired</MenuItem>
                         <MenuItem value="rejected">Rejected</MenuItem>
