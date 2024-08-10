@@ -38,10 +38,11 @@ const Profile = () => {
         portfolio_url: profile.portfolio_url || '',
         current_job_title: profile.current_job_title || '',
         job_preferences: profile.job_preferences || '',
+        
       });
-      setEducations(profile.educations || []);
-      setWorkExperiences(profile.work_experience || []);
-      setSkills(profile.skills || []);
+      setEducations(profile.educations?.map(edu => ({...edu})) || []);
+      setWorkExperiences(profile.work_experience?.map(exp => ({...exp})) || []);
+      setSkills(profile.skills?.map(skill => ({...skill})) || []);
       setProfilePhoto(profile.profile_photo);
       setResume(profile.resume);
     }
