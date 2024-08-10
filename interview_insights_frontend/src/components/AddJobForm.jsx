@@ -14,6 +14,11 @@ import {
   addCategory,
 } from '../features/jobCategories/jobCategoriesSlice';
 import {
+  fetchJobSkills,
+  selectAllSkills,
+  addSkill,
+} from '../features/jobSkills/jobSkillsSlice';
+import {
   TextField,
   Checkbox,
   FormControlLabel,
@@ -54,27 +59,29 @@ const JobManagement = () => {
     experience_level: '',
     job_function: '',
     categories: [],
+    skills_required: [],
   });
   const { user } = useSelector((state) => state.auth);
-  console.log(user)
   const [openDialog, setOpenDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
+  const [newSkill, setNewSkill] = useState('');
   const [error, setError] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const categories = useSelector(selectAllCategories);
+  const skills = useSelector(selectAllSkills);
   const categoriesStatus = useSelector((state) => state.jobCategories.status);
   const categoriesError = useSelector((state) => state.jobCategories.error);
   const jobs = useSelector(selectAllJobs);
-  console.log(jobs)
   const jobsStatus = useSelector((state) => state.jobs.status);
 
   useEffect(() => {
     dispatch(fetchJobCategories());
+    dispatch(fetchJobSkills());
     dispatch(fetchJobs());
-  }, [isFormVisible, openDialog]);
+  }, [dispatch, isFormVisible, openDialog]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -91,6 +98,16 @@ const JobManagement = () => {
     setJobData({
       ...jobData,
       categories: updatedCategories,
+    });
+  };
+
+  const handleSkillChange = (e) => {
+    const { value } = e.target;
+    const updatedSkills = skills.filter(skill => value.includes(skill.id));
+
+    setJobData({
+      ...jobData,
+      skills_required: updatedSkills,
     });
   };
 
@@ -145,6 +162,7 @@ const JobManagement = () => {
       experience_level: '',
       job_function: '',
       categories: [],
+      skills_required: [],
     });
   };
 
@@ -165,6 +183,7 @@ const JobManagement = () => {
       experience_level: job.experience_level,
       job_function: job.job_function,
       categories: job.categories.map((cat) => ({ category: cat.name })),
+      skills_required: job.skills_required,
     });
     setIsFormVisible(true);
   };
@@ -193,6 +212,21 @@ const JobManagement = () => {
         setNewCategory('');
       })
       .catch((err) => setError(err.message || 'An error occurred while adding the category.'));
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() === '') {
+      setError('Skill name cannot be empty');
+      return;
+    }
+
+    dispatch(addSkill({ name: newSkill }))
+      .unwrap()
+      .then(() => {
+        setOpenDialog(false);
+        setNewSkill('');
+      })
+      .catch((err) => setError(err.message || 'An error occurred while adding the skill.'));
   };
 
   const handleViewApplicants = (jobId) => {
@@ -232,6 +266,9 @@ const JobManagement = () => {
           </Button>
           <Button variant="contained" color="secondary" onClick={() => setOpenDialog(true)}>
             Add Category
+          </Button>
+          <Button variant="contained" color="secondary" onClick={() => setOpenDialog(true)} sx={{ ml: 1 }}>
+            Add Skill
           </Button>
         </Box>
         {isFormVisible && (
@@ -372,6 +409,27 @@ const JobManagement = () => {
                 ))}
               </Select>
             </FormControl>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Required Skills</InputLabel>
+              <Select
+                multiple
+                value={jobData.skills_required.map((skill) => skill.id)}
+                onChange={handleSkillChange}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={skills.find(skill => skill.id === value)?.name} />
+                    ))}
+                  </Box>
+                )}
+              >
+                {skills.map((skill) => (
+                  <MenuItem key={skill.id} value={skill.id}>
+                    <ListItemText primary={skill.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button type="submit" variant="contained" color="primary">
               {jobData.id ? 'Update Job' : 'Create Job'}
             </Button>
@@ -417,10 +475,10 @@ const JobManagement = () => {
       </Paper>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add Category</DialogTitle>
+        <DialogTitle>Add Category or Skill</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter the name of the new category.
+            Enter the name of the new category or skill.
           </DialogContentText>
           <TextField
             autoFocus
@@ -432,10 +490,20 @@ const JobManagement = () => {
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
           />
+          <TextField
+            margin="dense"
+            label="Skill Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newSkill}
+            onChange={(e) => setNewSkill(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddCategory}>Add</Button>
+          <Button onClick={handleAddCategory}>Add Category</Button>
+          <Button onClick={handleAddSkill}>Add Skill</Button>
         </DialogActions>
       </Dialog>
 
@@ -457,6 +525,7 @@ const JobManagement = () => {
               <Typography variant="body2">Experience Level: {selectedJob.experience_level}</Typography>
               <Typography variant="body2">Job Function: {selectedJob.job_function}</Typography>
               <Typography variant="body2">Categories: {selectedJob.categories.map(cat => cat.category).join(', ')}</Typography>
+              <Typography variant="body2">Required Skills: {selectedJob.skills_required.map(skill => skill.name).join(', ')}</Typography>
             </>
           )}
         </DialogContent>
