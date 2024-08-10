@@ -163,10 +163,10 @@ const Profile = () => {
     for (const key in formData) {
       updatedProfile.append(key, formData[key]);
     }
-    if (isProfilePhotoChanged) {
+    if (isProfilePhotoChanged && profilePhoto instanceof File) {
       updatedProfile.append('profile_photo', profilePhoto);
     }
-    if (isResumeChanged) {
+    if (isResumeChanged && resume instanceof File) {
       updatedProfile.append('resume', resume);
     }
     updatedProfile.append('educations', JSON.stringify(educations));
@@ -187,7 +187,7 @@ const Profile = () => {
           Profile
         </Typography>
         {isEditing ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
             <Grid container spacing={2}>
               {/* Basic Information */}
               <Grid item xs={12} sm={6}>

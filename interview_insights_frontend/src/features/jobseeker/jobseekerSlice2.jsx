@@ -15,29 +15,62 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
-
-
-
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
-  async (profileData, { rejectWithValue }) => {
+  async (profileData, { rejectWithValue, getState }) => {
     try {
-      // Convert FormData to a plain object
-      const plainObject = {};
-      for (let [key, value] of profileData.entries()) {
-        // Parse JSON strings
+      let hasFile = false;
+      const formData = new FormData();
+      const currentProfile = getState().profile.data;
+
+      // First, add all current profile data to formData
+      for (const [key, value] of Object.entries(currentProfile)) {
         if (['educations', 'work_experience', 'skills'].includes(key)) {
-          plainObject[key] = JSON.parse(value);
-        } else {
-          plainObject[key] = value;
+          formData.append(key, JSON.stringify(value));
+        } else if (key !== 'profile_photo' && key !== 'resume') {
+          formData.append(key, value);
         }
       }
 
-      const response = await axiosInstance.put('/api/jobseek/profile/', plainObject, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // Then, update with new data from profileData
+      for (let [key, value] of profileData.entries()) {
+        if (['educations', 'work_experience', 'skills'].includes(key)) {
+          formData.set(key, JSON.stringify(JSON.parse(value)));
+        } else if (key === 'profile_photo' || key === 'resume') {
+          if (value instanceof File) {
+            formData.set(key, value, value.name);
+            hasFile = true;
+          }
+        } else {
+          formData.set(key, value);
+        }
+      }
+
+      let response;
+      if (hasFile) {
+        // If there are file uploads, use multipart/form-data
+        response = await axiosInstance.put('/api/jobseek/profile/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        // If no file uploads, convert to plain object and use application/json
+        const plainObject = {};
+        for (let [key, value] of formData.entries()) {
+          if (['educations', 'work_experience', 'skills'].includes(key)) {
+            plainObject[key] = JSON.parse(value);
+          } else {
+            plainObject[key] = value;
+          }
+        }
+        response = await axiosInstance.put('/api/jobseek/profile/', plainObject, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
