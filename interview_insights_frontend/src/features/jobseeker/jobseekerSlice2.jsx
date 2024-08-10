@@ -17,11 +17,27 @@ export const fetchProfile = createAsyncThunk(
 
 
 
+
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
   async (profileData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put('/api/jobseek/profile/', profileData);
+      // Convert FormData to a plain object
+      const plainObject = {};
+      for (let [key, value] of profileData.entries()) {
+        // Parse JSON strings
+        if (['educations', 'work_experience', 'skills'].includes(key)) {
+          plainObject[key] = JSON.parse(value);
+        } else {
+          plainObject[key] = value;
+        }
+      }
+
+      const response = await axiosInstance.put('/api/jobseek/profile/', plainObject, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
