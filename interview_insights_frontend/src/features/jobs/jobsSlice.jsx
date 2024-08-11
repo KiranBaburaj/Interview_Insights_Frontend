@@ -39,6 +39,13 @@ export const addJob = createAsyncThunk('jobs/addJob', async (jobData, { getState
   return response.data;
 });
 
+export const fetchMatchingJobs = createAsyncThunk('jobs/fetchMatchingJobs', async () => {
+  const response = await axiosInstance.get('/api/matching-jobs/', );
+  return response.data;
+});
+
+
+
 export const updateJob = createAsyncThunk('jobs/updateJob', async ({ jobId, jobData }) => {
   const response = await axiosInstance.put(`${apiUrl}${jobId}/`, jobData);
   return response.data;
@@ -55,6 +62,7 @@ const jobsSlice = createSlice({
     jobs: [],
     savedJobs: [],
     status: 'idle',
+    matchingJobs: [],
     error: null,
   },
   reducers: {},
@@ -118,7 +126,19 @@ const jobsSlice = createSlice({
       })
       .addCase(unsaveJob.fulfilled, (state, action) => {
         state.savedJobs = state.savedJobs.filter((job) => job.id !== action.payload);
+      })
+      .addCase(fetchMatchingJobs.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchMatchingJobs.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.matchingJobs = action.payload;
+      })
+      .addCase(fetchMatchingJobs.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
       });
+
   },
 });
 
@@ -134,3 +154,4 @@ export const selectJobById = (state, jobId) => {
 };
 
 export const selectSavedJobs = (state) => state.jobs.savedJobs; // New selector
+export const selectMatchingJobs = (state) => state.jobs.matchingJobs;

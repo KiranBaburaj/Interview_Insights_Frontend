@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchJobs, selectAllJobs, saveJob, unsaveJob, fetchSavedJobs, selectSavedJobs } from '../features/jobs/jobsSlice'; // Adjust the path
+import { 
+  fetchJobs, 
+  selectAllJobs, 
+  saveJob, 
+  unsaveJob, 
+  fetchSavedJobs, 
+  selectSavedJobs,
+  fetchMatchingJobs,
+  selectMatchingJobs
+} from '../features/jobs/jobsSlice'; // Adjust the path and add fetchMatchingJobs and selectMatchingJobs
 import { Link } from 'react-router-dom';
 import { 
   Container, 
@@ -26,74 +35,74 @@ import Navbar from '../components/Navbar';
 const Home = () => {
   const dispatch = useDispatch();
   const jobs = useSelector(selectAllJobs);
-  const savedJobs = useSelector(selectSavedJobs); // Select saved jobs
+  const savedJobs = useSelector(selectSavedJobs);
+  const matchingJobs = useSelector(selectMatchingJobs); // Select matching jobs
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
-  const role = useSelector((state) => state.auth.role); // Access user role from auth slice
+  const role = useSelector((state) => state.auth.role);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSavedOnly, setShowSavedOnly] = useState(false); // State for filter option
-  const [savingStatus, setSavingStatus] = useState({}); // To handle saving status for each job
-
-  useEffect(() => {
-    dispatch(fetchJobs(searchQuery)); // Fetch jobs with searchQuery
-    dispatch(fetchSavedJobs()); // Fetch saved jobs on component mount
-  }, [searchQuery, dispatch]);
-
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [showMatchingOnly, setShowMatchingOnly] = useState(false); // New state for matching jobs filter
+  const [savingStatus, setSavingStatus] = useState({});
+  const jobseeker_id = useSelector((state) => state.auth.userid);
   useEffect(() => {
     if (showSavedOnly && role !== 'employer') {
-      dispatch(fetchSavedJobs()); // Fetch saved jobs if showing saved only and role is not 'employer'
+      dispatch(fetchSavedJobs());
+    } else if (showMatchingOnly && role !== 'employer') {
+      dispatch(fetchMatchingJobs()); // Fetch matching jobs when filter is selected
     } else {
-      dispatch(fetchJobs(searchQuery)); // Fetch all jobs if not filtering or role is 'employer'
+      dispatch(fetchJobs(searchQuery));
     }
-  }, [showSavedOnly, searchQuery, dispatch, role]);
+  }, [showSavedOnly, showMatchingOnly, searchQuery, dispatch, role]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
   const handleSearch = () => {
-    dispatch(fetchJobs(searchQuery)); // Trigger fetchJobs with searchQuery
+    dispatch(fetchJobs(searchQuery));
   };
 
-  const handleFilterChange = (event) => {
-    setShowSavedOnly(event.target.checked); // Toggle filter option
+  const handleSavedFilterChange = (event) => {
+    setShowSavedOnly(event.target.checked);
+    if (event.target.checked) {
+      setShowMatchingOnly(false); // Uncheck matching filter when saved filter is checked
+    }
+  };
+
+  const handleMatchingFilterChange = (event) => {
+    setShowMatchingOnly(event.target.checked);
+    if (event.target.checked) {
+      setShowSavedOnly(false); // Uncheck saved filter when matching filter is checked
+    }
   };
 
   const isJobSaved = (jobId) => {
-    return savedJobs.some(savedJob => savedJob.job === jobId); // Check if job ID is in the savedJobs array
+    return savedJobs.some(savedJob => savedJob.job === jobId);
   };
 
   const handleSaveJob = async (job) => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'loading' }));
     if (isJobSaved(job.id)) {
-      await dispatch(unsaveJob(job.id)); // Dispatch unsaveJob action
+      await dispatch(unsaveJob(job.id));
     } else {
-      await dispatch(saveJob(job.id)); // Dispatch saveJob action
+      await dispatch(saveJob(job.id));
     }
-    await dispatch(fetchSavedJobs()); // Refresh saved jobs
+    await dispatch(fetchSavedJobs());
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
   const displayedJobs = showSavedOnly && role !== 'employer'
-    ? jobs.filter(job => isJobSaved(job.id)) // Filter jobs based on saved status if not 'employer'
-    : jobs; // Show all jobs if not filtering or role is 'employer'
+    ? jobs.filter(job => isJobSaved(job.id))
+    : showMatchingOnly && role !== 'employer'
+    ? matchingJobs
+    : jobs;
 
   return (
     <>
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            mb: 4, 
-            px: 3, 
-            py: 2, 
-            backgroundColor: '#f5f5f5', 
-            borderRadius: 2, 
-            boxShadow: 1 
-          }}
-        >
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#f5f5f5', borderRadius: 2, boxShadow: 1 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -122,24 +131,33 @@ const Home = () => {
           </Button>
         </Box>
 
-        {/* Conditionally render checkbox based on role */}
         {role !== 'employer' && (
           <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
             <FormControlLabel
               control={
                 <Checkbox
                   checked={showSavedOnly}
-                  onChange={handleFilterChange}
+                  onChange={handleSavedFilterChange}
                   color="primary"
                 />
               }
               label="Show Only Saved Jobs"
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showMatchingOnly}
+                  onChange={handleMatchingFilterChange}
+                  color="primary"
+                />
+              }
+              label="Show Only Matching Jobs"
+            />
           </Box>
         )}
 
         <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
-          {showSavedOnly ? 'Saved Jobs' : 'Featured Jobs'}
+          {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Featured Jobs'}
         </Typography>
 
         {jobsStatus === 'loading' ? (
@@ -158,7 +176,7 @@ const Home = () => {
                   elevation={4}
                   sx={{
                     borderRadius: 2,
-                    backgroundColor: isJobSaved(job.id) ? '#e3f2fd' : 'white', // Apply blue background for saved jobs
+                    backgroundColor: isJobSaved(job.id) ? '#e3f2fd' : 'white',
                     transition: 'background-color 0.3s'
                   }}
                 >
@@ -178,7 +196,6 @@ const Home = () => {
                     <Button size="small" color="primary" component={Link} to={`/job/${job.id}`} sx={{ borderRadius: 20 }}>
                       Learn More
                     </Button>
-                    {/* Conditionally render save job button based on role */}
                     {role !== 'employer' && (
                       <IconButton 
                         onClick={() => handleSaveJob(job)} 
