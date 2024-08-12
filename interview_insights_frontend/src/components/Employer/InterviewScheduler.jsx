@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { scheduleInterview, fetchInterviews, updateInterview } from '../../features/interview/interviewSlice';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -25,6 +25,7 @@ const locales = {
   'en-US': enUS,
 };
 
+
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -42,7 +43,7 @@ const InterviewScheduler = () => {
   const { applicantId } = useParams();
   const dispatch = useDispatch();
   const { interviews, status, error } = useSelector((state) => state.interviews) || { interviews: [], status: 'idle', error: null };
-
+  const navigate = useNavigate();
   const [interviewData, setInterviewData] = useState({
     job_application: applicantId,
     scheduled_time: new Date(),
@@ -58,6 +59,7 @@ const InterviewScheduler = () => {
   }, [dispatch]);
 
   const existingInterview = interviews.find(interview => interview.job_application == applicantId);
+  console.log(existingInterview)
 
   useEffect(() => {
     if (existingInterview) {
@@ -83,6 +85,9 @@ const InterviewScheduler = () => {
   const handleDateChange = (date) => {
     setInterviewData({ ...interviewData, scheduled_time: date });
   };
+  const handleFeedbackClick = () => {
+    navigate(`/interview-feedback/${existingInterview.id}`); // Navigate to the InterviewFeedbackForm
+  };
 
   const isTimeConflict = (existingInterviews, newInterview, interviewToExcludeId) => {
     return existingInterviews.some(interview => {
@@ -95,6 +100,7 @@ const InterviewScheduler = () => {
       const newStart = new Date(newInterview.scheduled_time);
       const newDurationInMilliseconds = parseDuration(newInterview.duration);
       const newEnd = new Date(newStart.getTime() + newDurationInMilliseconds);
+
 
       return (newStart < existingEnd && newEnd > existingStart);
     });
@@ -213,6 +219,16 @@ const InterviewScheduler = () => {
                     Schedule Interview
                   </Button>
                 </Grid>
+                <Grid item xs={12} mt={2}>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      fullWidth
+                      onClick={handleFeedbackClick}
+                    >
+                      Provide Feedback
+                    </Button>
+                  </Grid>
               </Grid>
             </form>
             {conflictError && (

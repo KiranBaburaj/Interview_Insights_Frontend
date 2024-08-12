@@ -28,6 +28,7 @@ import ChatRoom from './components/ChatRoom';
 import JobseekerProfile from './pages/Jobseeker/JobseekerProfile';
 import JobseekerJobs from './pages/Jobseeker/JobseekerJobs';
 import InterviewScheduler from './components/Employer/InterviewScheduler';
+import InterviewFeedbackForm from './components/Employer/InterviewFeedbackForm';
 
 
 const App = () => {
@@ -183,6 +184,15 @@ const App = () => {
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
             <InterviewScheduler />
+          </ProtectedRoute>
+        }
+      />
+
+<Route
+        path="/interview-feedback/:interviewId"
+        element={
+          <ProtectedRoute roleRequired="employer">
+            <InterviewFeedbackForm />
           </ProtectedRoute>
         }
       />
