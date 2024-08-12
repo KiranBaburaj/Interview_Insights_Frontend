@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchApplications } from '../../features/applications/applicationsSlice';
-import { fetchInterviews } from '../../features/interview/interviewSlice';
+import { fetchInterviews, fetchFeedback } from '../../features/interview/interviewSlice';
 import { createChatRoom } from '../../features/chat/chatSlice';
 import {
   Container,
@@ -15,8 +15,9 @@ import {
   Grid,
   Button,
   TextField,
-  Alert,
-  Avatar,
+  IconButton,
+  Tabs,
+  Tab,
   Table,
   TableBody,
   TableCell,
@@ -25,43 +26,49 @@ import {
   TableRow,
   Paper,
   Chip,
-  IconButton,
-  Tabs,
-  Tab,
+  Avatar,
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 const MyApplications = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
   const applications = useSelector((state) => state.myapplications.applications);
-  console.log(applications)
   const applicationsStatus = useSelector((state) => state.myapplications.status);
   const applicationsError = useSelector((state) => state.myapplications.error);
-
+  
   const interviews = useSelector((state) => state.interviews.interviews);
   const interviewsStatus = useSelector((state) => state.interviews.status);
   const interviewsError = useSelector((state) => state.interviews.error);
-
+  
+  const currentFeedback = useSelector((state) => state.interviews.currentFeedback);
+  const feedbackStatus = useSelector((state) => state.interviews.status);
+  const feedbackError = useSelector((state) => state.interviews.error);
+  
   const [tabValue, setTabValue] = useState(0);
-
+  
   const userid = useSelector((state) => state.auth.userid);
-
+  
   useEffect(() => {
     dispatch(fetchApplications());
     dispatch(fetchInterviews());
-  }, [dispatch]);
-
+    // Fetch feedbacks for all interviews
+    if (interviews.length > 0) {
+      interviews.forEach(interview => {
+        dispatch(fetchFeedback(interview.id));
+      });
+    }
+  }, [dispatch, interviews.length]);
+  
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
-
-
-  const handleChat = (userid, mployer) => {
-    if (userid && mployer) {
-      dispatch(createChatRoom({ jobseekerId: userid, employerId: mployer }))
+  
+  const handleChat = (userid, employer) => {
+    if (userid && employer) {
+      dispatch(createChatRoom({ jobseekerId: userid, employerId: employer }))
         .unwrap()
         .then(() => {
           navigate('/chat');
@@ -71,39 +78,37 @@ const MyApplications = () => {
         });
     }
   };
-  if (applicationsStatus === 'loading' || interviewsStatus === 'loading') {
+  
+  if (applicationsStatus === 'loading' || interviewsStatus === 'loading' || feedbackStatus === 'loading') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
         <CircularProgress />
       </Box>
     );
   }
-
-  if (applicationsStatus === 'failed') {
+  
+  if (applicationsStatus === 'failed' || interviewsStatus === 'failed' || feedbackStatus === 'failed') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography color="error">Error: {applicationsError}</Typography>
+        <Typography color="error">Error: {applicationsError || interviewsError || feedbackError}</Typography>
       </Box>
     );
   }
-
-  if (interviewsStatus === 'failed') {
-    return (
-      <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography color="error">Error: {interviewsError}</Typography>
-      </Box>
-    );
-  }
-
+  
   const handleDownloadResume = (resumeUrl) => {
     window.open(`${resumeUrl}`, '_blank');
   };
-
-
+  
   const getInterviewForApplication = (applicationId) => {
     return interviews.find(interview => interview.job_application === applicationId);
   };
-
+  
+  const getFeedbackForInterview = (interviewId) => {
+    return currentFeedback && currentFeedback.interview_schedule === interviewId
+      ? currentFeedback
+      : null;
+  };
+  
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4">My Applications</Typography>
@@ -147,20 +152,22 @@ const MyApplications = () => {
               <TableCell>Date Applied</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Interview</TableCell>
+              <TableCell>Feedback</TableCell>
               <TableCell>Action</TableCell>
-              <TableCell>Chat</TableCell> {/* Added Chat column */}
+              <TableCell>Chat</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {applications.map((application, index) => {
               const interview = getInterviewForApplication(application.id);
+              const interviewFeedback = interview ? getFeedbackForInterview(interview.id) : null;
               return (
                 <TableRow key={application.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Avatar
-                        src={application.job_details.company.logoUrl} // Adjust if you have a logo URL
+                        src={application.job_details.company.logoUrl}
                         alt={application.job_details.company.name}
                         sx={{ mr: 2 }}
                       />
@@ -187,18 +194,28 @@ const MyApplications = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                  <Button
-                        variant="outlined"
-                        onClick={() => handleDownloadResume(application.resume)}
-
-                      >
-                        See Application
-                      </Button>
+                    {interviewFeedback ? (
+                      <Box>
+                        <Typography variant="body2">Score: {interviewFeedback.score}</Typography>
+                        <Typography variant="body2">Feedback: {interviewFeedback.feedback}</Typography>
+                        <Typography variant="body2">Stage: {interviewFeedback.stage}</Typography>
+                      </Box>
+                    ) : (
+                      'No Feedback Available'
+                    )}
                   </TableCell>
                   <TableCell>
-                   
-                    <Button onClick={() => handleChat(userid,application.job_details.employer)}> Chat</Button>
-         
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleDownloadResume(application.resume)}
+                    >
+                      See Application
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleChat(userid, application.job_details.employer)}>
+                      Chat
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
