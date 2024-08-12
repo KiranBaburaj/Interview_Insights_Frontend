@@ -41,13 +41,18 @@ export const fetchFeedback = createAsyncThunk(
   'interviews/fetchFeedback',
   async (interviewId, thunkAPI) => {
     try {
-      const response = await axiosInstance.get(`/api/interview-feedbacks/${interviewId}/`);
-      return response.data;
+      const response = await axiosInstance.get(`/api/interview-feedbacks/`);
+      const feedbacks = response.data;
+
+      // Find the feedback associated with the specific interviewId
+      const feedback = feedbacks.find(feedback => feedback.interview_schedule === interviewId);
+      return feedback || {};  // Return the feedback if found, otherwise return an empty object
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
+
 
 
 // Adjusted API paths

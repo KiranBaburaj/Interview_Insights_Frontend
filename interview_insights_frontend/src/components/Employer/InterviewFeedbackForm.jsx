@@ -7,34 +7,48 @@ import EmployerNavbar from '../EmployerNavbar';
 
 const InterviewFeedbackForm = () => {
   const { interviewId } = useParams();
+  const parsedInterviewId = parseInt(interviewId, 10);
   const dispatch = useDispatch();
-  const { feedback, status, error } = useSelector((state) => state.interviews) || { feedback: {}, status: 'idle', error: null };
+  const { currentFeedback, status, error } = useSelector((state) => state.interviews);
 
   const [feedbackData, setFeedbackData] = useState({
     score: 0,
     feedback: '',
     stage: '',
-    interview_schedule: interviewId || '', // Add interviewSchedule to the state
+    interview_schedule: parsedInterviewId || '',
   });
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (interviewId) {
-      dispatch(fetchFeedback(interviewId)); // Fetch feedback for the specific interview
+    if (parsedInterviewId) {
+      console.log("Fetching feedback for interviewId:", parsedInterviewId);
+      dispatch(fetchFeedback(parsedInterviewId))
+        .then(() => {
+          console.log("Feedback fetched successfully");
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching feedback:", error);
+          setIsLoading(false);
+        });
     }
-  }, [dispatch, interviewId]);
+  }, [dispatch, parsedInterviewId]);
 
   useEffect(() => {
-    if (feedback) {
+    console.log("Current feedback:", currentFeedback);
+    console.log("Interview ID:", parsedInterviewId);
+    if (currentFeedback && currentFeedback.interview_schedule === parsedInterviewId) {
+      console.log("Setting feedback data");
       setFeedbackData({
-        score: feedback.score || 0,
-        feedback: feedback.feedback || '',
-        stage: feedback.stage || '',
-        interview_schedule: int(feedback.interview_schedule) || int(interviewId)|| '', // Set interviewSchedule
+        score: currentFeedback.score || 0,
+        feedback: currentFeedback.feedback || '',
+        stage: currentFeedback.stage || '',
+        interview_schedule: currentFeedback.interview_schedule || parsedInterviewId,
       });
     }
-  }, [feedback, interviewId]);
+  }, [currentFeedback, parsedInterviewId]);
 
   const handleChange = (e) => {
     setFeedbackData({ ...feedbackData, [e.target.name]: e.target.value });
@@ -44,24 +58,30 @@ const InterviewFeedbackForm = () => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMsg('');
-  
-    // Ensure interviewSchedule is set
+
     if (!feedbackData.interview_schedule) {
       setErrorMsg('Interview schedule is required.');
       return;
     }
 
-    // Check if feedback exists and has an id
-    const resultAction = feedback && feedback.id
-      ? await dispatch(updateFeedback({ id: feedback.id, feedbackData }))
-      : await dispatch(submitFeedback({ feedbackData }));
-  
-    if (resultAction.type === 'interviews/submitFeedback/fulfilled' || resultAction.type === 'interviews/updateFeedback/fulfilled') {
-      setSuccessMessage('Feedback submitted successfully!');
-    } else {
-      setErrorMsg('An error occurred while submitting feedback.');
+    try {
+      const resultAction = currentFeedback && currentFeedback.id
+        ? await dispatch(updateFeedback({ id: currentFeedback.id, feedbackData }))
+        : await dispatch(submitFeedback({ interviewId: feedbackData.interview_schedule, feedbackData }));
+
+      if (resultAction.type.endsWith('/fulfilled')) {
+        setSuccessMessage('Feedback submitted successfully!');
+      } else {
+        setErrorMsg('An error occurred while submitting feedback.');
+      }
+    } catch (error) {
+      setErrorMsg('An unexpected error occurred.');
     }
   };
+
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -74,6 +94,7 @@ const InterviewFeedbackForm = () => {
               <Typography variant="h5" component="h2" gutterBottom>
                 Submit Interview Feedback
               </Typography>
+              
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
