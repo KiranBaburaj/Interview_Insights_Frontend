@@ -2,14 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   TextField, Button, Container, Grid, Typography, Paper, Avatar, Card, CardContent, CardMedia, CardActionArea,
-  Select, MenuItem, FormControl, InputLabel, IconButton
+  Select, MenuItem, FormControl, InputLabel, IconButton, Switch, Chip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { fetchProfile, updateProfile } from '../../features/jobseeker/jobseekerSlice2';
-
+import { fetchApplications } from '../../features/applications/applicationsSlice';
+import { fetchInterviews, fetchFeedback } from '../../features/interview/interviewSlice';
+const VISIBLE_APPLICATIONS_KEY = 'visibleApplications';
 const Profile = () => {
-  const dispatch = useDispatch();
+  
+  const [visibleApplications, setVisibleApplications] = useState(() => {
+    const savedVisibleApplications = localStorage.getItem(VISIBLE_APPLICATIONS_KEY);
+    return savedVisibleApplications ? JSON.parse(savedVisibleApplications) : [];
+  });
   const { data: profile, status, error } = useSelector((state) => state.profile);
   const [formData, setFormData] = useState({});
   const [educations, setEducations] = useState([]);
@@ -22,6 +28,47 @@ const Profile = () => {
   const [isResumeChanged, setIsResumeChanged] = useState(false);
   const [profilePhotoURL, setProfilePhotoURL] = useState(null);
   const [resumeURL, setResumeURL] = useState(null);
+
+  const [applications, setApplications] = useState([]);
+  const [displayedApplications, setDisplayedApplications] = useState({});
+
+  const dispatch = useDispatch();
+
+  const applicationData = useSelector((state) => state.myapplications.applications);
+  const interviews = useSelector((state) => state.interviews.interviews);
+  const currentFeedback = useSelector((state) => state.interviews.currentFeedback);
+
+  useEffect(() => {
+    dispatch(fetchProfile());
+    dispatch(fetchApplications());
+    dispatch(fetchInterviews());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (interviews.length > 0) {
+      interviews.forEach(interview => {
+        dispatch(fetchFeedback(interview.id));
+      });
+    }
+  }, [dispatch, interviews]);
+
+  useEffect(() => {
+    if (profile && profile.visible_applications) {
+      setVisibleApplications(profile.visible_applications);
+      localStorage.setItem(VISIBLE_APPLICATIONS_KEY, JSON.stringify(profile.visible_applications));
+    }
+  }, [profile]);
+  useEffect(() => {
+    if (applicationData) {
+      setApplications(applicationData);
+      const initialDisplayState = applicationData.reduce((acc, app) => {
+        acc[app.id] = true; // Default to displaying all applications
+        return acc;
+      }, {});
+      setDisplayedApplications(initialDisplayState);
+    }
+  }, [applicationData]);
+
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -38,8 +85,15 @@ const Profile = () => {
         portfolio_url: profile.portfolio_url || '',
         current_job_title: profile.current_job_title || '',
         job_preferences: profile.job_preferences || '',
+        visible_applications: Array.isArray(profile.visible_applications) 
+        ? profile.visible_applications 
+        : [],
         
       });
+      if (Array.isArray(profile.visible_applications)) {
+        setVisibleApplications(profile.visible_applications);
+        localStorage.setItem(VISIBLE_APPLICATIONS_KEY, JSON.stringify(profile.visible_applications));
+      }
       setEducations(profile.educations?.map(edu => ({...edu})) || []);
       setWorkExperiences(profile.work_experience?.map(exp => ({...exp})) || []);
       setSkills(profile.skills?.map(skill => ({...skill})) || []);
@@ -156,13 +210,60 @@ const Profile = () => {
     const newSkills = skills.filter((_, i) => i !== index);
     setSkills(newSkills);
   };
+  const handleApplicationDisplayToggle = (applicationId) => {
+    setDisplayedApplications(prev => ({
+      ...prev,
+      [applicationId]: !prev[applicationId]
+    }));
+  };
+
+  const getInterviewForApplication = (applicationId) => {
+    return interviews.find(interview => interview.job_application === applicationId);
+  };
+
+  const getFeedbackForInterview = (interviewId) => {
+    return currentFeedback && currentFeedback.interview_schedule === interviewId
+      ? currentFeedback
+      : null;
+  };
+  const handleApplicationVisibilityToggle = (applicationId) => {
+    setVisibleApplications(prevVisible => {
+      const currentVisible = Array.isArray(prevVisible) ? prevVisible : [];
+      
+      const updatedVisible = currentVisible.includes(applicationId)
+        ? currentVisible.filter(id => id !== applicationId)
+        : [...currentVisible, applicationId];
+      
+      localStorage.setItem(VISIBLE_APPLICATIONS_KEY, JSON.stringify(updatedVisible));
+      
+      // Update formData
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        visible_applications: updatedVisible,
+      }));
+      
+      // Update the profile in the backend
+      const updatedProfile = new FormData();
+      updatedProfile.append('visible_applications', JSON.stringify(updatedVisible));
+      dispatch(updateProfile(updatedProfile));
+      
+      return updatedVisible;
+    });
+  };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const updatedProfile = new FormData();
     for (const key in formData) {
       updatedProfile.append(key, formData[key]);
+      if (key === 'visible_applications') {
+        updatedProfile.append(key, JSON.stringify(formData[key]));
+      } else {
+        updatedProfile.append(key, formData[key]);
+      }
     }
+    
     if (isProfilePhotoChanged && profilePhoto instanceof File) {
       updatedProfile.append('profile_photo', profilePhoto);
     }
@@ -179,6 +280,70 @@ const Profile = () => {
   if (status === 'loading') return <div>Loading...</div>;
   if (status === 'failed') return <div>Error: {error}</div>;
   if (!profile) return null;
+
+  const renderApplications = () => (
+    <div>
+      <Typography variant="h6" style={{ marginTop: '16px' }}>Job Applications</Typography>
+      {applications.map((application) => {
+        const interview = getInterviewForApplication(application.id);
+        const feedback = interview ? getFeedbackForInterview(interview.id) : null;
+        const isVisible = visibleApplications.includes(application.id);
+        return (
+          <div key={application.id}>
+            <Switch
+              checked={isVisible}
+              onChange={() => handleApplicationVisibilityToggle(application.id)}
+            />
+            {isVisible && (
+              <Card>
+                <CardContent>
+                  {/* Application details */}
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    <strong>Company:</strong> {application.job_details.company.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    <strong>Job Title:</strong> {application.job_details.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" >
+                    <strong>Status:</strong> <Chip label={application.status} />
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    <strong>Date Applied:</strong> {new Date(application.applied_at).toLocaleDateString()}
+                  </Typography>
+                  {interview && (
+                    <div>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Interview Date:</strong> {new Date(interview.scheduled_time).toLocaleDateString()}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Interview Time:</strong> {new Date(interview.scheduled_time).toLocaleTimeString()}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Interview Location:</strong> {interview.location}
+                      </Typography>
+                    </div>
+                  )}
+                  {feedback && (
+                    <div>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Feedback Score:</strong> {feedback.score}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Feedback:</strong> {feedback.feedback}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        <strong>Stage:</strong> {feedback.stage}
+                      </Typography>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <Container component="main" maxWidth="md">
@@ -697,6 +862,7 @@ const Profile = () => {
                 </CardContent>
               </CardActionArea>
             </Card>
+            {renderApplications()}
             <Button
               variant="contained"
               color="primary"

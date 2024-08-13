@@ -82,7 +82,7 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState: {
     data: null,
-    status: 'idle',
+    status: 'idle',profile: null,
     error: null,
   },
   reducers: {},
