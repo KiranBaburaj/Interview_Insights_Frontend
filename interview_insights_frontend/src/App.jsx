@@ -100,6 +100,15 @@ const App = () => {
         }
       />
 
+<Route
+  path="/jobseekerprofile/:id"
+  element={
+    <ProtectedRoute roleRequired="employer">
+      <JobseekerProfile />
+    </ProtectedRoute>
+  }
+/>
+
 
       <Route
         path="/dashboard/employer"
