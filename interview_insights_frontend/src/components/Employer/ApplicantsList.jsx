@@ -275,8 +275,6 @@ const ApplicantsList = () => {
                 ) : (
                   <Typography variant="body1">No feedback available.</Typography>
                 )}
-
-              
               </div>
             )}
           </DialogContent>
