@@ -29,12 +29,13 @@ const Profile = () => {
   const applicationData = useSelector((state) => state.myapplications.applications);
   const interviews = useSelector((state) => state.interviews.interviews);
   const currentFeedback = useSelector((state) => state.interviews.currentFeedback);
-  const currentUser = useSelector((state) => state.auth.full_name);
 
   useEffect(() => {
     dispatch(fetchProfile());
     dispatch(fetchApplications());
     dispatch(fetchInterviews());
+    dispatch(fetchFeedback());
+    
   }, [dispatch]);
 
   useEffect(() => {
@@ -210,44 +211,40 @@ const Profile = () => {
       : null;
   };
 
-  // Inside your Profile component...
+  const renderFeedback = (feedback) => {
+    const handleToggleApproval = () => {
+      const updatedFeedbackData = {
+        ...feedback,
+        is_approved: !feedback.is_approved // Toggle the approval state
+      };
 
-const renderFeedback = (feedback) => {
-  const handleToggleApproval = () => {
-    const updatedFeedbackData = {
-      ...feedback,
-      is_approved: !feedback.is_approved // Toggle the approval state
+      dispatch(updateFeedback({ id: feedback.id, feedbackData: updatedFeedbackData }));
     };
-    
-    dispatch(updateFeedback({ id: feedback.id, feedbackData: updatedFeedbackData }));
+
+    return (
+      <div key={feedback.id}>
+        <Typography variant="body2" color="textSecondary" component="p">
+          <strong>Score:</strong> {feedback.score}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" component="p">
+          <strong>Feedback:</strong> {feedback.feedback}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" component="p">
+          <strong>Stage:</strong> {feedback.stage}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" component="p">
+          <strong>Approved:</strong> {feedback.is_approved ? 'Yes' : 'No'}
+        </Typography>
+        <Button
+          variant="contained"
+          color={feedback.is_approved ? 'secondary' : 'primary'}
+          onClick={handleToggleApproval}
+        >
+          {feedback.is_approved ? 'Unapprove' : 'Approve'}
+        </Button>
+      </div>
+    );
   };
-
-  return (
-    <div key={feedback.id}>
-      <Typography variant="body2" color="textSecondary" component="p">
-        <strong>Score:</strong> {feedback.score}
-      </Typography>
-      <Typography variant="body2" color="textSecondary" component="p">
-        <strong>Feedback:</strong> {feedback.feedback}
-      </Typography>
-      <Typography variant="body2" color="textSecondary" component="p">
-        <strong>Stage:</strong> {feedback.stage}
-      </Typography>
-      <Typography variant="body2" color="textSecondary" component="p">
-        <strong>Approved:</strong> {feedback.is_approved ? 'Yes' : 'No'}
-      </Typography>
-      <Button
-        variant="contained"
-        color={feedback.is_approved ? 'secondary' : 'primary'}
-        onClick={handleToggleApproval}
-      >
-        {feedback.is_approved ? 'Unapprove' : 'Approve'}
-      </Button>
-    </div>
-  );
-};
-
-// Use renderFeedback in your renderApplications function
 
   const renderApplications = () => (
     <div>

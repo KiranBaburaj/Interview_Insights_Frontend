@@ -8,6 +8,9 @@ import EmployerNavbar from '../EmployerNavbar';
 const InterviewFeedbackForm = () => {
   const { interviewId } = useParams();
   const parsedInterviewId = parseInt(interviewId, 10);
+  const FDB = useSelector((state) => state.interviews);
+  console.log(FDB)
+
   const dispatch = useDispatch();
   const { currentFeedback, status, error } = useSelector((state) => state.interviews);
 
