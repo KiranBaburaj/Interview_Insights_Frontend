@@ -1,6 +1,5 @@
-// src/features/interviewSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosInstance from '../../axiosConfig'; // Adjust the path to where axiosInstance is located
+import axiosInstance from '../../axiosConfig';
 
 export const scheduleInterview = createAsyncThunk(
   'interviews/scheduleInterview',
@@ -37,6 +36,7 @@ export const fetchInterviews = createAsyncThunk(
     }
   }
 );
+
 export const fetchFeedback = createAsyncThunk(
   'interviews/fetchFeedback',
   async (interviewId, thunkAPI) => {
@@ -53,9 +53,6 @@ export const fetchFeedback = createAsyncThunk(
   }
 );
 
-
-
-// Adjusted API paths
 export const submitFeedback = createAsyncThunk(
   'interviews/submitFeedback',
   async ({ interviewId, feedbackData }, thunkAPI) => {
@@ -101,7 +98,7 @@ const interviewSlice = createSlice({
       })
       .addCase(scheduleInterview.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Handle error
       })
       .addCase(updateInterview.fulfilled, (state, action) => {
         const index = state.interviews.findIndex(interview => interview.id === action.payload.id);
@@ -109,9 +106,16 @@ const interviewSlice = createSlice({
           state.interviews[index] = action.payload;
         }
       })
+      .addCase(fetchInterviews.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(fetchInterviews.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.interviews = action.payload;
+      })
+      .addCase(fetchInterviews.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload; // Handle error
       })
       .addCase(submitFeedback.pending, (state) => {
         state.status = 'loading';
@@ -122,9 +126,8 @@ const interviewSlice = createSlice({
       })
       .addCase(submitFeedback.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Handle error
       })
-      // Handle updating feedback
       .addCase(updateFeedback.fulfilled, (state, action) => {
         const index = state.feedbacks.findIndex(feedback => feedback.id === action.payload.id);
         if (index !== -1) {
@@ -140,9 +143,8 @@ const interviewSlice = createSlice({
       })
       .addCase(fetchFeedback.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload; // Handle error
       });
-
   },
 });
 

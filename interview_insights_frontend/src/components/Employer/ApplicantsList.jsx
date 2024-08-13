@@ -28,7 +28,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -60,7 +59,6 @@ const ApplicantsList = () => {
 
   const handleChat = (jobseekerId) => {
     if (jobseekerId && userid) {
-      console.log("Chat button clicked"); 
       dispatch(createChatRoom({ jobseekerId, employerId: userid }))
         .unwrap()
         .then(() => {
@@ -141,7 +139,7 @@ const ApplicantsList = () => {
                     <TableCell>Applied Date</TableCell>
                     <TableCell>Action</TableCell>
                     <TableCell>Chat</TableCell>
-                    <TableCell>Profile</TableCell> {/* New Profile column */}
+                    <TableCell>Profile</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -190,10 +188,10 @@ const ApplicantsList = () => {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Button onClick={() => handleChat(applicant.job_seeker.user.id,userid)}> Chat</Button>
+                        <Button onClick={() => handleChat(applicant.job_seeker.user.id)}> Chat</Button>
                       </TableCell>
                       <TableCell>
-                        <Button onClick={() => handleClickOpen(applicant)}>Profile</Button> {/* Open profile modal */}
+                        <Button onClick={() => handleClickOpen(applicant)}>Profile</Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -209,7 +207,14 @@ const ApplicantsList = () => {
           <DialogContent>
             {selectedApplicant && (
               <div>
-                <Typography variant="h6">{selectedApplicant.job_seeker.user.full_name}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Avatar
+                    src={`http://localhost:8000${selectedApplicant.job_seeker.profile_photo}`}
+                    alt={selectedApplicant.job_seeker.user.full_name}
+                    sx={{ mr: 2, width: 80, height: 80 }}
+                  />
+                  <Typography variant="h6">{selectedApplicant.job_seeker.user.full_name}</Typography>
+                </Box>
                 <Typography variant="body1"><strong>Email:</strong> {selectedApplicant.job_seeker.user.email}</Typography>
                 <Typography variant="body1"><strong>Phone Number:</strong> {selectedApplicant.job_seeker.phone_number}</Typography>
                 <Typography variant="body1"><strong>Date of Birth:</strong> {new Date(selectedApplicant.job_seeker.date_of_birth).toLocaleDateString()}</Typography>
@@ -219,8 +224,59 @@ const ApplicantsList = () => {
                 <Typography variant="body1"><strong>Current Job Title:</strong> {selectedApplicant.job_seeker.current_job_title}</Typography>
                 <Typography variant="body1"><strong>Job Preferences:</strong> {selectedApplicant.job_seeker.job_preferences}</Typography>
                 <Typography variant="body1"><strong>Resume:</strong> <a href={`http://localhost:8000${selectedApplicant.job_seeker.resume}`} target="_blank" rel="noopener noreferrer">View Resume</a></Typography>
-                
-                {/* Additional details like educations, skills, etc. can be added here */}
+
+                {/* Work Experience */}
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
+                {selectedApplicant.job_seeker.work_experience && selectedApplicant.job_seeker.work_experience.length > 0 ? (
+                  selectedApplicant.job_seeker.work_experience.map((experience) => (
+                    <div key={experience.id}>
+                      <Typography variant="body1"><strong>Job Title:</strong> {experience.job_title}</Typography>
+                      <Typography variant="body1"><strong>Company:</strong> {experience.company_name}</Typography>
+                      <Typography variant="body1"><strong>Location:</strong> {experience.company_location}</Typography>
+                      <Typography variant="body1"><strong>Start Date:</strong> {new Date(experience.start_date).toLocaleDateString()}</Typography>
+                      <Typography variant="body1"><strong>End Date:</strong> {new Date(experience.end_date).toLocaleDateString() || 'Present'}</Typography>
+                      <Divider style={{ margin: '10px 0' }} />
+                    </div>
+                  ))
+                ) : (
+                  <Typography variant="body1">No work experience available.</Typography>
+                )}
+
+                {/* Skills */}
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Skills</Typography>
+                {selectedApplicant.job_seeker.skills && selectedApplicant.job_seeker.skills.length > 0 ? (
+                  selectedApplicant.job_seeker.skills.map((skill) => (
+                    <Typography key={skill.id} variant="body1">
+                      <strong>{skill.skill_name}</strong> - {skill.proficiency_level}
+                    </Typography>
+                  ))
+                ) : (
+                  <Typography variant="body1">No skills available.</Typography>
+                )}
+
+                {/* Display interview feedback */}
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Interview Feedback</Typography>
+                {selectedApplicant.job_seeker.interview_feedback && selectedApplicant.job_seeker.interview_feedback.length > 0 ? (
+                  selectedApplicant.job_seeker.interview_feedback
+                    .filter(feedback => feedback.is_approved) // Filter for approved feedback
+                    .map((feedback) => {
+                      const interviewSchedule = selectedApplicant.job_seeker.interview_schedule.find(schedule => schedule.id === feedback.interview_schedule);
+                      return (
+                        <div key={feedback.id}>
+                          <Typography variant="body1"><strong>Stage:</strong> {feedback.stage}</Typography>
+                          <Typography variant="body1"><strong>Score:</strong> {feedback.score}</Typography>
+                          <Typography variant="body1"><strong>Feedback:</strong> {feedback.feedback}</Typography>
+                          <Typography variant="body1"><strong>Provided At:</strong> {new Date(feedback.provided_at).toLocaleDateString()}</Typography>
+                          <Typography variant="body1"><strong>Interview Confirmed:</strong> {interviewSchedule && interviewSchedule.is_confirmed ? 'Yes' : 'No'}</Typography>
+                          <Divider style={{ margin: '10px 0' }} />
+                        </div>
+                      );
+                    })
+                ) : (
+                  <Typography variant="body1">No feedback available.</Typography>
+                )}
+
+              
               </div>
             )}
           </DialogContent>
