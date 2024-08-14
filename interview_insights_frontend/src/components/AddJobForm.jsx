@@ -61,6 +61,7 @@ const JobManagement = () => {
     categories: [],
     skills_required: [],
   });
+  const { userid } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.auth);
   const [openDialog, setOpenDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
@@ -234,7 +235,7 @@ const JobManagement = () => {
   };
 
   // Filter jobs to only show those belonging to the logged-in employer
-  const filteredJobs = jobs.filter((job) => job.employer === user.id);
+  const filteredJobs = jobs.filter((job) => job.employer == userid);
 
   if (categoriesStatus === 'loading' || jobsStatus === 'loading') {
     return (

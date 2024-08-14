@@ -14,7 +14,9 @@ import {
 const CompanyManagement = () => {
   const dispatch = useDispatch();
   const { companies, status, error } = useSelector(state => state.company);
-  const { user } = useSelector(state => state.auth); 
+  const { user } = useSelector(state => state.auth);
+  const { userid } = useSelector(state => state.auth);  
+  console.log(userid)
   const [companyData, setCompanyData] = useState({
     name: '',
     logo_url: '',
@@ -39,13 +41,13 @@ const CompanyManagement = () => {
   useEffect(() => {
     if (companies.length > 0) {
       // Check if the logged-in user already has a company
-      const userCompany = companies.find(company => company.employer === user.id);
+      const userCompany = companies.find(company => company.employer == userid);
       if (userCompany) {
         setCompanyExists(true);
         setCompanyData(userCompany); // Set company data if a company exists
       }
     }
-  }, [companies, user.id]);
+  }, [companies, userid]);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -68,7 +70,7 @@ const CompanyManagement = () => {
     e.preventDefault();
     const companyData2 = {
       ...companyData,
-      employer: user.id,
+      employer: userid,
     };
     if (companyData.id) {
       // If companyData has an id, it means we are updating an existing company
@@ -263,7 +265,7 @@ const CompanyManagement = () => {
               </Typography>
               <ul>
                 {companies
-                  .filter(company => company.employer === user.id)
+                  .filter(company => company.employer == userid)
                   .map(company => (
                     <li key={company.id}>
                       {company.name}
