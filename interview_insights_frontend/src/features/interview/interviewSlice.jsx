@@ -129,6 +129,7 @@ const interviewSlice = createSlice({
         state.error = action.payload; // Handle error
       })
       .addCase(updateFeedback.fulfilled, (state, action) => {
+        state.currentFeedback = action.payload;
         const index = state.feedbacks.findIndex(feedback => feedback.id === action.payload.id);
         if (index !== -1) {
           state.feedbacks[index] = action.payload;

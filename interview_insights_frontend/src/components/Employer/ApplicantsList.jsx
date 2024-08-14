@@ -137,6 +137,7 @@ const ApplicantsList = () => {
                     <TableCell>Email</TableCell>
                     <TableCell>Hiring Stage</TableCell>
                     <TableCell>Applied Date</TableCell>
+                    <TableCell>Schedule</TableCell>
                     <TableCell>Action</TableCell>
                     <TableCell>Chat</TableCell>
                     <TableCell>Profile</TableCell>
@@ -201,87 +202,97 @@ const ApplicantsList = () => {
           </CardContent>
         </Card>
 
-        {/* Profile Dialog */}
-        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-          <DialogTitle>Applicant Profile</DialogTitle>
-          <DialogContent>
-            {selectedApplicant && (
-              <div>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar
-                    src={`http://localhost:8000${selectedApplicant.job_seeker.profile_photo}`}
-                    alt={selectedApplicant.job_seeker.user.full_name}
-                    sx={{ mr: 2, width: 80, height: 80 }}
-                  />
-                  <Typography variant="h6">{selectedApplicant.job_seeker.user.full_name}</Typography>
-                </Box>
-                <Typography variant="body1"><strong>Email:</strong> {selectedApplicant.job_seeker.user.email}</Typography>
-                <Typography variant="body1"><strong>Phone Number:</strong> {selectedApplicant.job_seeker.phone_number}</Typography>
-                <Typography variant="body1"><strong>Date of Birth:</strong> {new Date(selectedApplicant.job_seeker.date_of_birth).toLocaleDateString()}</Typography>
-                <Typography variant="body1"><strong>Bio:</strong> {selectedApplicant.job_seeker.bio}</Typography>
-                <Typography variant="body1"><strong>LinkedIn:</strong> {selectedApplicant.job_seeker.linkedin_url || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>Portfolio:</strong> {selectedApplicant.job_seeker.portfolio_url || 'N/A'}</Typography>
-                <Typography variant="body1"><strong>Current Job Title:</strong> {selectedApplicant.job_seeker.current_job_title}</Typography>
-                <Typography variant="body1"><strong>Job Preferences:</strong> {selectedApplicant.job_seeker.job_preferences}</Typography>
-                <Typography variant="body1"><strong>Resume:</strong> <a href={`http://localhost:8000${selectedApplicant.job_seeker.resume}`} target="_blank" rel="noopener noreferrer">View Resume</a></Typography>
+       {/* Profile Dialog */}
+<Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+  <DialogTitle>Applicant Profile</DialogTitle>
+  <DialogContent>
+    {selectedApplicant && (
+      <div>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Avatar
+            src={`http://localhost:8000${selectedApplicant.job_seeker.profile_photo}`}
+            alt={selectedApplicant.job_seeker.user.full_name}
+            sx={{ mr: 2, width: 80, height: 80 }}
+          />
+          <Typography variant="h6">{selectedApplicant.job_seeker.user.full_name}</Typography>
+        </Box>
+        <Typography variant="body1"><strong>Email:</strong> {selectedApplicant.job_seeker.user.email}</Typography>
+        <Typography variant="body1"><strong>Phone Number:</strong> {selectedApplicant.job_seeker.phone_number}</Typography>
+        <Typography variant="body1"><strong>Date of Birth:</strong> {new Date(selectedApplicant.job_seeker.date_of_birth).toLocaleDateString()}</Typography>
+        <Typography variant="body1"><strong>Bio:</strong> {selectedApplicant.job_seeker.bio}</Typography>
+        <Typography variant="body1"><strong>LinkedIn:</strong> {selectedApplicant.job_seeker.linkedin_url || 'N/A'}</Typography>
+        <Typography variant="body1"><strong>Portfolio:</strong> {selectedApplicant.job_seeker.portfolio_url || 'N/A'}</Typography>
+        <Typography variant="body1"><strong>Current Job Title:</strong> {selectedApplicant.job_seeker.current_job_title}</Typography>
+        <Typography variant="body1"><strong>Job Preferences:</strong> {selectedApplicant.job_seeker.job_preferences}</Typography>
+        <Typography variant="body1"><strong>Resume:</strong> <a href={`http://localhost:8000${selectedApplicant.job_seeker.resume}`} target="_blank" rel="noopener noreferrer">View Resume</a></Typography>
 
-                {/* Work Experience */}
-                <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
-                {selectedApplicant.job_seeker.work_experience && selectedApplicant.job_seeker.work_experience.length > 0 ? (
-                  selectedApplicant.job_seeker.work_experience.map((experience) => (
-                    <div key={experience.id}>
-                      <Typography variant="body1"><strong>Job Title:</strong> {experience.job_title}</Typography>
-                      <Typography variant="body1"><strong>Company:</strong> {experience.company_name}</Typography>
-                      <Typography variant="body1"><strong>Location:</strong> {experience.company_location}</Typography>
-                      <Typography variant="body1"><strong>Start Date:</strong> {new Date(experience.start_date).toLocaleDateString()}</Typography>
-                      <Typography variant="body1"><strong>End Date:</strong> {new Date(experience.end_date).toLocaleDateString() || 'Present'}</Typography>
-                      <Divider style={{ margin: '10px 0' }} />
+        {/* Work Experience */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
+        {selectedApplicant.job_seeker.work_experience && selectedApplicant.job_seeker.work_experience.length > 0 ? (
+          selectedApplicant.job_seeker.work_experience.map((experience) => (
+            <div key={experience.id}>
+              <Typography variant="body1"><strong>Job Title:</strong> {experience.job_title}</Typography>
+              <Typography variant="body1"><strong>Company:</strong> {experience.company_name}</Typography>
+              <Typography variant="body1"><strong>Location:</strong> {experience.company_location}</Typography>
+              <Typography variant="body1"><strong>Start Date:</strong> {new Date(experience.start_date).toLocaleDateString()}</Typography>
+              <Typography variant="body1"><strong>End Date:</strong> {new Date(experience.end_date).toLocaleDateString() || 'Present'}</Typography>
+              <Divider style={{ margin: '10px 0' }} />
+            </div>
+          ))
+        ) : (
+          <Typography variant="body1">No work experience available.</Typography>
+        )}
+
+        {/* Skills */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>Skills</Typography>
+        {selectedApplicant.job_seeker.skills && selectedApplicant.job_seeker.skills.length > 0 ? (
+          selectedApplicant.job_seeker.skills.map((skill) => (
+            <Typography key={skill.id} variant="body1">
+              <strong>{skill.skill_name}</strong> - {skill.proficiency_level}
+            </Typography>
+          ))
+        ) : (
+          <Typography variant="body1">No skills available.</Typography>
+        )}
+
+        {/* Display interview feedback along with job and company details */}
+        <Typography variant="h6" style={{ marginTop: '16px' }}>Interview Feedback</Typography>
+        {selectedApplicant.job_seeker.interview_feedback && selectedApplicant.job_seeker.interview_feedback.length > 0 ? (
+          selectedApplicant.job_seeker.interview_feedback
+            .filter(feedback => feedback.is_approved) // Filter for approved feedback
+            .map((feedback) => {
+              const interviewSchedule = selectedApplicant.job_seeker.interview_schedule?.find(schedule => schedule.id === feedback.interview_schedule);
+              const jobApplication = selectedApplicant.job_seeker.myapplications?.find(application => application.id === selectedApplicant.id);
+              const jobDetails = jobApplication ? jobApplication.job_details : null;
+              const companyDetails = jobDetails ? jobDetails.company : null;
+
+              return (
+                <div key={feedback.id}>
+                  <Typography variant="body1"><strong>Stage:</strong> {feedback.stage}</Typography>
+                  <Typography variant="body1"><strong>Score:</strong> {feedback.score}</Typography>
+                  <Typography variant="body1"><strong>Feedback:</strong> {feedback.feedback}</Typography>
+                  <Typography variant="body1"><strong>Provided At:</strong> {new Date(feedback.provided_at).toLocaleDateString()}</Typography>
+                
+                  {jobDetails && companyDetails && (
+                    <div>
+                      <Typography variant="body1"><strong>Job Title:</strong> {jobDetails.title}</Typography>
+                      <Typography variant="body1"><strong>Company:</strong> {companyDetails.name}</Typography>
                     </div>
-                  ))
-                ) : (
-                  <Typography variant="body1">No work experience available.</Typography>
-                )}
-
-                {/* Skills */}
-                <Typography variant="h6" style={{ marginTop: '16px' }}>Skills</Typography>
-                {selectedApplicant.job_seeker.skills && selectedApplicant.job_seeker.skills.length > 0 ? (
-                  selectedApplicant.job_seeker.skills.map((skill) => (
-                    <Typography key={skill.id} variant="body1">
-                      <strong>{skill.skill_name}</strong> - {skill.proficiency_level}
-                    </Typography>
-                  ))
-                ) : (
-                  <Typography variant="body1">No skills available.</Typography>
-                )}
-
-                {/* Display interview feedback */}
-                <Typography variant="h6" style={{ marginTop: '16px' }}>Interview Feedback</Typography>
-                {selectedApplicant.job_seeker.interview_feedback && selectedApplicant.job_seeker.interview_feedback.length > 0 ? (
-                  selectedApplicant.job_seeker.interview_feedback
-                    .filter(feedback => feedback.is_approved) // Filter for approved feedback
-                    .map((feedback) => {
-                      const interviewSchedule = selectedApplicant.job_seeker.interview_schedule.find(schedule => schedule.id === feedback.interview_schedule);
-                      return (
-                        <div key={feedback.id}>
-                          <Typography variant="body1"><strong>Stage:</strong> {feedback.stage}</Typography>
-                          <Typography variant="body1"><strong>Score:</strong> {feedback.score}</Typography>
-                          <Typography variant="body1"><strong>Feedback:</strong> {feedback.feedback}</Typography>
-                          <Typography variant="body1"><strong>Provided At:</strong> {new Date(feedback.provided_at).toLocaleDateString()}</Typography>
-                          <Typography variant="body1"><strong>Interview Confirmed:</strong> {interviewSchedule && interviewSchedule.is_confirmed ? 'Yes' : 'No'}</Typography>
-                          <Divider style={{ margin: '10px 0' }} />
-                        </div>
-                      );
-                    })
-                ) : (
-                  <Typography variant="body1">No feedback available.</Typography>
-                )}
-              </div>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Close</Button>
-          </DialogActions>
-        </Dialog>
+                  )}
+                  <Divider style={{ margin: '10px 0' }} />
+                </div>
+              );
+            })
+        ) : (
+          <Typography variant="body1">No feedback available.</Typography>
+        )}
+      </div>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleClose}>Close</Button>
+  </DialogActions>
+</Dialog>
       </Container>
     </Box>
   );

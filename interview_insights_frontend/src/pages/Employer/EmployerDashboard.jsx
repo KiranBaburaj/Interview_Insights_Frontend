@@ -35,6 +35,7 @@ const EmployerDashboard = () => {
   const jobsStatus = useSelector((state) => state.jobs.status);
   const applicantsStatus = useSelector((state) => state.applicants.status);
   const { user } = useSelector((state) => state.auth);
+  const { full_name } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fetchJobs());
@@ -94,7 +95,7 @@ const EmployerDashboard = () => {
 
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h4" component="h1">
-              Welcome, {user ? user.full_name : 'Employer'}
+              Welcome, {user ? full_name : 'Employer'}
             </Typography>
             <Box display="flex" alignItems="center">
               <CalendarTodayIcon />
