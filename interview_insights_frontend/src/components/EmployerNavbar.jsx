@@ -15,9 +15,21 @@ const EmployerNavbar = () => {
 
   const handleLogout = () => {
     dispatch(clearError());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
+
+      state.user = null;
+      state.role = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.userid = null;
+      state.full_name = null;
+      state.companyDetailsSubmitted = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userid');
+      localStorage.removeItem('full_name');
+      localStorage.removeItem('companyDetailsSubmitted');
     window.location.replace('/login');
   };
 

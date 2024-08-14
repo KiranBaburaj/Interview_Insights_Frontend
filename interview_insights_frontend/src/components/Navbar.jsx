@@ -83,6 +83,7 @@ const Navbar = () => {
     }
   };
   const avatarImageUrl = '/logo.PNG';
+  console.log(user)
 
   return (
     <AppBar position="static">
