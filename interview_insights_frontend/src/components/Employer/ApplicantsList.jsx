@@ -36,6 +36,7 @@ import { createChatRoom } from '../../features/chat/chatSlice';
 
 const ApplicantsList = () => {
   const { jobId } = useParams();
+  
   const dispatch = useDispatch();
   const applicants = useSelector((state) => state.applicants.applicants);
   const status = useSelector((state) => state.applicants.status);

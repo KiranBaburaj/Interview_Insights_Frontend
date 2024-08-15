@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchFeedback, submitFeedback, updateFeedback } from '../../features/interview/interviewSlice';
 import { Box, Button, Container, Grid, Paper, TextField, Typography, Snackbar, CssBaseline, Alert, MenuItem } from '@mui/material';
 import EmployerNavbar from '../EmployerNavbar';
@@ -9,9 +9,12 @@ const InterviewFeedbackForm = () => {
   const { interviewId } = useParams();
   const parsedInterviewId = parseInt(interviewId, 10);
   const FDB = useSelector((state) => state.interviews);
-  console.log(FDB)
+  console.log(FDB);
+  const job = useSelector((state) => state.applicants.job_Id);
+  console.log(job);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Use the useNavigate hook
   const { currentFeedback, status, error } = useSelector((state) => state.interviews);
 
   const [feedbackData, setFeedbackData] = useState({
@@ -74,6 +77,9 @@ const InterviewFeedbackForm = () => {
 
       if (resultAction.type.endsWith('/fulfilled')) {
         setSuccessMessage('Feedback submitted successfully!');
+        // Navigate to the desired route after successful submission
+       
+        navigate(`/EmployerJobapplicants/${job}`);
       } else {
         setErrorMsg('An error occurred while submitting feedback.');
       }

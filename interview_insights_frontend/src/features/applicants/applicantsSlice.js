@@ -6,6 +6,7 @@ const initialState = {
   applicants: [],
   status: 'idle',
   error: null,
+  job_Id:localStorage.getItem('job_Id') || null,
 };
 
 // Fetch applicants
@@ -41,6 +42,11 @@ const applicantsSlice = createSlice({
       .addCase(fetchApplicants.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.applicants = action.payload;
+        state.job_Id=action.payload[0].job;
+        localStorage.setItem('job_Id', action.payload[0].job);
+        console.log(action.payload[0].job)
+        console.log(state.job_Id)
+  
       })
       .addCase(fetchApplicants.rejected, (state, action) => {
         state.status = 'failed';
