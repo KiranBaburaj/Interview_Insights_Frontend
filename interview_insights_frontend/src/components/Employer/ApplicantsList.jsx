@@ -134,7 +134,7 @@ const ApplicantsList = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Full Name</TableCell>
-                    <TableCell>Email</TableCell>
+
                     <TableCell>Hiring Stage</TableCell>
                     <TableCell>Applied Date</TableCell>
                     <TableCell>Schedule</TableCell>
@@ -156,7 +156,7 @@ const ApplicantsList = () => {
                           {applicant.job_seeker.user.full_name}
                         </Box>
                       </TableCell>
-                      <TableCell>{applicant.job_seeker.user.email}</TableCell>
+            
                       <TableCell>
                         <Select
                           value={applicant.status || 'N/A'}

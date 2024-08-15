@@ -4,32 +4,28 @@ import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSli
 import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from '../utils/websocket';
 import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/material';
 import { connectNotificationWebSocket, sendNotificationWebSocketMessage } from '../utils/notificationWebSocket';
+
 const ChatRoom = () => {
   const dispatch = useDispatch();
   const currentChatRoom = useSelector(state => state.chat.currentChatRoom);
-  console.log(currentChatRoom)
   const messages = useSelector(state => state.chat.messages);
-  const token = useSelector(state => state.auth.accessToken); // Assuming you have token in auth slice
-  const user = useSelector(state => state.auth.user); // Assuming you have userId in auth slice
+  const token = useSelector(state => state.auth.accessToken);
+  const user = useSelector(state => state.auth.user);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
   const userid = useSelector(state => state.auth.userid);
   const full_name = useSelector(state => state.auth.full_name);
-  console.log(full_name)
-
 
   useEffect(() => {
     if (currentChatRoom && token) {
       dispatch(fetchMessages(currentChatRoom.id));
       const socket = connectWebSocket(currentChatRoom.id, (message) => {
-        // Add a temporary id if the message doesn't have one
         const messageWithId = message.id ? message : { ...message, id: `temp-${Date.now()}` };
         dispatch(addMessage(messageWithId));
       }, token);
 
       const notificationSocket = connectNotificationWebSocket(token, userid, dispatch);
     
-  
       return () => {
         closeWebSocket();
       };
@@ -47,24 +43,21 @@ const ChatRoom = () => {
         type: 'chat_message',
         message: newMessage,
         user_id: userid,
-        full_name:full_name,
+        full_name: full_name,
         timestamp: new Date().toISOString()
       };
   
-      // Don't add the message locally, wait for it to come back through the WebSocket
       sendWebSocketMessage(messagePayload);
 
       const notificationPayload = {
         type: 'notification',
         message: `New message from ${full_name}`,
         user_id: userid,
-        room_id:currentChatRoom.id,
+        room_id: currentChatRoom.id,
       };
 
       sendNotificationWebSocketMessage(notificationPayload);
 
-
-      
       setNewMessage('');
     }
   };
@@ -76,8 +69,9 @@ const ChatRoom = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh', // Adjust to fit your layout
-        maxWidth: '600px',
+        height: '80vh', // Reduced the overall height to 80vh
+        maxWidth: '800px',
+        width: '100%',
         margin: '0 auto',
         padding: 2,
       }}
@@ -97,7 +91,7 @@ const ChatRoom = () => {
           backgroundColor: '#fafafa',
           display: 'flex',
           flexDirection: 'column',
-          height: '80vh', // Adjust to fit your layout
+          height: '60vh', // Reduced the height of the chat messages area to 60vh
         }}
       >
         {messages.map(message => (

@@ -12,6 +12,7 @@ import {
   Avatar,
   CircularProgress,
 } from '@mui/material';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 import EmployerNavbar from '../../components/EmployerNavbar';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 import { fetchJobs, selectAllJobs } from '../../features/jobs/jobsSlice';
@@ -56,31 +57,20 @@ const EmployerDashboard = () => {
   const filteredJobs = jobs.filter((job) => {
     const postedDate = dayjs(job.posted_at);
     return (
-      job.employer == employerId && // Filter by employer ID
+      job.employer === employerId && // Filter by employer ID
       (!dateRange[0] || postedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || postedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
   });
- /*
-  const filteredApplicants = applicants.filter((applicant) => {
-    const appliedDate = dayjs(applicant.applied_at);
-    return (
-      (!dateRange[0] || appliedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
-      (!dateRange[1] || appliedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
-    );
-  });*/
-console.log(applicants)
+
   // Filter applicants based on selected date range and employer ID
   const filteredApplicants = applicants.filter((applicant) => {
     const appliedDate = dayjs(applicant.applied_at);
-
     return (
-  
       (!dateRange[0] || appliedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || appliedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
   });
-  console.log(filteredApplicants)
 
   const totalJobsPosted = filteredJobs.length;
   const applicationsReceived = filteredApplicants.length;
@@ -137,7 +127,11 @@ console.log(applicants)
                 filteredJobs.map((job) => (
                   <ListItem key={job.id} divider>
                     <ListItemText
-                      primary={job.title}
+                      primary={
+                        <Link to={`/job/${job.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          {job.title}
+                        </Link>
+                      }
                       secondary={`Posted on: ${new Date(job.posted_at).toLocaleDateString()}`}
                     />
                   </ListItem>

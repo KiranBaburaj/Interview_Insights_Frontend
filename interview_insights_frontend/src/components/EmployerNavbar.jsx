@@ -61,18 +61,7 @@ const EmployerNavbar = () => {
           </ListItemIcon>
           <ListItemText primary="My Jobs" />
         </ListItem>
-        <ListItem button component={Link} to="/applicants">
-          <ListItemIcon>
-            <PeopleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Applicants" />
-        </ListItem>
-        <ListItem button component={Link} to="/interviews">
-          <ListItemIcon>
-            <PeopleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Interviews" />
-        </ListItem>
+       
         <ListItem button component={Link} to="/EmployerCompanyManagement">
           <ListItemIcon>
             <BusinessIcon />

@@ -47,6 +47,23 @@ const Navbar = () => {
     handleClose();
   };
 
+  const handleDashboardNavigation = () => {
+    switch (role) {
+      case 'jobseeker':
+        navigate('/dashboard/jobseeker');
+        break;
+      case 'employer':
+        navigate('/dashboard/employer');
+        break;
+      case 'recruiter':
+        navigate('/dashboard/recruiter');
+        break;
+      default:
+        break;
+    }
+    handleClose();
+  };
+
   const avatarImageUrl = '/logo.PNG';
 
   return (
@@ -65,23 +82,20 @@ const Navbar = () => {
               <Button color="inherit" onClick={() => navigate('/')}>
                 Home
               </Button>
-              <Button color="inherit" onClick={() => navigate('/jobs')}>
-                Jobs
-              </Button>
-              <Button color="inherit" onClick={() => navigate('/companies')}>
-                Companies
-              </Button>
-              <Button color="inherit" onClick={() => navigate('/about')}>
-                About
-              </Button>
+
               {(role === 'jobseeker' || role === 'employer') && (
                 <Button color="inherit" onClick={handleChatNavigation}>
                   Chat
                 </Button>
               )}
+
+              {(role === 'jobseeker' || role === 'employer' || role === 'recruiter') && (
+                <Button color="inherit" onClick={handleDashboardNavigation}>
+                  Dashboard
+                </Button>
+              )}
             </Box>
 
-            {/* Include NotificationList component */}
             <NotificationList />
 
             <IconButton
@@ -110,31 +124,19 @@ const Navbar = () => {
               onClose={handleClose}
             >
               <MenuItem onClick={() => navigate('/')}>Home</MenuItem>
-              <MenuItem onClick={() => navigate('/jobs')}>Jobs</MenuItem>
-              <MenuItem onClick={() => navigate('/companies')}>Companies</MenuItem>
-              <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
+
               {(role === 'jobseeker' || role === 'employer') && (
                 <MenuItem onClick={handleChatNavigation}>Chat</MenuItem>
               )}
+
+              {(role === 'jobseeker' || role === 'employer' || role === 'recruiter') && (
+                <MenuItem onClick={handleDashboardNavigation}>Dashboard</MenuItem>
+              )}
+
               {user ? (
                 <>
                   <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  {role === 'jobseeker' && (
-                    <MenuItem onClick={() => navigate('/dashboard/jobseeker')}>
-                      Dashboard
-                    </MenuItem>
-                  )}
-                  {role === 'employer' && (
-                    <MenuItem onClick={() => navigate('/dashboard/employer')}>
-                      Employer Dashboard
-                    </MenuItem>
-                  )}
-                  {role === 'recruiter' && (
-                    <MenuItem onClick={() => navigate('/dashboard/recruiter')}>
-                      Recruiter Dashboard
-                    </MenuItem>
-                  )}
                 </>
               ) : (
                 <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>

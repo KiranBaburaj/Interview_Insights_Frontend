@@ -7,6 +7,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearError } from '../features/auth/authSlice';
+import NotificationList from './NotificationList';
 
 const drawerWidth = 240;
 
@@ -33,6 +34,7 @@ const JobseekerNavbar = () => {
       <Toolbar />
       <Divider />
       <List>
+        <NotificationList/>
         <ListItem button component={Link} to="/dashboard/jobseeker">
           <ListItemIcon>
             <DashboardIcon />

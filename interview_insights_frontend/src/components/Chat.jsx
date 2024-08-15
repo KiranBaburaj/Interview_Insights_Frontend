@@ -9,8 +9,8 @@ const Chat = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'column', // Added to ensure vertical stacking
-        height: '100vh',
+        flexDirection: 'column',
+        height: '80vh', // Reduced the overall height from 100vh to 80vh
       }}
     >
       <Navbar />
