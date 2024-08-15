@@ -93,12 +93,15 @@ const Home = () => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
-  // Filter jobs to only show those that are open
+  // Get today's date for filtering
+  const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+  // Filter jobs to only show those that are open and not past their deadline
   const displayedJobs = showSavedOnly && role !== 'employer'
     ? jobs.filter(job => isJobSaved(job.id))
     : showMatchingOnly && role !== 'employer'
     ? matchingJobs
-    : jobs.filter(job => job.status === 'open'); // Only open jobs
+    : jobs.filter(job => job.status === 'open' && job.application_deadline >= today); // Only open jobs with valid deadline
 
   return (
     <>

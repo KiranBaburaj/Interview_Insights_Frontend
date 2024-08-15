@@ -1,23 +1,33 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar, Divider } from '@mui/material';
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Divider,
+  IconButton,
+} from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import BusinessIcon from '@mui/icons-material/Business';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
+import NotificationList from './NotificationList'; // Import NotificationList
 
 const drawerWidth = 240;
 
 const EmployerNavbar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearError());
     navigate('/login');
-    handleUserMenuClose();
   };
 
   return (
@@ -32,6 +42,7 @@ const EmployerNavbar = () => {
       <Toolbar />
       <Divider />
       <List>
+      <NotificationList />
         <ListItem button component={Link} to="/dashboard/employer">
           <ListItemIcon>
             <DashboardIcon />
@@ -42,7 +53,7 @@ const EmployerNavbar = () => {
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
-          <ListItemText primary="home" />
+          <ListItemText primary="Home" />
         </ListItem>
         <ListItem button component={Link} to="/EmployerJobManagement">
           <ListItemIcon>
@@ -68,6 +79,10 @@ const EmployerNavbar = () => {
           </ListItemIcon>
           <ListItemText primary="Company Management" />
         </ListItem>
+
+        {/* Include NotificationList component */}
+
+        
       </List>
       <Divider />
       <ListItem button onClick={handleLogout}>

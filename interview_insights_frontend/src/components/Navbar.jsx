@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,37 +6,23 @@ import {
   Button,
   Box,
   IconButton,
-  Menu,
-  MenuItem,
   Avatar,
   Tooltip,
   Container,
-  Badge,
 } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
-import { fetchNotifications, markNotificationAsRead } from '../features/notifications/notificationSlice';
+import NotificationList from './NotificationList';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState(null);
-  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const userMenuOpen = Boolean(userMenuAnchorEl);
-  const notificationMenuOpen = Boolean(notificationAnchorEl);
-
   const { user, role } = useSelector((state) => state.auth);
-  const notifications = useSelector((state) => state.notifications.notifications);
-  const unreadCount = notifications.filter(notification => !notification.is_read).length;
-
-  useEffect(() => {
-    dispatch(fetchNotifications());
-  }, [dispatch]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -46,33 +32,10 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const handleUserMenu = (event) => {
-    setUserMenuAnchorEl(event.currentTarget);
-  };
-
-  const handleUserMenuClose = () => {
-    setUserMenuAnchorEl(null);
-  };
-
-  const handleNotificationMenu = (event) => {
-    setNotificationAnchorEl(event.currentTarget);
-  };
-
-  const handleNotificationMenuClose = () => {
-    setNotificationAnchorEl(null);
-  };
-
   const handleLogout = () => {
     dispatch(logout());
     dispatch(clearError());
     navigate('/login');
-    handleUserMenuClose();
-  };
-
-  const handleNotificationClick = (notification) => {
-    dispatch(markNotificationAsRead(notification.id));
-    handleNotificationMenuClose();
-    navigate('/notifications'); // Redirect to a notifications page or detail view
   };
 
   const handleChatNavigation = () => {
@@ -81,16 +44,17 @@ const Navbar = () => {
     } else {
       navigate('/chat');
     }
+    handleClose();
   };
+
   const avatarImageUrl = '/logo.PNG';
-  console.log(user)
 
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar src={avatarImageUrl} sx={{ mr: 2 }} />
+            <Avatar src={avatarImageUrl} sx={{ mr: 2 }} />
             <Typography variant="h6" component="div" sx={{ display: { xs: 'none', md: 'block' } }}>
               Interview Insights
             </Typography>
@@ -117,66 +81,44 @@ const Navbar = () => {
               )}
             </Box>
 
+            {/* Include NotificationList component */}
+            <NotificationList />
+
             <IconButton
+              size="large"
+              edge="start"
               color="inherit"
-              onClick={handleNotificationMenu}
+              aria-label="menu"
+              onClick={handleMenu}
               sx={{ ml: 2 }}
             >
-              <Badge badgeContent={unreadCount} color="error">
-                <NotificationsIcon />
-              </Badge>
+              <MenuIcon />
             </IconButton>
-
             <Menu
-              anchorEl={notificationAnchorEl}
-              open={notificationMenuOpen}
-              onClose={handleNotificationMenuClose}
+              id="menu-appbar"
+              anchorEl={anchorEl}
               anchorOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
               }}
+              keepMounted
               transformOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
               }}
-              PaperProps={{
-                style: {
-                  maxHeight: 300,
-                },
-              }}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
             >
-              {notifications.map(notification => (
-                <MenuItem key={notification.id} onClick={() => handleNotificationClick(notification)}>
-                  {notification.message}
-                </MenuItem>
-              ))}
-            </Menu>
-
-            {user ? (
-              <>
-                <Tooltip title="Profile">
-                  <IconButton
-                    color="inherit"
-                    onClick={handleUserMenu}
-                    sx={{ ml: 2 }}
-                  >
-                    <Avatar />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  anchorEl={userMenuAnchorEl}
-                  open={userMenuOpen}
-                  onClose={handleUserMenuClose}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                >
-                  <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={() => navigate('/')}>Home</MenuItem>
+              <MenuItem onClick={() => navigate('/jobs')}>Jobs</MenuItem>
+              <MenuItem onClick={() => navigate('/companies')}>Companies</MenuItem>
+              <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
+              {(role === 'jobseeker' || role === 'employer') && (
+                <MenuItem onClick={handleChatNavigation}>Chat</MenuItem>
+              )}
+              {user ? (
+                <>
+                  <MenuItem onClick={() => navigate('/profile')}>Profile</MenuItem>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                   {role === 'jobseeker' && (
                     <MenuItem onClick={() => navigate('/dashboard/jobseeker')}>
@@ -193,58 +135,11 @@ const Navbar = () => {
                       Recruiter Dashboard
                     </MenuItem>
                   )}
-                </Menu>
-              </>
-            ) : (
-              <Button
-                color="inherit"
-                onClick={() => navigate('/login')}
-                sx={{ ml: 2 }}
-              >
-                Login
-              </Button>
-            )}
-
-            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={handleMenu}
-                sx={{ ml: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={() => navigate('/')}>Home</MenuItem>
-                <MenuItem onClick={() => navigate('/jobs')}>Jobs</MenuItem>
-                <MenuItem onClick={() => navigate('/companies')}>Companies</MenuItem>
-                <MenuItem onClick={() => navigate('/about')}>About</MenuItem>
-                {(role === 'jobseeker' || role === 'employer') && (
-                  <MenuItem onClick={handleChatNavigation}>Chat</MenuItem>
-                )}
-                {user ? (
-                  <MenuItem onClick={handleLogout}>Logout ({user.full_name})</MenuItem>
-                ) : (
-                  <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
-                )}
-              </Menu>
-            </Box>
+                </>
+              ) : (
+                <MenuItem onClick={() => navigate('/login')}>Login</MenuItem>
+              )}
+            </Menu>
           </Box>
         </Toolbar>
       </Container>
