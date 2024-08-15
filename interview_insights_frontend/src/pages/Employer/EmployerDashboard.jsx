@@ -20,6 +20,9 @@ import { fetchApplicants } from '../../features/applicants/applicantsSlice';
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'; // Include these for the pie chart
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const EmployerDashboard = () => {
   const dispatch = useDispatch();
@@ -75,6 +78,12 @@ const EmployerDashboard = () => {
   const totalJobsPosted = filteredJobs.length;
   const applicationsReceived = filteredApplicants.length;
 
+  // Prepare data for pie chart
+  const pieChartData = [
+    { name: 'Jobs Posted', value: totalJobsPosted },
+    { name: 'Applications Received', value: applicationsReceived },
+  ];
+
   if (jobsStatus === 'loading' || applicantsStatus === 'loading') {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -117,6 +126,33 @@ const EmployerDashboard = () => {
               <Typography variant="h4">{applicationsReceived}</Typography>
             </Paper>
           </Box>
+
+          {/* Pie Chart for Job Status */}
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Job and Application Summary
+            </Typography>
+            <Box display="flex" justifyContent="center">
+              <PieChart width={400} height={400}>
+                <Pie
+                  data={pieChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieChartData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend verticalAlign="bottom" align="center" />
+              </PieChart>
+            </Box>
+          </Paper>
 
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>

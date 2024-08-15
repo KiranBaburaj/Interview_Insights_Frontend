@@ -16,7 +16,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import { PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'; // Include Tooltip and Legend
 import { fetchProfile } from '../../features/jobseeker/jobseekerSlice2';
 import JobseekerNavbar from '../../components/JobseekerNavbar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -82,7 +82,6 @@ const JobseekerDashboard = () => {
     setDialogContent(null);
   };
 
-  // Get interviews with their corresponding job details
   const interviewsWithJobDetails = filteredInterviews.map(interview => {
     const application = filteredApplications.find(app => app.id === interview.job_application);
     return {
@@ -91,10 +90,20 @@ const JobseekerDashboard = () => {
     };
   });
 
-  // Function to get feedback for a specific interview
   const getFeedbackForInterview = (interviewId) => {
     const feedback = profile.interview_feedback.find(feedback => feedback.interview_schedule === interviewId);
     return feedback ? feedback : null;
+  };
+
+  const getGreeting = () => {
+    const hour = dayjs().hour();
+    if (hour < 12) {
+      return "Good morning";
+    } else if (hour < 18) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
   };
 
   return (
@@ -110,7 +119,7 @@ const JobseekerDashboard = () => {
 
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h4" component="h1">
-              Good morning, {profile ? profile.user.full_name : 'Jobseeker'}
+              {getGreeting()}, {profile ? profile.user.full_name : 'Jobseeker'}
             </Typography>
             <Box display="flex" alignItems="center">
               <CalendarTodayIcon />
@@ -138,9 +147,15 @@ const JobseekerDashboard = () => {
                   <Typography variant="h6">Interviewed</Typography>
                   <Typography variant="h4">{filteredInterviews.length}</Typography>
                 </Paper>
-                <Paper sx={{ p: 2, textAlign: 'center', flex: 2 }}>
-                  <Typography variant="h6">Jobs Applied Status</Typography>
-                  <PieChart width={120} height={120}>
+              </Box>
+
+              {/* New Box for Pie Chart with Enough Size */}
+              <Paper sx={{ p: 2, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Jobs Applied Status
+                </Typography>
+                <Box display="flex" justifyContent="center">
+                  <PieChart width={400} height={400}> {/* Increased size */}
                     <Pie
                       data={Object.entries(applicationStatusCounts).map(([status, count]) => ({
                         name: status,
@@ -150,7 +165,7 @@ const JobseekerDashboard = () => {
                       cy="50%"
                       labelLine={false}
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={50}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -158,9 +173,11 @@ const JobseekerDashboard = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" align="center" /> {/* Added legend */}
                   </PieChart>
-                </Paper>
-              </Box>
+                </Box>
+              </Paper>
 
               <Paper sx={{ p: 2, mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
@@ -198,7 +215,7 @@ const JobseekerDashboard = () => {
                 {pastInterviews.length > 0 ? (
                   pastInterviews.map((interview) => {
                     const jobDetails = interviewsWithJobDetails.find(i => i.id === interview.id).job_details;
-                    const feedback = getFeedbackForInterview(interview.id); // Get feedback for the interview
+                    const feedback = getFeedbackForInterview(interview.id);
                     return (
                       <Box display="flex" alignItems="center" mb={2} key={interview.id}>
                         <Box flex={1}>
@@ -215,7 +232,7 @@ const JobseekerDashboard = () => {
                                 Feedback: {feedback.feedback} (Score: {feedback.score})
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                Stage: {feedback.stage} {/* Display the feedback stage */}
+                                Stage: {feedback.stage}
                               </Typography>
                             </>
                           )}
@@ -238,11 +255,11 @@ const JobseekerDashboard = () => {
                 <List>
                   {filteredApplications.length > 0 ? (
                     filteredApplications.map((application) => {
-                      const jobDetails = application.job_details; // Access the job details for the application
+                      const jobDetails = application.job_details;
                       return (
                         <ListItem key={application.id} divider>
                           <ListItemText
-                            primary={`Job Title: ${jobDetails ? jobDetails.title : 'Job details not available.'}`} // Display job title
+                            primary={`Job Title: ${jobDetails ? jobDetails.title : 'Job details not available.'}`}
                             secondary={`Applied on: ${new Date(application.applied_at).toLocaleDateString()}`}
                           />
                           <IconButton component={Link} to={`/job/${application.job}`} edge="end">
