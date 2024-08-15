@@ -26,6 +26,10 @@ import {
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+
+// Define the COLORS array
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
@@ -88,13 +92,23 @@ const AdminDashboard = () => {
     );
   });
 
-  const filteredCompanies = companies.filter((company) => {
-    const createdDate = dayjs(company.created_at);
-    return (
-      (!dateRange[0] || createdDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
-      (!dateRange[1] || createdDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
-    );
-  });
+  // Pie chart data for Job Seekers and Employers
+  const pieChartData = [
+    { name: 'Job Seekers', value: filteredJobSeekers.length },
+    { name: 'Employers', value: filteredEmployers.length },
+  ];
+
+  // Bar chart data for job listings
+  const jobTitles = filteredJobs.map(job => job.title);
+  const jobsCount = jobTitles.reduce((acc, title) => {
+    acc[title] = acc[title] ? acc[title] + 1 : 1;
+    return acc;
+  }, {});
+
+  const barChartData = Object.keys(jobsCount).map(title => ({
+    title,
+    count: jobsCount[title],
+  }));
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -144,50 +158,45 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <Card elevation={3}>
-                <CardContent>
-                  <Typography variant="h6">Companies</Typography>
-                  <Typography variant="h4" color="primary">{filteredCompanies.length}</Typography>
-                  <Divider sx={{ my: 2 }} />
-                </CardContent>
-              </Card>
-            </Grid>
           </Grid>
 
+          {/* Charts Section */}
           <Typography variant="h5" sx={{ mt: 4 }} fontFamily="'Roboto', sans-serif">
-            Company Approvals
+            Overview of Job Seekers and Employers
           </Typography>
-          <Divider sx={{ mb: 2 }} />
-          <List>
-            {filteredCompanies.map((company) => (
-              <ListItem key={company.id}>
-                <ListItemText
-                  primary={company.name}
-                  secondary={`Status: ${company.approved ? 'Approved' : 'Pending'}`}
-                />
-                <ListItemSecondaryAction>
-                  {!company.approved && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleApprove(company.id)}
-                      sx={{ mr: 1 }}
-                    >
-                      Approve
-                    </Button>
-                  )}
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleViewDetails(company)}
-                  >
-                    View Details
-                  </Button>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <PieChart width={400} height={400}>
+              <Pie
+                data={pieChartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {pieChartData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend verticalAlign="bottom" align="center" />
+            </PieChart>
+          </Paper>
+
+          <Typography variant="h5" sx={{ mt: 4 }} fontFamily="'Roboto', sans-serif">
+            Job Listings Distribution
+          </Typography>
+          <Paper sx={{ p: 2, mb: 3 }}>
+            <BarChart width={600} height={300} data={barChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="title" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#8884d8" />
+            </BarChart>
+          </Paper>
 
           <Typography variant="h5" sx={{ mt: 4 }} fontFamily="'Roboto', sans-serif">
             Job Listings
