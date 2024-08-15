@@ -53,12 +53,7 @@ const AdminNavbar = () => {
           </ListItemIcon>
           <ListItemText primary="Employers" />
         </ListItem>
-        <ListItem button component={Link} to="/recruiters">
-          <ListItemIcon>
-            <PeopleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Recruiters" />
-        </ListItem>
+      
         <ListItem button component={Link} to="/companies">
           <ListItemIcon>
             <BusinessIcon />

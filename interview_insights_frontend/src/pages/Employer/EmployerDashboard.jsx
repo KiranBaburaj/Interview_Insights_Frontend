@@ -5,19 +5,15 @@ import {
   CssBaseline,
   Toolbar,
   Typography,
-  Card,
-  CardContent,
-  Grid,
-  Avatar,
-  Divider,
+  Paper,
   List,
   ListItem,
   ListItemText,
+  Avatar,
   CircularProgress,
-  Paper,
 } from '@mui/material';
 import EmployerNavbar from '../../components/EmployerNavbar';
-import { AccessTime, WorkOutline, CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
+import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 import { fetchJobs, selectAllJobs } from '../../features/jobs/jobsSlice';
 import { fetchApplicants } from '../../features/applicants/applicantsSlice';
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
@@ -28,13 +24,15 @@ const EmployerDashboard = () => {
   const dispatch = useDispatch();
   const [applicantsFetched, setApplicantsFetched] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
+  const { user } = useSelector((state) => state.auth);
+  const { userid } = useSelector((state) => state.auth);
+  const employerId = userid; // Assuming the user object contains the employer's ID
 
   // Fetch jobs and applicants from the Redux store
   const jobs = useSelector(selectAllJobs);
   const applicants = useSelector((state) => state.applicants.applicants);
   const jobsStatus = useSelector((state) => state.jobs.status);
   const applicantsStatus = useSelector((state) => state.applicants.status);
-  const { user } = useSelector((state) => state.auth);
   const { full_name } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -43,7 +41,7 @@ const EmployerDashboard = () => {
 
   useEffect(() => {
     if (jobs.length > 0 && !applicantsFetched) {
-      jobs.forEach(job => {
+      jobs.forEach((job) => {
         dispatch(fetchApplicants(job.id));
       });
       setApplicantsFetched(true);
@@ -54,22 +52,35 @@ const EmployerDashboard = () => {
     setDateRange(newDateRange);
   };
 
-  // Filter jobs and applicants based on selected date range
+  // Filter jobs based on selected date range and employer ID
   const filteredJobs = jobs.filter((job) => {
     const postedDate = dayjs(job.posted_at);
     return (
+      job.employer == employerId && // Filter by employer ID
       (!dateRange[0] || postedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || postedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
   });
-
+ /*
   const filteredApplicants = applicants.filter((applicant) => {
     const appliedDate = dayjs(applicant.applied_at);
     return (
       (!dateRange[0] || appliedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || appliedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
+  });*/
+console.log(applicants)
+  // Filter applicants based on selected date range and employer ID
+  const filteredApplicants = applicants.filter((applicant) => {
+    const appliedDate = dayjs(applicant.applied_at);
+
+    return (
+  
+      (!dateRange[0] || appliedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
+      (!dateRange[1] || appliedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
+    );
   });
+  console.log(filteredApplicants)
 
   const totalJobsPosted = filteredJobs.length;
   const applicationsReceived = filteredApplicants.length;
@@ -87,10 +98,7 @@ const EmployerDashboard = () => {
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <EmployerNavbar />
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}
-        >
+        <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}>
           <Toolbar />
 
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

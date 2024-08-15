@@ -6,7 +6,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { clearError } from '../features/auth/authSlice';
+import { clearError, logout } from '../features/auth/authSlice';
 
 const drawerWidth = 240;
 
@@ -14,23 +14,10 @@ const EmployerNavbar = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
+    dispatch(logout());
     dispatch(clearError());
-
-      state.user = null;
-      state.role = null;
-      state.accessToken = null;
-      state.refreshToken = null;
-      state.userid = null;
-      state.full_name = null;
-      state.companyDetailsSubmitted = null;
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('role');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userid');
-      localStorage.removeItem('full_name');
-      localStorage.removeItem('companyDetailsSubmitted');
-    window.location.replace('/login');
+    navigate('/login');
+    handleUserMenuClose();
   };
 
   return (
