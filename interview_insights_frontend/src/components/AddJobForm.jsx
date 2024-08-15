@@ -43,6 +43,7 @@ import {
 const JobManagement = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
   const [jobData, setJobData] = useState({
     id: null,
     title: '',
@@ -60,7 +61,9 @@ const JobManagement = () => {
     job_function: '',
     categories: [],
     skills_required: [],
+    status: 'open', // Default status
   });
+  
   const { userid } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.auth);
   const [openDialog, setOpenDialog] = useState(false);
@@ -164,6 +167,7 @@ const JobManagement = () => {
       job_function: '',
       categories: [],
       skills_required: [],
+      status: 'open', // Reset status to default
     });
   };
 
@@ -185,6 +189,7 @@ const JobManagement = () => {
       job_function: job.job_function,
       categories: job.categories.map((cat) => ({ category: cat.name })),
       skills_required: job.skills_required,
+      status: job.status, // Include status during edit
     });
     setIsFormVisible(true);
   };
@@ -232,6 +237,32 @@ const JobManagement = () => {
 
   const handleViewApplicants = (jobId) => {
     navigate(`/EmployerJobapplicants/${jobId}`);
+  };
+
+  // Toggle job status
+  const handleToggleStatus = (jobId, currentStatus) => {
+    const newStatus = currentStatus === 'open' ? 'closed' : 'open';
+    
+    // Find the job details based on the jobId
+    const jobToUpdate = jobs.find(job => job.id === jobId);
+    
+    if (!jobToUpdate) {
+      setError('Job not found.');
+      return;
+    }
+
+    // Create updated job data including the new status
+    const jobDataToUpdate = {
+      ...jobToUpdate, // Retain existing job data
+      status: newStatus, // Update the status
+    };
+
+    dispatch(updateJob({ jobId, jobData: jobDataToUpdate }))
+      .unwrap()
+      .then(() => {
+        // Optionally, you can show a success message or update local state
+      })
+      .catch((err) => setError(err.message || 'An error occurred while updating the job status.'));
   };
 
   // Filter jobs to only show those belonging to the logged-in employer
@@ -332,6 +363,7 @@ const JobManagement = () => {
               name="employment_type"
               value={jobData.employment_type}
               onChange={handleChange}
+              required
             />
             <TextField
               fullWidth
@@ -455,6 +487,15 @@ const JobManagement = () => {
               <Box key={job.id} sx={{ mb: 2, border: '1px solid #ddd', borderRadius: 1, p: 2 }}>
                 <Typography variant="h6">{job.title}</Typography>
                 <Typography variant="body2">{job.description}</Typography>
+                <Typography variant="body2">Status: {job.status}</Typography>
+                <Button 
+                  variant="contained" 
+                  color="info" 
+                  onClick={() => handleToggleStatus(job.id, job.status)} 
+                  sx={{ mr: 1 }}
+                >
+                  {job.status === 'open' ? 'Close Job' : 'Open Job'}
+                </Button>
                 <Box sx={{ mt: 1 }}>
                   <Button variant="contained" color="primary" onClick={() => handleEdit(job)} sx={{ mr: 1 }}>
                     Edit

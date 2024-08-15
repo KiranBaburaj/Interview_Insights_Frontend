@@ -9,7 +9,7 @@ import {
   selectSavedJobs,
   fetchMatchingJobs,
   selectMatchingJobs
-} from '../features/jobs/jobsSlice'; // Adjust the path and add fetchMatchingJobs and selectMatchingJobs
+} from '../features/jobs/jobsSlice';
 import { Link } from 'react-router-dom';
 import { 
   Container, 
@@ -36,20 +36,21 @@ const Home = () => {
   const dispatch = useDispatch();
   const jobs = useSelector(selectAllJobs);
   const savedJobs = useSelector(selectSavedJobs);
-  const matchingJobs = useSelector(selectMatchingJobs); // Select matching jobs
+  const matchingJobs = useSelector(selectMatchingJobs);
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
   const role = useSelector((state) => state.auth.role);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const [showMatchingOnly, setShowMatchingOnly] = useState(false); // New state for matching jobs filter
+  const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
   const jobseeker_id = useSelector((state) => state.auth.userid);
+
   useEffect(() => {
     if (showSavedOnly && role !== 'employer') {
       dispatch(fetchSavedJobs());
     } else if (showMatchingOnly && role !== 'employer') {
-      dispatch(fetchMatchingJobs()); // Fetch matching jobs when filter is selected
+      dispatch(fetchMatchingJobs());
     } else {
       dispatch(fetchJobs(searchQuery));
     }
@@ -66,14 +67,14 @@ const Home = () => {
   const handleSavedFilterChange = (event) => {
     setShowSavedOnly(event.target.checked);
     if (event.target.checked) {
-      setShowMatchingOnly(false); // Uncheck matching filter when saved filter is checked
+      setShowMatchingOnly(false);
     }
   };
 
   const handleMatchingFilterChange = (event) => {
     setShowMatchingOnly(event.target.checked);
     if (event.target.checked) {
-      setShowSavedOnly(false); // Uncheck saved filter when matching filter is checked
+      setShowSavedOnly(false);
     }
   };
 
@@ -92,11 +93,12 @@ const Home = () => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
+  // Filter jobs to only show those that are open
   const displayedJobs = showSavedOnly && role !== 'employer'
     ? jobs.filter(job => isJobSaved(job.id))
     : showMatchingOnly && role !== 'employer'
     ? matchingJobs
-    : jobs;
+    : jobs.filter(job => job.status === 'open'); // Only open jobs
 
   return (
     <>
@@ -111,11 +113,6 @@ const Home = () => {
             onChange={handleSearchChange}
             sx={{ mr: 2 }}
             size="small"
-            InputProps={{
-              style: {
-                padding: '10px 12px'
-              }
-            }}
           />
           <Button
             variant="contained"
