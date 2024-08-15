@@ -1,3 +1,4 @@
+// ... other imports
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -11,8 +12,9 @@ import {
   ListItemText,
   Avatar,
   CircularProgress,
+  Grid,
 } from '@mui/material';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { Link } from 'react-router-dom'; 
 import EmployerNavbar from '../../components/EmployerNavbar';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 import { fetchJobs, selectAllJobs } from '../../features/jobs/jobsSlice';
@@ -20,7 +22,7 @@ import { fetchApplicants } from '../../features/applicants/applicantsSlice';
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'; // Include these for the pie chart
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'; 
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -30,9 +32,8 @@ const EmployerDashboard = () => {
   const [dateRange, setDateRange] = useState([null, null]);
   const { user } = useSelector((state) => state.auth);
   const { userid } = useSelector((state) => state.auth);
-  const employerId = userid; // Assuming the user object contains the employer's ID
+  const employerId = userid; 
 
-  // Fetch jobs and applicants from the Redux store
   const jobs = useSelector(selectAllJobs);
   const applicants = useSelector((state) => state.applicants.applicants);
   const jobsStatus = useSelector((state) => state.jobs.status);
@@ -56,17 +57,15 @@ const EmployerDashboard = () => {
     setDateRange(newDateRange);
   };
 
-  // Filter jobs based on selected date range and employer ID
   const filteredJobs = jobs.filter((job) => {
     const postedDate = dayjs(job.posted_at);
     return (
-      job.employer === employerId && // Filter by employer ID
+      job.employer === employerId && 
       (!dateRange[0] || postedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || postedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
   });
 
-  // Filter applicants based on selected date range and employer ID
   const filteredApplicants = applicants.filter((applicant) => {
     const appliedDate = dayjs(applicant.applied_at);
     return (
@@ -78,7 +77,10 @@ const EmployerDashboard = () => {
   const totalJobsPosted = filteredJobs.length;
   const applicationsReceived = filteredApplicants.length;
 
-  // Prepare data for pie chart
+  // Debugging logs
+  console.log('Filtered Jobs:', filteredJobs);
+  console.log('Filtered Applicants:', filteredApplicants);
+  
   const pieChartData = [
     { name: 'Jobs Posted', value: totalJobsPosted },
     { name: 'Applications Received', value: applicationsReceived },
@@ -91,6 +93,26 @@ const EmployerDashboard = () => {
       </Box>
     );
   }
+
+  // Aggregate views and application counts for each job
+  const jobPerformanceMetrics = filteredJobs.map(job => {
+    const applicationsForJob = filteredApplicants.filter(applicant =>
+      applicant.job_seeker.myapplications.some(application => application.job === job.id)
+    );
+
+    const viewsCount = job.views_count || 0; // Assuming you have views_count from job details
+    const applicationsCount = applicationsForJob.length;
+
+    return {
+      id: job.id,
+      title: job.title,
+      viewsCount,
+      applicationsCount,
+    };
+  });
+
+  // Debugging logs for job performance metrics
+  console.log('Job Performance Metrics:', jobPerformanceMetrics);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -127,7 +149,6 @@ const EmployerDashboard = () => {
             </Paper>
           </Box>
 
-          {/* Pie Chart for Job Status */}
           <Paper sx={{ p: 2, mb: 3 }}>
             <Typography variant="h6" gutterBottom>
               Job and Application Summary
@@ -200,6 +221,60 @@ const EmployerDashboard = () => {
               ) : (
                 <Typography>No applications received within the selected date range.</Typography>
               )}
+            </List>
+          </Paper>
+
+          {/* New Section for Interview Schedules */}
+          <Paper sx={{ p: 2, mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Upcoming Interviews
+            </Typography>
+            <List>
+              {filteredApplicants.flatMap(applicant =>
+                applicant.job_seeker.interview_schedule.filter(interview => 
+                  dayjs(interview.scheduled_time).isAfter(dayjs()) || 
+                  dayjs(interview.scheduled_time).isSame(dayjs(), 'day') // Include today’s interviews
+                ).map(interview => {
+                  // Check if myapplications exists and is an array
+                  const jobDetails = applicant.job_seeker.myapplications?.find(app => app.id === interview.job_application)?.job_details;
+
+                  return (
+                    <ListItem key={interview.id} divider>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={8}>
+                          <ListItemText
+                            primary={`Interview for ${applicant.job_seeker.user.full_name}`}
+                            secondary={`Job: ${jobDetails ? jobDetails.title : 'Unknown Job'} | Scheduled: ${new Date(interview.scheduled_time).toLocaleString()} | Location: ${interview.location || 'TBD'}`}
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                          <Typography variant="body2">
+                            Duration: {interview.duration ? `${interview.duration}` : 'Not Specified'}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </ListItem>
+                  );
+                })
+              )}
+              {filteredApplicants.length === 0 && <Typography>No upcoming interviews found.</Typography>}
+            </List>
+          </Paper>
+
+          {/* Job Posting Performance Metrics */}
+          <Paper sx={{ p: 2, mt: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Job  Performance
+            </Typography>
+            <List>
+              {jobPerformanceMetrics.map(job => (
+                <ListItem key={job.id} divider>
+                  <ListItemText
+                    primary={`Job: ${job.title}`}
+                    secondary={` Applications: ${job.applicationsCount}`}
+                  />
+                </ListItem>
+              ))}
             </List>
           </Paper>
         </Box>
