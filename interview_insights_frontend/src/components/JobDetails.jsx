@@ -63,6 +63,10 @@ const theme = createTheme({
     secondary: {
       main: '#b2dfdb', // Light teal
     },
+    text: {
+      primary: '#333333', // Dark text color for better contrast
+      secondary: '#555555', // Grey text color for less emphasis
+    },
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',
@@ -70,17 +74,21 @@ const theme = createTheme({
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
       fontSize: '1.75rem', // Increase job title size
+      color: '#00796b', // Primary color for job title
     },
     h6: {
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
       fontSize: '1.25rem', // Increase company name size
+      color: '#333333', // Dark color for company name
     },
     body1: {
       fontSize: '1rem', // Default body size
+      color: '#333333', // Dark color for body text
     },
     body2: {
       fontSize: '0.875rem', // Consistent size for small text
+      color: '#555555', // Grey color for secondary information
     },
   },
 });
@@ -226,8 +234,7 @@ const JobDetails = () => {
         >
           <CardHeader
             title={<Typography variant="h4" component="span">{job.title}</Typography>} // Larger font for job title
-            
-            subheader={<Typography variant="h6">{   job.company.name}</Typography>} // Larger font for company name
+            subheader={<Typography variant="h6">{job.company.name}</Typography>} // Larger font for company name
             avatar={<Business fontSize="large" />} // Use a larger avatar icon
             action={
               role !== 'employer' && (
@@ -245,30 +252,35 @@ const JobDetails = () => {
           <CardContent>
             <Grid container spacing={2}>
               <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>Job Description</Typography>
                 <Typography variant="body1">{job.description}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   <CalendarToday sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Posted on: {isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
+                  Posted on:  </Typography>
+                  <Typography variant="body1" color="textSecondary">{isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   <DateRange sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Application Deadline: {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
+                  Application Deadline: </Typography>
+                  <Typography variant="body1" color="textSecondary"> {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   <LocationOn sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  {job.location}
+                  Location: </Typography>
+                  <Typography variant="body1" color="textSecondary"> {job.location}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-              <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom>
                   <AttachMoney sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Salary: ${job.salary_min.toLocaleString()} - ${job.salary_max.toLocaleString()}
+                  Salary:  </Typography>
+                  <Typography variant="body1" color="textSecondary">{job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -276,49 +288,49 @@ const JobDetails = () => {
                   <Assignment sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Responsibilities:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.responsibilities}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.responsibilities}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <VerifiedUser sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Qualifications:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.qualifications}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.qualifications}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <AssignmentInd sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Nice to Have:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.nice_to_have}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.nice_to_have}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <Work sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Employment Type:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.employment_type}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.employment_type}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <Layers sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Experience Level:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.experience_level}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.experience_level}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <Work sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Job Function:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.job_function}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.job_function}</Typography>
               </Grid>
               <Grid item xs={12}>
                 <Typography variant="h6" gutterBottom>
                   <Home sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
                   Remote:
                 </Typography>
-                <Typography variant="body2" color="textSecondary">{job.is_remote ? 'Yes' : 'No'}</Typography>
+                <Typography variant="body1" color="textSecondary">{job.is_remote ? 'Yes' : 'No'}</Typography>
               </Grid>
               {job.skills && job.skills.length > 0 && (
                 <Grid item xs={12}>

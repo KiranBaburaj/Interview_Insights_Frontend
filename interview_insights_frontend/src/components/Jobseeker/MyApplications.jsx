@@ -12,12 +12,9 @@ import {
   Card,
   CardContent,
   Divider,
-  Grid,
   Button,
   TextField,
   IconButton,
-  Tabs,
-  Tab,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +24,8 @@ import {
   Paper,
   Chip,
   Avatar,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -44,28 +43,40 @@ const MyApplications = () => {
   const interviewsError = useSelector((state) => state.interviews.error);
   
   const currentFeedback = useSelector((state) => state.interviews.currentFeedback);
-  const feedbackStatus = useSelector((state) => state.interviews.status);
-  const feedbackError = useSelector((state) => state.interviews.error);
-  
-  const [tabValue, setTabValue] = useState(0);
   
   const userid = useSelector((state) => state.auth.userid);
   
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredApplications, setFilteredApplications] = useState(applications);
+  const [selectedStatus, setSelectedStatus] = useState('');
+
   useEffect(() => {
     dispatch(fetchApplications());
     dispatch(fetchInterviews());
-    // Fetch feedbacks for all interviews
     if (interviews.length > 0) {
       interviews.forEach(interview => {
         dispatch(fetchFeedback(interview.id));
       });
     }
   }, [dispatch, interviews.length]);
-  
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
-  
+
+  useEffect(() => {
+    let applicationsToFilter = applications;
+
+    // Filter by status
+    if (selectedStatus) {
+      applicationsToFilter = applicationsToFilter.filter(app => app.status === selectedStatus);
+    }
+
+    // Search filtering
+    applicationsToFilter = applicationsToFilter.filter(app =>
+      app.job_details.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.job_details.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setFilteredApplications(applicationsToFilter);
+  }, [searchTerm, applications, selectedStatus]);
+
   const handleChat = (userid, employer) => {
     if (userid && employer) {
       dispatch(createChatRoom({ jobseekerId: userid, employerId: employer }))
@@ -78,37 +89,37 @@ const MyApplications = () => {
         });
     }
   };
-  
-  if (applicationsStatus === 'loading' || interviewsStatus === 'loading' || feedbackStatus === 'loading') {
+
+  const handleDownloadResume = (resumeUrl) => {
+    window.open(`${resumeUrl}`, '_blank');
+  };
+
+  const getInterviewForApplication = (applicationId) => {
+    return interviews.find(interview => interview.job_application === applicationId);
+  };
+
+  const getFeedbackForInterview = (interviewId) => {
+    return currentFeedback && currentFeedback.interview_schedule === interviewId
+      ? currentFeedback
+      : null;
+  };
+
+  if (applicationsStatus === 'loading' || interviewsStatus === 'loading') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
         <CircularProgress />
       </Box>
     );
   }
-  
-  if (applicationsStatus === 'failed' || interviewsStatus === 'failed' || feedbackStatus === 'failed') {
+
+  if (applicationsStatus === 'failed' || interviewsStatus === 'failed') {
     return (
       <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography color="error">Error: {applicationsError || interviewsError || feedbackError}</Typography>
+        <Typography color="error">Error: {applicationsError || interviewsError}</Typography>
       </Box>
     );
   }
-  
-  const handleDownloadResume = (resumeUrl) => {
-    window.open(`${resumeUrl}`, '_blank');
-  };
-  
-  const getInterviewForApplication = (applicationId) => {
-    return interviews.find(interview => interview.job_application === applicationId);
-  };
-  
-  const getFeedbackForInterview = (interviewId) => {
-    return currentFeedback && currentFeedback.interview_schedule === interviewId
-      ? currentFeedback
-      : null;
-  };
-  
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Typography variant="h4">My Applications</Typography>
@@ -117,26 +128,39 @@ const MyApplications = () => {
           {/* Additional content can go here */}
         </CardContent>
       </Card>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={handleTabChange}>
-          <Tab label="All " />
-          <Tab label="In Review " />
-          <Tab label="Interviewing " />
-          <Tab label="Assessment " />
-          <Tab label="Offered " />
-          <Tab label="Hired " />
-        </Tabs>
-      </Box>
+  
       <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 2 }}>
         <TextField
-          placeholder="Search Applicants"
+          placeholder="Search Jobs"
           variant="outlined"
           size="small"
           sx={{ mr: 2 }}
           InputProps={{
             startAdornment: <SearchIcon />,
           }}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
+        
+        <Select
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+          displayEmpty
+          variant="outlined"
+          size="small"
+          sx={{ mr: 2 }}
+        >
+          <MenuItem value="">
+            <em>All Status</em>
+          </MenuItem>
+          <MenuItem value="applied">Applied</MenuItem>
+          <MenuItem value="reviewed">Reviewed</MenuItem>
+          <MenuItem value="interview_scheduled">Interview Scheduled</MenuItem>
+          <MenuItem value="interviewed">Interviewed</MenuItem>
+          <MenuItem value="offered">Offered</MenuItem>
+          <MenuItem value="hired">Hired</MenuItem>
+          <MenuItem value="rejected">Rejected</MenuItem>
+        </Select>
+
         <IconButton>
           <FilterListIcon />
         </IconButton>
@@ -158,7 +182,7 @@ const MyApplications = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {applications.map((application, index) => {
+            {filteredApplications.map((application, index) => {
               const interview = getInterviewForApplication(application.id);
               const interviewFeedback = interview ? getFeedbackForInterview(interview.id) : null;
               return (
