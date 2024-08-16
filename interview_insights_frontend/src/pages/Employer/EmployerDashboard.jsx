@@ -13,10 +13,12 @@ import {
   Avatar,
   CircularProgress,
   Grid,
+  IconButton,
 } from '@mui/material';
 import { Link } from 'react-router-dom'; 
 import EmployerNavbar from '../../components/EmployerNavbar';
 import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
+import { ArrowForwardIos as ArrowForwardIosIcon } from '@mui/icons-material'; // Add this import
 import { fetchJobs, selectAllJobs } from '../../features/jobs/jobsSlice';
 import { fetchApplicants } from '../../features/applicants/applicantsSlice';
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
@@ -77,10 +79,6 @@ const EmployerDashboard = () => {
   const totalJobsPosted = filteredJobs.length;
   const applicationsReceived = filteredApplicants.length;
 
-  // Debugging logs
-  console.log('Filtered Jobs:', filteredJobs);
-  console.log('Filtered Applicants:', filteredApplicants);
-  
   const pieChartData = [
     { name: 'Jobs Posted', value: totalJobsPosted },
     { name: 'Applications Received', value: applicationsReceived },
@@ -110,9 +108,6 @@ const EmployerDashboard = () => {
       applicationsCount,
     };
   });
-
-  // Debugging logs for job performance metrics
-  console.log('Job Performance Metrics:', jobPerformanceMetrics);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -191,6 +186,9 @@ const EmployerDashboard = () => {
                       }
                       secondary={`Posted on: ${new Date(job.posted_at).toLocaleDateString()}`}
                     />
+                    <IconButton component={Link} to={`/job/${job.id}`} edge="end">
+                      <ArrowForwardIosIcon />
+                    </IconButton>
                   </ListItem>
                 ))
               ) : (
@@ -216,6 +214,9 @@ const EmployerDashboard = () => {
                       secondary={`Applied on: ${new Date(applicant.applied_at).toLocaleDateString()}`}
                       sx={{ marginLeft: 2 }}
                     />
+                    <IconButton component={Link} to={`/applicant/${applicant.id}`} edge="end">
+                      <ArrowForwardIosIcon />
+                    </IconButton>
                   </ListItem>
                 ))
               ) : (
@@ -235,7 +236,6 @@ const EmployerDashboard = () => {
                   dayjs(interview.scheduled_time).isAfter(dayjs()) || 
                   dayjs(interview.scheduled_time).isSame(dayjs(), 'day') // Include today’s interviews
                 ).map(interview => {
-                  // Check if myapplications exists and is an array
                   const jobDetails = applicant.job_seeker.myapplications?.find(app => app.id === interview.job_application)?.job_details;
 
                   return (
@@ -264,15 +264,18 @@ const EmployerDashboard = () => {
           {/* Job Posting Performance Metrics */}
           <Paper sx={{ p: 2, mt: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Job  Performance
+              Job Performance
             </Typography>
             <List>
               {jobPerformanceMetrics.map(job => (
                 <ListItem key={job.id} divider>
                   <ListItemText
                     primary={`Job: ${job.title}`}
-                    secondary={` Applications: ${job.applicationsCount}`}
+                    secondary={`Applications: ${job.applicationsCount}`}
                   />
+                  <IconButton component={Link} to={`/job/${job.id}`} edge="end">
+                    <ArrowForwardIosIcon />
+                  </IconButton>
                 </ListItem>
               ))}
             </List>

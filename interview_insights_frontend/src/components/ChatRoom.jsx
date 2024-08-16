@@ -80,6 +80,9 @@ const ChatRoom = () => {
 
   if (!currentChatRoom) return <Typography>Select a chat room</Typography>;
 
+  // Determine the other person's name
+  const otherPerson = currentChatRoom.jobseeker.id === user.id ? currentChatRoom.employer : currentChatRoom.jobseeker;
+
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -97,7 +100,7 @@ const ChatRoom = () => {
         }}
       >
         <Typography variant="h5" gutterBottom>
-          Chat with {currentChatRoom.jobseeker.full_name} - {currentChatRoom.employer.full_name}
+           Chat with {otherPerson.full_name}
         </Typography>
 
         <Box
