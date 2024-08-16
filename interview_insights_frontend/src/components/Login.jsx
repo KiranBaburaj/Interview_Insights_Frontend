@@ -13,10 +13,10 @@ import {
   CircularProgress,
   Alert,
   AlertTitle,
-  Link as MuiLink
+  Link as MuiLink,
+  Avatar
 } from '@mui/material';
-
-import   GoogleLoginButton  from './GoogleLoginButton';
+import GoogleLoginButton from './GoogleLoginButton';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -46,8 +46,7 @@ const Login = () => {
         navigate('/EmployerCompanyManagement');
       } else if (role === 'recruiter') {
         navigate('/dashboard/recruiter');
-      }
-      else if (role === 'admin') {
+      } else if (role === 'admin') {
         navigate('/admindashboard');
       }
     }
@@ -67,11 +66,19 @@ const Login = () => {
     dispatch(clearError());
   };
 
+  const avatarImageUrl = '/logo.PNG';
+
   return (
     <Container component="main" maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ mt: 8, textAlign: 'center' }}>
+        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
+          Welcome to Interview Insights
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography component="h1" variant="h5" align="center">
+          <Typography component="h2" variant="h6" align="center" sx={{ mb: 2 }}>
             Login
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
