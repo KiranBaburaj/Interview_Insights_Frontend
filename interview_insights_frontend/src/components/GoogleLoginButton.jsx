@@ -5,7 +5,8 @@ import { useDispatch } from 'react-redux';
 import { googleLogin } from '../features/auth/authSlice';
 
 function GoogleLoginButton() {
-  const [role, setRole] = useState('');
+  // Set "jobseeker" as the default role
+  const [role, setRole] = useState('jobseeker');
   const dispatch = useDispatch();
 
   const handleRoleChange = (event) => {
@@ -42,15 +43,6 @@ function GoogleLoginButton() {
             onChange={handleRoleChange}
           />
           Employer
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="recruiter"
-            checked={role === 'recruiter'}
-            onChange={handleRoleChange}
-          />
-          Recruiter
         </label>
       </div>
       <GoogleLogin

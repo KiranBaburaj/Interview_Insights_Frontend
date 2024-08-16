@@ -33,7 +33,7 @@ export const signup = createAsyncThunk(
       const response = await axios.post('/api/signup/', userData);
       if (response.data.user_id) {
         localStorage.setItem('user_id', response.data.user_id);
-        alert('Signup successful! OTP sent to your email.');
+
       } else {
         alert('Signup failed: ' + response.data.error);
       }

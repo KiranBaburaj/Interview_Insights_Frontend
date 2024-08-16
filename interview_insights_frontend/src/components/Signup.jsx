@@ -13,10 +13,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Snackbar,
   Alert,
   CircularProgress,
-  Link as MuiLink
+  Link as MuiLink,
+  Avatar
 } from '@mui/material';
+import GoogleLoginButton from './GoogleLoginButton';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -29,13 +32,16 @@ const SignupForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
+  const [openError, setOpenError] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      dispatch(clearError()); // Dispatch action to clear error after timeout
-    }, 5000); // 5000 milliseconds (5 seconds)
-
-    return () => clearTimeout(timer); // Clean up timer on component unmount
+    if (error) {
+      setOpenError(true);
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000); // Clear error after 5 seconds
+      return () => clearTimeout(timer);
+    }
   }, [error, dispatch]);
 
   const handleChange = (e) => {
@@ -65,9 +71,22 @@ const SignupForm = () => {
     }
   };
 
+  const avatarImageUrl = '/logo.PNG';
+
+  const handleCloseError = () => {
+    setOpenError(false);
+    dispatch(clearError());
+  };
+
   return (
     <Container component="main" maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ mt: 8, textAlign: 'center' }}>
+        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
+          Welcome to Interview Insights
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             Sign Up
@@ -120,7 +139,7 @@ const SignupForm = () => {
               >
                 <MenuItem value="job_seeker">Job Seeker</MenuItem>
                 <MenuItem value="employer">Employer</MenuItem>
-                <MenuItem value="recruiter">Recruiter</MenuItem>
+   
               </Select>
             </FormControl>
             <Button
@@ -133,11 +152,6 @@ const SignupForm = () => {
               {loading ? <CircularProgress size={24} /> : 'Sign Up'}
             </Button>
           </Box>
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {JSON.stringify(error)}
-            </Alert>
-          )}
           <Box sx={{ mt: 2, textAlign: 'center' }}>
             <Typography variant="body2">
               Already have an account?{' '}
@@ -145,9 +159,22 @@ const SignupForm = () => {
                 Log in
               </MuiLink>
             </Typography>
-          </Box>
+            
+          </Box>     <Box sx={{ mt: 2 }}>
+              <GoogleLoginButton/>
+            </Box>
         </Paper>
       </Box>
+      <Snackbar
+        open={openError}
+        autoHideDuration={5000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+      >
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error?.detail ? error.detail : "An error occurred."}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

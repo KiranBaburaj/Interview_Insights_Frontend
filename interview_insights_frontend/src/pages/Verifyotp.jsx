@@ -12,15 +12,18 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
-  AlertTitle
+  AlertTitle,
+  Avatar
 } from '@mui/material';
 
 const VerifyOTP = () => {
   const [otp, setOTP] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading: globalLoading, error } = useSelector((state) => state.auth);
   const [openError, setOpenError] = useState(false);
+  const [loadingVerify, setLoadingVerify] = useState(false);
+  const [loadingResend, setLoadingResend] = useState(false);
 
   const handleChange = (e) => {
     setOTP(e.target.value);
@@ -28,19 +31,18 @@ const VerifyOTP = () => {
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-
-    // Clear any previous errors
+    
+    setLoadingVerify(true);
     dispatch(clearError());
 
-    // Dispatch the OTP verification action
     const resultAction = await dispatch(verifyOTPAndSignup({ otp }));
 
-    // Check if the verification was successful
     if (verifyOTPAndSignup.fulfilled.match(resultAction)) {
       navigate('/login');
     } else {
       setOpenError(true);
     }
+    setLoadingVerify(false);
   };
 
   const handleCloseError = () => {
@@ -49,17 +51,27 @@ const VerifyOTP = () => {
   };
 
   const handleResendOTP = async () => {
-    const userId = localStorage.getItem('user_id'); // Access user_id from local storage
+    const userId = localStorage.getItem('user_id');
 
     if (userId) {
+      setLoadingResend(true);
       dispatch(clearError());
       await dispatch(resendOTP({ user_id: userId }));
+      setLoadingResend(false);
     }
   };
 
+  const avatarImageUrl = '/logo.PNG'; // Update with your actual logo path
+
   return (
     <Container component="main" maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ mt: 8, textAlign: 'center' }}>
+        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
+          Welcome to Interview Insights
+        </Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography component="h1" variant="h5" align="center">
             Verify OTP
@@ -80,9 +92,9 @@ const VerifyOTP = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+              disabled={loadingVerify || globalLoading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Verify OTP'}
+              {loadingVerify ? <CircularProgress size={24} /> : 'Verify OTP'}
             </Button>
           </Box>
           <Button
@@ -90,9 +102,9 @@ const VerifyOTP = () => {
             variant="outlined"
             sx={{ mt: 1 }}
             onClick={handleResendOTP}
-            disabled={loading}
+            disabled={loadingResend || globalLoading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Resend OTP'}
+            {loadingResend ? <CircularProgress size={24} /> : 'Resend OTP'}
           </Button>
         </Paper>
       </Box>
