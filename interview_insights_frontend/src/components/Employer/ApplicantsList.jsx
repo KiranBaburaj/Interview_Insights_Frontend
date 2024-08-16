@@ -248,8 +248,7 @@ const ApplicantsList = () => {
                   <Typography variant="body1"><strong>Portfolio:</strong> {selectedApplicant.job_seeker.portfolio_url || 'N/A'}</Typography>
                   <Typography variant="body1"><strong>Current Job Title:</strong> {selectedApplicant.job_seeker.current_job_title}</Typography>
                   <Typography variant="body1"><strong>Job Preferences:</strong> {selectedApplicant.job_seeker.job_preferences}</Typography>
-                  <Typography variant="body1"><strong>Resume:</strong> <a href={`http://localhost:8000${selectedApplicant.job_seeker.resume}`} target="_blank" rel="noopener noreferrer">View Resume</a></Typography>
-
+                 
                   {/* Work Experience */}
                   <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
                   {selectedApplicant.job_seeker.work_experience && selectedApplicant.job_seeker.work_experience.length > 0 ? (
@@ -293,7 +292,7 @@ const ApplicantsList = () => {
                         return (
                           <div key={feedback.id}>
                             <Typography variant="body1"><strong>Stage:</strong> {feedback.stage}</Typography>
-                            <Typography variant="body1"><strong>Score:</strong> {feedback.score}</Typography>
+                          
                             <Typography variant="body1"><strong>Feedback:</strong> {feedback.feedback}</Typography>
                             <Typography variant="body1"><strong>Provided At:</strong> {new Date(feedback.provided_at).toLocaleDateString()}</Typography>
                           
