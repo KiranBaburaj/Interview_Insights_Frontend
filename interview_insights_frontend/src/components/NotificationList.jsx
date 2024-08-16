@@ -9,9 +9,12 @@ import { styled } from '@mui/material/styles';
 
 // Styled MenuItem for unread notifications
 const StyledMenuItem = styled(MenuItem)(({ theme, unread }) => ({
-  backgroundColor: unread ? theme.palette.action.hover : 'transparent',
-  color: unread ? theme.palette.text.primary : theme.palette.text.secondary,
+  backgroundColor: unread ? theme.palette.action.hover : theme.palette.background.paper,
+  color: unread ? theme.palette.primary.main : theme.palette.text.primary,
   fontWeight: unread ? 'bold' : 'normal',
+  '&:hover': {
+    backgroundColor: theme.palette.action.selected,
+  },
 }));
 
 const NotificationList = () => {
@@ -74,7 +77,6 @@ const NotificationList = () => {
     dispatch(markNotificationAsRead(notification.id));
     setCurrentNotification(notification);
     setOpen(true);
-    // Do not update unread count here
   };
 
   const handleMenuClick = (event) => {
@@ -112,6 +114,12 @@ const NotificationList = () => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
+        PaperProps={{
+          style: {
+            backgroundColor: '#ffffff', // Background color for the menu
+            color: '#333333', // Text color for better contrast
+          },
+        }}
       >
         {unreadNotifications.length > 0 ? (
           unreadNotifications.map((notification) => (

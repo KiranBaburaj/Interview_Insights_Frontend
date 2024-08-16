@@ -31,6 +31,36 @@ import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import Navbar from '../components/Navbar';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import FavoriteIcon from '@mui/icons-material/Favorite';  // Additional icon for favorites
+import StarIcon from '@mui/icons-material/Star';  // Additional icon for featured jobs
+
+// Create a custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#00796b',
+    },
+    secondary: {
+      main: '#b2dfdb',
+    },
+    text: {
+      primary: '#212121',
+      secondary: '#757575',
+    }
+  },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+    h4: {
+      fontFamily: 'Montserrat, sans-serif',
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontFamily: 'Montserrat, sans-serif',
+      fontWeight: 'bold',
+    },
+  }
+});
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -93,21 +123,19 @@ const Home = () => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
-  // Get today's date for filtering
-  const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
 
-  // Filter jobs to only show those that are open and not past their deadline
   const displayedJobs = showSavedOnly && role !== 'employer'
     ? jobs.filter(job => isJobSaved(job.id))
     : showMatchingOnly && role !== 'employer'
     ? matchingJobs
-    : jobs.filter(job => job.status === 'open' && job.application_deadline >= today); // Only open jobs with valid deadline
+    : jobs.filter(job => job.status === 'open' && job.application_deadline >= today);
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#f5f5f5', borderRadius: 2, boxShadow: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#e0f7fa', borderRadius: 2, boxShadow: 1 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -116,6 +144,9 @@ const Home = () => {
             onChange={handleSearchChange}
             sx={{ mr: 2 }}
             size="small"
+            InputProps={{
+              style: { fontFamily: 'Roboto, sans-serif' }
+            }}
           />
           <Button
             variant="contained"
@@ -124,7 +155,9 @@ const Home = () => {
             size="small"
             sx={{ 
               borderRadius: '20px',
-              px: 3
+              px: 3,
+              '&:hover': { backgroundColor: '#004d40' },
+              transition: 'background-color 0.3s'
             }}
           >
             Search
@@ -176,26 +209,29 @@ const Home = () => {
                   elevation={4}
                   sx={{
                     borderRadius: 2,
-                    backgroundColor: isJobSaved(job.id) ? '#e3f2fd' : 'white',
-                    transition: 'background-color 0.3s'
+                    backgroundColor: isJobSaved(job.id) ? '#b2ebf2' : 'white',
+                    transition: 'background-color 0.3s, transform 0.3s',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: 12,
+                    }
                   }}
                 >
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {job.title}
-                    </Typography>
-                    <Typography color="textSecondary" variant="body2" gutterBottom>
-                      {job.company.name} - {job.location}
-                    </Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2">
-                      {job.description.substring(0, 30)}...
-                    </Typography>
-                  </CardContent>
+                  <Link to={`/job/${job.id}`} style={{ textDecoration: 'none' }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {job.title}
+                      </Typography>
+                      <Typography color="text.secondary" variant="body2" gutterBottom>
+                        {job.company.name} - {job.location}
+                      </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Typography variant="body2">
+                        {job.description.substring(0, 30)}...
+                      </Typography>
+                    </CardContent>
+                  </Link>
                   <CardActions>
-                    <Button size="small" color="primary" component={Link} to={`/job/${job.id}`} sx={{ borderRadius: 20 }}>
-                      Learn More
-                    </Button>
                     {role !== 'employer' && (
                       <IconButton 
                         onClick={() => handleSaveJob(job)} 
@@ -218,7 +254,7 @@ const Home = () => {
           © 2024 Job Portal. All rights reserved.
         </Typography>
       </Box>
-    </>
+    </ThemeProvider>
   );
 };
 

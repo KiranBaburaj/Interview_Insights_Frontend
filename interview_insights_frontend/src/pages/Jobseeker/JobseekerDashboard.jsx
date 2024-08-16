@@ -15,12 +15,17 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Grid,
+  CircularProgress,
 } from '@mui/material';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'; // Include Tooltip and Legend
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { fetchProfile } from '../../features/jobseeker/jobseekerSlice2';
 import JobseekerNavbar from '../../components/JobseekerNavbar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import EventNoteIcon from '@mui/icons-material/EventNote'; // Upcoming Interviews Icon
+import HistoryIcon from '@mui/icons-material/History'; // Past Interviews Icon
+import DescriptionIcon from '@mui/icons-material/Description'; // Applications History Icon
 import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -108,17 +113,17 @@ const JobseekerDashboard = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', bgcolor: '#f5f5f5' }}>
         <CssBaseline />
         <JobseekerNavbar />
         <Box
           component="main"
-          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}
+          sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` }, bgcolor: '#fff', borderRadius: 2, boxShadow: 3 }}
         >
           <Toolbar />
 
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Typography variant="h4" component="h1">
+            <Typography variant="h4" component="h1" sx={{ color: '#3f51b5', fontWeight: 'bold' }}>
               {getGreeting()}, {profile ? profile.user.full_name : 'Jobseeker'}
             </Typography>
             <Box display="flex" alignItems="center">
@@ -133,29 +138,33 @@ const JobseekerDashboard = () => {
             </Box>
           </Box>
 
-          {status === 'loading' && <Typography>Loading...</Typography>}
-          {status === 'failed' && <Typography>Error loading profile.</Typography>}
+          {status === 'loading' && <CircularProgress />}
+          {status === 'failed' && <Typography color="error">Error loading profile.</Typography>}
 
           {status === 'succeeded' && profile && (
             <>
-              <Box display="flex" justifyContent="space-between" mb={3}>
-                <Paper sx={{ p: 2, textAlign: 'center', flex: 1, mr: 2 }}>
-                  <Typography variant="h6">Total Jobs Applied</Typography>
-                  <Typography variant="h4">{filteredApplications.length}</Typography>
-                </Paper>
-                <Paper sx={{ p: 2, textAlign: 'center', flex: 1, mr: 2 }}>
-                  <Typography variant="h6">Interviewed</Typography>
-                  <Typography variant="h4">{filteredInterviews.length}</Typography>
-                </Paper>
-              </Box>
+              <Grid container spacing={2} mb={3}>
+                <Grid item xs={12} sm={6}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#3f51b5', color: 'white', borderRadius: 2, boxShadow: 3 }}>
+                    <Typography variant="h6">Total Jobs Applied</Typography>
+                    <Typography variant="h4">{filteredApplications.length}</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#f50057', color: 'white', borderRadius: 2, boxShadow: 3 }}>
+                    <Typography variant="h6">Interviewed</Typography>
+                    <Typography variant="h4">{filteredInterviews.length}</Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
 
-              {/* New Box for Pie Chart with Enough Size */}
-              <Paper sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper sx={{ p: 2, mb: 3, borderRadius: 2, boxShadow: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#3f51b5', display: 'flex', alignItems: 'center' }}>
+                  <EventNoteIcon sx={{ marginRight: 1 }} />
                   Jobs Applied Status
                 </Typography>
                 <Box display="flex" justifyContent="center">
-                  <PieChart width={400} height={400}> {/* Increased size */}
+                  <PieChart width={400} height={400}>
                     <Pie
                       data={Object.entries(applicationStatusCounts).map(([status, count]) => ({
                         name: status,
@@ -174,13 +183,14 @@ const JobseekerDashboard = () => {
                       ))}
                     </Pie>
                     <Tooltip />
-                    <Legend verticalAlign="bottom" align="center" /> {/* Added legend */}
+                    <Legend verticalAlign="bottom" align="center" />
                   </PieChart>
                 </Box>
               </Paper>
 
-              <Paper sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper sx={{ p: 2, mb: 3, borderRadius: 2, boxShadow: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#3f51b5', display: 'flex', alignItems: 'center' }}>
+                  <EventNoteIcon sx={{ marginRight: 1 }} />
                   Upcoming Interviews
                 </Typography>
                 {upcomingInterviews.length > 0 ? (
@@ -208,8 +218,9 @@ const JobseekerDashboard = () => {
                 )}
               </Paper>
 
-              <Paper sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper sx={{ p: 2, mb: 3, borderRadius: 2, boxShadow: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#3f51b5', display: 'flex', alignItems: 'center' }}>
+                  <HistoryIcon sx={{ marginRight: 1 }} />
                   Past Interviews
                 </Typography>
                 {pastInterviews.length > 0 ? (
@@ -248,8 +259,9 @@ const JobseekerDashboard = () => {
                 )}
               </Paper>
 
-              <Paper sx={{ p: 2 }}>
-                <Typography variant="h6" gutterBottom>
+              <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#3f51b5', display: 'flex', alignItems: 'center' }}>
+                  <DescriptionIcon sx={{ marginRight: 1 }} />
                   Recent Applications History
                 </Typography>
                 <List>
@@ -274,14 +286,13 @@ const JobseekerDashboard = () => {
                 </List>
               </Paper>
 
-              {/* Dialog for Details */}
               <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>Details</DialogTitle>
                 <DialogContent>
                   <Typography variant="body1">{dialogContent?.details || 'No details available.'}</Typography>
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={handleCloseDialog}>Close</Button>
+                  <Button onClick={handleCloseDialog} color="primary">Close</Button>
                 </DialogActions>
               </Dialog>
             </>
