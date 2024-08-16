@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMessages, sendMessage, addMessage } from '../features/chat/chatSlice';
+import { fetchMessages, addMessage } from '../features/chat/chatSlice';
 import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from '../utils/websocket';
 import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/material';
 import { connectNotificationWebSocket, sendNotificationWebSocketMessage } from '../utils/notificationWebSocket';
@@ -41,7 +41,7 @@ const ChatRoom = () => {
       }, token);
 
       const notificationSocket = connectNotificationWebSocket(token, userid, dispatch);
-    
+
       return () => {
         closeWebSocket();
       };
@@ -62,7 +62,7 @@ const ChatRoom = () => {
         full_name: full_name,
         timestamp: new Date().toISOString()
       };
-  
+
       sendWebSocketMessage(messagePayload);
 
       const notificationPayload = {
@@ -80,7 +80,6 @@ const ChatRoom = () => {
 
   if (!currentChatRoom) return <Typography>Select a chat room</Typography>;
 
-  // Determine the other person's name
   const otherPerson = currentChatRoom.jobseeker.id === user.id ? currentChatRoom.employer : currentChatRoom.jobseeker;
 
   return (
@@ -100,7 +99,7 @@ const ChatRoom = () => {
         }}
       >
         <Typography variant="h5" gutterBottom>
-           Chat with {otherPerson.full_name}
+          Chat with {otherPerson.full_name}
         </Typography>
 
         <Box
@@ -114,7 +113,7 @@ const ChatRoom = () => {
             backgroundColor: '#fafafa',
             display: 'flex',
             flexDirection: 'column',
-            height: '60vh',
+            // Removed fixed height to allow for dynamic height
           }}
         >
           {messages.map(message => (

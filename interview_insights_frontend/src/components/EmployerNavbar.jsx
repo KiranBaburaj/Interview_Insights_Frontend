@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Drawer,
   List,
@@ -10,23 +10,30 @@ import {
   Box,
   Avatar,
   Typography,
+  IconButton,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import BusinessIcon from '@mui/icons-material/Business';
-import HomeIcon from '@mui/icons-material/Home'; // Import Home icon
+import HomeIcon from '@mui/icons-material/Home';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
-import NotificationList from './NotificationList'; // Import NotificationList
+import NotificationList from './NotificationList';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const drawerWidth = 240;
 
 const EmployerNavbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { full_name } = useSelector((state) => state.auth); // Assuming user information is in auth state
+  const { full_name } = useSelector((state) => state.auth);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -34,22 +41,14 @@ const EmployerNavbar = () => {
     navigate('/login');
   };
 
-  const avatarImageUrl = '/logo.PNG'; // Path to avatar image
+  const avatarImageUrl = '/logo.PNG';
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-          backgroundColor: '#004d40', // Dark teal background
-          color: '#fff', // White text
-        },
-      }}
-    >
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawerContent = (
+    <Box>
       <Toolbar />
       <Divider sx={{ backgroundColor: '#b2dfdb' }} />
       <Box sx={{ p: 2, textAlign: 'center' }}>
@@ -57,13 +56,13 @@ const EmployerNavbar = () => {
           <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, mr: 1 }} />
         </Box>
         <Typography variant="h5" noWrap sx={{ fontWeight: 'bold', color: '#b2dfdb' }}>
-        Interview Insights
+          Interview Insights
         </Typography>
       </Box>
       <Divider sx={{ backgroundColor: '#b2dfdb' }} />
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
         <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', color: '#b2dfdb' }}>
-          {full_name ? full_name : 'Guest'} {/* Display user name or 'Guest' */}
+          {full_name ? full_name : 'Guest'}
         </Typography>
       </Box>
       <Divider />
@@ -77,7 +76,7 @@ const EmployerNavbar = () => {
         </ListItem>
         <ListItem button component={Link} to="/" sx={{ '&:hover': { backgroundColor: '#00796b' } }}>
           <ListItemIcon>
-            <HomeIcon sx={{ color: '#b2dfdb' }} /> {/* Use Home icon for Home */}
+            <HomeIcon sx={{ color: '#b2dfdb' }} />
           </ListItemIcon>
           <ListItemText primary="Home" primaryTypographyProps={{ style: { fontWeight: 'bold', color: '#b2dfdb' } }} />
         </ListItem>
@@ -89,7 +88,7 @@ const EmployerNavbar = () => {
         </ListItem>
         <ListItem button component={Link} to="/EmployerCompanyManagement" sx={{ '&:hover': { backgroundColor: '#00796b' } }}>
           <ListItemIcon>
-            <PeopleIcon sx={{ color: '#b2dfdb' }} /> {/* Changed to PeopleIcon for Company Management */}
+            <PeopleIcon sx={{ color: '#b2dfdb' }} />
           </ListItemIcon>
           <ListItemText primary="Company" primaryTypographyProps={{ style: { fontWeight: 'bold', color: '#b2dfdb' } }} />
         </ListItem>
@@ -101,7 +100,59 @@ const EmployerNavbar = () => {
         </ListItemIcon>
         <ListItemText primary="Logout" primaryTypographyProps={{ style: { fontWeight: 'bold', color: '#b2dfdb' } }} />
       </ListItem>
-    </Drawer>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      {isMobile ? (
+        <>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+                backgroundColor: '#004d40',
+                color: '#fff',
+              },
+            }}
+          >
+            {drawerContent}
+          </Drawer>
+        </>
+      ) : (
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: {
+              width: drawerWidth,
+              boxSizing: 'border-box',
+              backgroundColor: '#004d40',
+              color: '#fff',
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+    </Box>
   );
 };
 

@@ -16,7 +16,7 @@ const Chat = () => {
     >
       <Navbar />
       <Grid container spacing={0} sx={{ flexGrow: 1 }}>
-        <Grid item xs={4} sx={{ borderRight: '1px solid #ddd' }}>
+        <Grid item xs={4} sx={{ borderRight: '1px solid #ddd', height: '100%' }}>
           <Paper
             sx={{
               height: '100%',
@@ -30,7 +30,7 @@ const Chat = () => {
             <ChatList />
           </Paper>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={8} sx={{ height: '100%' }}>
           <Paper
             sx={{
               height: '100%',
@@ -39,6 +39,7 @@ const Chat = () => {
               p: 2,
               bgcolor: '#ffffff', // White background for the chat room
               overflowY: 'auto',
+              flexGrow: 1, // Ensure it grows to fill available space
             }}
           >
             <ChatRoom />
