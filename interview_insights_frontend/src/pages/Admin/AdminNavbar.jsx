@@ -51,7 +51,7 @@ const AdminNavbar = () => {
       <Divider sx={{ backgroundColor: '#b2dfdb' }} />
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
         <Typography variant="h6" noWrap sx={{ fontWeight: 'bold', color: '#b2dfdb' }}>
-          {full_name ? full_name : 'Admin'} {/* Display user name or 'Admin' */}
+          { 'Admin'} {/* Display user name or 'Admin' */}
         </Typography>
       </Box>
       <Divider />
