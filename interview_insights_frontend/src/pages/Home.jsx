@@ -28,7 +28,8 @@ import {
   Checkbox,
   Pagination,
   MenuItem,
-  Slider
+  Slider,
+  Paper
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -76,6 +77,7 @@ const Home = () => {
   const [employmentType, setEmploymentType] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
   const [salaryRange, setSalaryRange] = useState([0, 500000]);
+  const [isRemote, setIsRemote] = useState(false); // New state for remote filter
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
@@ -112,6 +114,10 @@ const Home = () => {
 
   const handleSalaryRangeChange = (event, newValue) => {
     setSalaryRange(newValue);
+  };
+
+  const handleIsRemoteChange = (event) => {
+    setIsRemote(event.target.checked);
   };
 
   const handleSearch = () => {
@@ -160,7 +166,8 @@ const Home = () => {
         (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
         (employmentType === '' || job.employment_type === employmentType) &&
         (experienceLevel === '' || job.experience_level === experienceLevel) &&
-        (parseFloat(job.salary_min) >= salaryRange[0] && parseFloat(job.salary_max) <= salaryRange[1])
+        (parseFloat(job.salary_min) >= salaryRange[0] && parseFloat(job.salary_max) <= salaryRange[1]) &&
+        (!isRemote || job.is_remote) // Apply remote filter
       );
 
   // Pagination logic
@@ -175,62 +182,99 @@ const Home = () => {
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Box sx={{ display: 'flex', mb: 4 }}>
           <Box sx={{ width: '25%', pr: 2 }}>
-            <Typography variant="h6" gutterBottom>Filters</Typography>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle1">Employment Type</Typography>
-              <TextField
-                select
-                fullWidth
-                value={employmentType}
-                onChange={handleEmploymentTypeChange}
-                variant="outlined"
-                sx={{ mb: 1 }}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="full time">Full Time</MenuItem>
-                <MenuItem value="part time">Part Time</MenuItem>
-                <MenuItem value="contract">Contract</MenuItem>
-                <MenuItem value="internship">Internship</MenuItem>
-              </TextField>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle1">Experience Level</Typography>
-              <TextField
-                select
-                fullWidth
-                value={experienceLevel}
-                onChange={handleExperienceLevelChange}
-                variant="outlined"
-                sx={{ mb: 1 }}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Fresher">Fresher</MenuItem>
-                <MenuItem value="1">1 Year</MenuItem>
-                <MenuItem value="2">2 Years</MenuItem>
-                <MenuItem value="3">3 Years</MenuItem>
-              </TextField>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="subtitle1">Salary Range</Typography>
-              <Slider
-                value={salaryRange}
-                onChange={handleSalaryRangeChange}
-                valueLabelDisplay="auto"
-                min={0}
-                max={500000}
-                step={10000}
-                marks={[
-                  { value: 0, label: '0' },
-                  { value: 50000, label: '50k' },
-                  { value: 100000, label: '100k' },
-                  { value: 200000, label: '200k' },
-                  { value: 300000, label: '300k' },
-                  { value: 400000, label: '400k' },
-                  { value: 5000000, label: '5000k' },
-                  
-                ]}
-              />
-            </Box>
+            <Paper elevation={3} sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>Filters</Typography>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1">Employment Type</Typography>
+                <TextField
+                  select
+                  fullWidth
+                  value={employmentType}
+                  onChange={handleEmploymentTypeChange}
+                  variant="outlined"
+                  sx={{ mb: 1 }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="full time">Full Time</MenuItem>
+                  <MenuItem value="part time">Part Time</MenuItem>
+                  <MenuItem value="contract">Contract</MenuItem>
+                  <MenuItem value="internship">Internship</MenuItem>
+                </TextField>
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1">Experience Level</Typography>
+                <TextField
+                  select
+                  fullWidth
+                  value={experienceLevel}
+                  onChange={handleExperienceLevelChange}
+                  variant="outlined"
+                  sx={{ mb: 1 }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="Fresher">Fresher</MenuItem>
+                  <MenuItem value="1">1 Year</MenuItem>
+                  <MenuItem value="2">2 Years</MenuItem>
+                  <MenuItem value="3">3 Years</MenuItem>
+                </TextField>
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1">Salary Range</Typography>
+                <Slider
+                  value={salaryRange}
+                  onChange={handleSalaryRangeChange}
+                  valueLabelDisplay="auto"
+                  min={0}
+                  max={500000}
+                  step={10000}
+                  marks={[
+                    { value: 0, label: '0' },
+                    { value: 50000, label: '50k' },
+                    { value: 100000, label: '100k' },
+                    { value: 200000, label: '200k' },
+                    { value: 300000, label: '300k' },
+                    { value: 400000, label: '400k' },
+                    { value: 500000, label: '500k' },
+                  ]}
+                />
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isRemote}
+                      onChange={handleIsRemoteChange}
+                      color="primary"
+                    />
+                  }
+                  label="Remote Jobs"
+                />
+              </Box>
+              {role !== 'employer' && (
+                <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={showSavedOnly}
+                        onChange={handleSavedFilterChange}
+                        color="primary"
+                      />
+                    }
+                    label="Saved Jobs"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={showMatchingOnly}
+                        onChange={handleMatchingFilterChange}
+                        color="primary"
+                      />
+                    }
+                    label="Matching Jobs"
+                  />
+                </Box>
+              )}
+            </Paper>
           </Box>
 
           <Box sx={{ flexGrow: 1 }}>
@@ -267,31 +311,6 @@ const Home = () => {
                 Search
               </Button>
             </Box>
-
-            {role !== 'employer' && (
-              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showSavedOnly}
-                      onChange={handleSavedFilterChange}
-                      color="primary"
-                    />
-                  }
-                  label=" Saved Jobs"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={showMatchingOnly}
-                      onChange={handleMatchingFilterChange}
-                      color="primary"
-                    />
-                  }
-                  label=" Matching Jobs"
-                />
-              </Box>
-            )}
 
             <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
               {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Featured Jobs'}
