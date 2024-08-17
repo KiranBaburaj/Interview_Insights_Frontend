@@ -27,8 +27,8 @@ import {
   FormControlLabel,
   Checkbox,
   Pagination,
-  Select,
-  MenuItem
+  MenuItem,
+  Slider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -75,7 +75,7 @@ const Home = () => {
   const [locationQuery, setLocationQuery] = useState('');
   const [employmentType, setEmploymentType] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
-  const [salaryRange, setSalaryRange] = useState('');
+  const [salaryRange, setSalaryRange] = useState([0, 500000]);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
@@ -110,8 +110,8 @@ const Home = () => {
     setExperienceLevel(event.target.value);
   };
 
-  const handleSalaryRangeChange = (event) => {
-    setSalaryRange(event.target.value);
+  const handleSalaryRangeChange = (event, newValue) => {
+    setSalaryRange(newValue);
   };
 
   const handleSearch = () => {
@@ -160,7 +160,7 @@ const Home = () => {
         (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
         (employmentType === '' || job.employment_type === employmentType) &&
         (experienceLevel === '' || job.experience_level === experienceLevel) &&
-        (salaryRange === '' || (parseFloat(job.salary_min) >= parseFloat(salaryRange.split('-')[0]) && parseFloat(job.salary_max) <= parseFloat(salaryRange.split('-')[1])))
+        (parseFloat(job.salary_min) >= salaryRange[0] && parseFloat(job.salary_max) <= salaryRange[1])
       );
 
   // Pagination logic
@@ -178,7 +178,8 @@ const Home = () => {
             <Typography variant="h6" gutterBottom>Filters</Typography>
             <Box sx={{ mb: 2 }}>
               <Typography variant="subtitle1">Employment Type</Typography>
-              <Select
+              <TextField
+                select
                 fullWidth
                 value={employmentType}
                 onChange={handleEmploymentTypeChange}
@@ -190,11 +191,12 @@ const Home = () => {
                 <MenuItem value="part time">Part Time</MenuItem>
                 <MenuItem value="contract">Contract</MenuItem>
                 <MenuItem value="internship">Internship</MenuItem>
-              </Select>
+              </TextField>
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography variant="subtitle1">Experience Level</Typography>
-              <Select
+              <TextField
+                select
                 fullWidth
                 value={experienceLevel}
                 onChange={handleExperienceLevelChange}
@@ -206,22 +208,28 @@ const Home = () => {
                 <MenuItem value="1">1 Year</MenuItem>
                 <MenuItem value="2">2 Years</MenuItem>
                 <MenuItem value="3">3 Years</MenuItem>
-              </Select>
+              </TextField>
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography variant="subtitle1">Salary Range</Typography>
-              <Select
-                fullWidth
+              <Slider
                 value={salaryRange}
                 onChange={handleSalaryRangeChange}
-                variant="outlined"
-                sx={{ mb: 1 }}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="0-50000">Up to 50,000</MenuItem>
-                <MenuItem value="50000-100000">50,000 - 100,000</MenuItem>
-                <MenuItem value="100000-500000">100,000 - 500,000</MenuItem>
-              </Select>
+                valueLabelDisplay="auto"
+                min={0}
+                max={500000}
+                step={10000}
+                marks={[
+                  { value: 0, label: '0' },
+                  { value: 50000, label: '50k' },
+                  { value: 100000, label: '100k' },
+                  { value: 200000, label: '200k' },
+                  { value: 300000, label: '300k' },
+                  { value: 400000, label: '400k' },
+                  { value: 5000000, label: '5000k' },
+                  
+                ]}
+              />
             </Box>
           </Box>
 
