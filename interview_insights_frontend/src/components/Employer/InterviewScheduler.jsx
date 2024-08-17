@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { scheduleInterview, fetchInterviews, updateInterview } from '../../features/interview/interviewSlice';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { format, parse, startOfWeek, getDay, addHours } from 'date-fns'; // Import addHours
 import enUS from 'date-fns/locale/en-US';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -16,7 +16,8 @@ import {
   Paper,
   TextField,
   Typography,
-  Snackbar,CssBaseline,
+  Snackbar,
+  CssBaseline,
   Alert,
 } from '@mui/material';
 import EmployerNavbar from '../EmployerNavbar';
@@ -24,7 +25,6 @@ import EmployerNavbar from '../EmployerNavbar';
 const locales = {
   'en-US': enUS,
 };
-
 
 const localizer = dateFnsLocalizer({
   format,
@@ -59,7 +59,6 @@ const InterviewScheduler = () => {
   }, [dispatch]);
 
   const existingInterview = interviews.find(interview => interview.job_application == applicantId);
-  console.log(existingInterview)
 
   useEffect(() => {
     if (existingInterview) {
@@ -83,8 +82,21 @@ const InterviewScheduler = () => {
   };
 
   const handleDateChange = (date) => {
-    setInterviewData({ ...interviewData, scheduled_time: date });
+    const now = new Date();
+  
+    // Check if the selected date is today
+    if (date.toDateString() === now.toDateString()) {
+      // Check if the selected time is earlier than the current time
+      if (date.getTime() < now.getTime()) {
+        setInterviewData({ ...interviewData, scheduled_time: now });
+      } else {
+        setInterviewData({ ...interviewData, scheduled_time: date });
+      }
+    } else {
+      setInterviewData({ ...interviewData, scheduled_time: date });
+    }
   };
+  
   const handleFeedbackClick = () => {
     navigate(`/interview-feedback/${existingInterview.id}`); // Navigate to the InterviewFeedbackForm
   };
@@ -100,7 +112,6 @@ const InterviewScheduler = () => {
       const newStart = new Date(newInterview.scheduled_time);
       const newDurationInMilliseconds = parseDuration(newInterview.duration);
       const newEnd = new Date(newStart.getTime() + newDurationInMilliseconds);
-
 
       return (newStart < existingEnd && newEnd > existingStart);
     });
@@ -146,80 +157,80 @@ const InterviewScheduler = () => {
     const end = new Date(start.getTime() + durationInMilliseconds);
 
     return {
-      title: `Interview with ${interview.job_application}`,
+      title: ` ${interview.job_seeker_name}`,
       start,
       end,
     };
   });
 
   return (
-
     <Box sx={{ display: 'flex' }}>
-    <CssBaseline />
-    <EmployerNavbar />
-    <Container maxWidth="lg">
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ padding: 3, mt: 5 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-              Schedule Interview
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle1">Interview Date and Time:</Typography>
-                  <DatePicker
-                    selected={interviewData.scheduled_time}
-                    onChange={handleDateChange}
-                    showTimeSelect
-                    dateFormat="Pp"
-                    customInput={<TextField fullWidth />}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Duration (HH:mm)"
-                    type="text"
-                    id="duration"
-                    name="duration"
-                    value={interviewData.duration}
-                    onChange={handleChange}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Location"
-                    type="text"
-                    id="location"
-                    name="location"
-                    value={interviewData.location}
-                    onChange={handleChange}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Notes"
-                    type="text"
-                    id="notes"
-                    name="notes"
-                    value={interviewData.notes}
-                    onChange={handleChange}
-                    variant="outlined"
-                    multiline
-                    rows={4}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button type="submit" variant="contained" color="primary" fullWidth>
-                    Schedule Interview
-                  </Button>
-                </Grid>
-                <Grid item xs={12} mt={2}>
+      <CssBaseline />
+      <EmployerNavbar />
+      <Container maxWidth="lg">
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ padding: 3, mt: 5 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Schedule Interview
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle1">Interview Date and Time:</Typography>
+                    <DatePicker
+                      selected={interviewData.scheduled_time}
+                      onChange={handleDateChange}
+                      showTimeSelect
+                      dateFormat="Pp"
+                      customInput={<TextField fullWidth />}
+                      minDate={new Date()} // Set minimum date to current time
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Duration (HH:mm)"
+                      type="text"
+                      id="duration"
+                      name="duration"
+                      value={interviewData.duration}
+                      onChange={handleChange}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Location"
+                      type="text"
+                      id="location"
+                      name="location"
+                      value={interviewData.location}
+                      onChange={handleChange}
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Notes"
+                      type="text"
+                      id="notes"
+                      name="notes"
+                      value={interviewData.notes}
+                      onChange={handleChange}
+                      variant="outlined"
+                      multiline
+                      rows={4}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button type="submit" variant="contained" color="primary" fullWidth>
+                      Schedule Interview
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12} mt={2}>
                     <Button
                       variant="contained"
                       color="secondary"
@@ -229,36 +240,37 @@ const InterviewScheduler = () => {
                       Provide Feedback
                     </Button>
                   </Grid>
-              </Grid>
-            </form>
-            {conflictError && (
-              <Snackbar open={true} autoHideDuration={6000}>
-                <Alert severity="error">{conflictError}</Alert>
-              </Snackbar>
-            )}
-            {successMessage && (
-              <Snackbar open={true} autoHideDuration={6000}>
-                <Alert severity="success">{successMessage}</Alert>
-              </Snackbar>
-            )}
-          </Paper>
+                </Grid>
+              </form>
+              {conflictError && (
+                <Snackbar open={true} autoHideDuration={6000}>
+                  <Alert severity="error">{conflictError}</Alert>
+                </Snackbar>
+              )}
+              {successMessage && (
+                <Snackbar open={true} autoHideDuration={6000}>
+                  <Alert severity="success">{successMessage}</Alert>
+                </Snackbar>
+              )}
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ padding: 3, mt: 5 }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                Existing Interviews
+              </Typography>
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: 500 }}
+              />
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ padding: 3, mt: 5 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-              Existing Interviews
-            </Typography>
-            <Calendar
-              localizer={localizer}
-              events={events}
-              startAccessor="start"
-              endAccessor="end"
-              style={{ height: 500 }}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container> </Box>
+      </Container>
+    </Box>
   );
 };
 
