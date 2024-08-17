@@ -25,15 +25,16 @@ import {
   Divider,
   IconButton,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  Pagination,
+  Select,
+  MenuItem
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import Navbar from '../components/Navbar';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import FavoriteIcon from '@mui/icons-material/Favorite';  // Additional icon for favorites
-import StarIcon from '@mui/icons-material/Star';  // Additional icon for featured jobs
 
 // Create a custom theme
 const theme = createTheme({
@@ -71,10 +72,17 @@ const Home = () => {
   const jobsError = useSelector((state) => state.jobs.error);
   const role = useSelector((state) => state.auth.role);
   const [searchQuery, setSearchQuery] = useState('');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [employmentType, setEmploymentType] = useState('');
+  const [experienceLevel, setExperienceLevel] = useState('');
+  const [salaryRange, setSalaryRange] = useState('');
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
-  const jobseeker_id = useSelector((state) => state.auth.userid);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 3;
 
   useEffect(() => {
     if (showSavedOnly && role !== 'employer') {
@@ -88,6 +96,22 @@ const Home = () => {
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
+  };
+
+  const handleLocationChange = (event) => {
+    setLocationQuery(event.target.value);
+  };
+
+  const handleEmploymentTypeChange = (event) => {
+    setEmploymentType(event.target.value);
+  };
+
+  const handleExperienceLevelChange = (event) => {
+    setExperienceLevel(event.target.value);
+  };
+
+  const handleSalaryRangeChange = (event) => {
+    setSalaryRange(event.target.value);
   };
 
   const handleSearch = () => {
@@ -125,128 +149,214 @@ const Home = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // Filter logic for displayed jobs
   const displayedJobs = showSavedOnly && role !== 'employer'
     ? jobs.filter(job => isJobSaved(job.id))
     : showMatchingOnly && role !== 'employer'
     ? matchingJobs
-    : jobs.filter(job => job.status === 'open' && job.application_deadline >= today);
+    : jobs.filter(job =>
+        job.status === 'open' &&
+        job.application_deadline >= today &&
+        (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
+        (employmentType === '' || job.employment_type === employmentType) &&
+        (experienceLevel === '' || job.experience_level === experienceLevel) &&
+        (salaryRange === '' || (parseFloat(job.salary_min) >= parseFloat(salaryRange.split('-')[0]) && parseFloat(job.salary_max) <= parseFloat(salaryRange.split('-')[1])))
+      );
+
+  // Pagination logic
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = displayedJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const totalPages = Math.ceil(displayedJobs.length / jobsPerPage);
 
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#e0f7fa', borderRadius: 2, boxShadow: 1 }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Search for jobs..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            sx={{ mr: 2 }}
-            size="small"
-            InputProps={{
-              style: { fontFamily: 'Roboto, sans-serif' }
-            }}
-          />
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            onClick={handleSearch}
-            size="small"
-            sx={{ 
-              borderRadius: '20px',
-              px: 3,
-              '&:hover': { backgroundColor: '#004d40' },
-              transition: 'background-color 0.3s'
-            }}
-          >
-            Search
-          </Button>
-        </Box>
+        <Box sx={{ display: 'flex', mb: 4 }}>
+          <Box sx={{ width: '25%', pr: 2 }}>
+            <Typography variant="h6" gutterBottom>Filters</Typography>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1">Employment Type</Typography>
+              <Select
+                fullWidth
+                value={employmentType}
+                onChange={handleEmploymentTypeChange}
+                variant="outlined"
+                sx={{ mb: 1 }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="full time">Full Time</MenuItem>
+                <MenuItem value="part time">Part Time</MenuItem>
+                <MenuItem value="contract">Contract</MenuItem>
+                <MenuItem value="internship">Internship</MenuItem>
+              </Select>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1">Experience Level</Typography>
+              <Select
+                fullWidth
+                value={experienceLevel}
+                onChange={handleExperienceLevelChange}
+                variant="outlined"
+                sx={{ mb: 1 }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="Fresher">Fresher</MenuItem>
+                <MenuItem value="1">1 Year</MenuItem>
+                <MenuItem value="2">2 Years</MenuItem>
+                <MenuItem value="3">3 Years</MenuItem>
+              </Select>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle1">Salary Range</Typography>
+              <Select
+                fullWidth
+                value={salaryRange}
+                onChange={handleSalaryRangeChange}
+                variant="outlined"
+                sx={{ mb: 1 }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="0-50000">Up to 50,000</MenuItem>
+                <MenuItem value="50000-100000">50,000 - 100,000</MenuItem>
+                <MenuItem value="100000-500000">100,000 - 500,000</MenuItem>
+              </Select>
+            </Box>
+          </Box>
 
-        {role !== 'employer' && (
-          <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showSavedOnly}
-                  onChange={handleSavedFilterChange}
-                  color="primary"
+          <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#e0f7fa', borderRadius: 2, boxShadow: 1 }}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                placeholder="Search for jobs..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                sx={{ mr: 2 }}
+                size="small"
+              />
+              <TextField
+                variant="outlined"
+                placeholder="Location..."
+                value={locationQuery}
+                onChange={handleLocationChange}
+                sx={{ mr: 2 }}
+                size="small"
+              />
+              <Button
+                variant="contained"
+                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+                size="small"
+                sx={{
+                  borderRadius: '20px',
+                  px: 3,
+                  '&:hover': { backgroundColor: '#004d40' },
+                  transition: 'background-color 0.3s'
+                }}
+              >
+                Search
+              </Button>
+            </Box>
+
+            {role !== 'employer' && (
+              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showSavedOnly}
+                      onChange={handleSavedFilterChange}
+                      color="primary"
+                    />
+                  }
+                  label=" Saved Jobs"
                 />
-              }
-              label="Show Only Saved Jobs"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={showMatchingOnly}
-                  onChange={handleMatchingFilterChange}
-                  color="primary"
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showMatchingOnly}
+                      onChange={handleMatchingFilterChange}
+                      color="primary"
+                    />
+                  }
+                  label=" Matching Jobs"
                 />
-              }
-              label="Show Only Matching Jobs"
-            />
-          </Box>
-        )}
+              </Box>
+            )}
 
-        <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
-          {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Featured Jobs'}
-        </Typography>
+            <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
+              {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Featured Jobs'}
+            </Typography>
 
-        {jobsStatus === 'loading' ? (
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : jobsStatus === 'failed' ? (
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography color="error">Error: {jobsError}</Typography>
-          </Box>
-        ) : (
-          <Grid container spacing={4}>
-            {displayedJobs.map((job) => (
-              <Grid item xs={12} sm={6} md={4} key={job.id}>
-                <Card
-                  elevation={4}
-                  sx={{
-                    borderRadius: 2,
-                    backgroundColor: isJobSaved(job.id) ? '#b2ebf2' : 'white',
-                    transition: 'background-color 0.3s, transform 0.3s',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      boxShadow: 12,
-                    }
-                  }}
-                >
-                  <Link to={`/job/${job.id}`} style={{ textDecoration: 'none' }}>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {job.title}
-                      </Typography>
-                      <Typography color="text.secondary" variant="body2" gutterBottom>
-                        {job.company.name} - {job.location}
-                      </Typography>
-                      <Divider sx={{ my: 1 }} />
-                      <Typography variant="body2">
-                        {job.description.substring(0, 30)}...
-                      </Typography>
-                    </CardContent>
-                  </Link>
-                  <CardActions>
-                    {role !== 'employer' && (
-                      <IconButton 
-                        onClick={() => handleSaveJob(job)} 
-                        sx={{ ml: 'auto' }} 
-                        disabled={savingStatus[job.id] === 'loading'}
-                      >
-                        {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
-                      </IconButton>
-                    )}
-                  </CardActions>
-                </Card>
+            {jobsStatus === 'loading' ? (
+              <Box sx={{ textAlign: 'center', mt: 4 }}>
+                <CircularProgress />
+              </Box>
+            ) : jobsStatus === 'failed' ? (
+              <Box sx={{ textAlign: 'center', mt: 4 }}>
+                <Typography color="error">Error: {jobsError}</Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={4}>
+                {currentJobs.map((job) => (
+                  <Grid item xs={12} sm={6} md={4} key={job.id}>
+                    <Card
+                      elevation={4}
+                      sx={{
+                        borderRadius: 2,
+                        backgroundColor: isJobSaved(job.id) ? '#b2ebf2' : 'white',
+                        transition: 'background-color 0.3s, transform 0.3s',
+                        '&:hover': {
+                          transform: 'scale(1.05)',
+                          boxShadow: 12,
+                        }
+                      }}
+                    >
+                      <Link to={`/job/${job.id}`} style={{ textDecoration: 'none' }}>
+                        <CardContent>
+                          <Typography variant="h6" gutterBottom>
+                            {job.title}
+                          </Typography>
+                          <Typography color="text.secondary" variant="body2" gutterBottom>
+                            {job.company.name} - {job.location}
+                          </Typography>
+                          <Divider sx={{ my: 1 }} />
+                          <Typography variant="body2">
+                            {job.description.substring(0, 30)}...
+                          </Typography>
+                        </CardContent>
+                      </Link>
+                      <CardActions>
+                        {role !== 'employer' && (
+                          <IconButton
+                            onClick={() => handleSaveJob(job)}
+                            sx={{ ml: 'auto' }}
+                            disabled={savingStatus[job.id] === 'loading'}
+                          >
+                            {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+                          </IconButton>
+                        )}
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-        )}
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={(event, value) => setCurrentPage(value)}
+                  color="primary"
+                />
+              </Box>
+            )}
+          </Box>
+        </Box>
       </Container>
 
       <Box component="footer" sx={{ bgcolor: 'background.paper', p: 4, mt: 6, textAlign: 'center', borderTop: '1px solid #e0e0e0' }}>
