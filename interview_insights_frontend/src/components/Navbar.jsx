@@ -64,7 +64,11 @@ const Navbar = () => {
   };
 
   const handleChatNavigation = () => {
-    navigate(role === 'employer' ? '/Employer/chat' : '/chat');
+    if (user) {
+      navigate(role === 'employer' ? '/Employer/chat' : '/chat');
+    } else {
+      navigate('/login');
+    }
     handleClose();
   };
 
@@ -72,7 +76,11 @@ const Navbar = () => {
     const dashboardPath = role === 'jobseeker' ? '/dashboard/jobseeker' :
                           role === 'employer' ? '/dashboard/employer' :
                           role === 'recruiter' ? '/dashboard/recruiter' : '/';
-    navigate(dashboardPath);
+    if (user) {
+      navigate(dashboardPath);
+    } else {
+      navigate('/login');
+    }
     handleClose();
   };
 
@@ -97,19 +105,15 @@ const Navbar = () => {
                   Home
                 </Button>
 
-                {(role === 'jobseeker' || role === 'employer') && (
-                  <Button color="inherit" onClick={handleChatNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
-                    <ChatIcon sx={{ mr: 1 }} />
-                    Chat
-                  </Button>
-                )}
+                <Button color="inherit" onClick={handleChatNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
+                  <ChatIcon sx={{ mr: 1 }} />
+                  Chat
+                </Button>
 
-                {(role === 'jobseeker' || role === 'employer' || role === 'recruiter') && (
-                  <Button color="inherit" onClick={handleDashboardNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
-                    <DashboardIcon sx={{ mr: 1 }} />
-                    Dashboard
-                  </Button>
-                )}
+                <Button color="inherit" onClick={handleDashboardNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
+                  <DashboardIcon sx={{ mr: 1 }} />
+                  Dashboard
+                </Button>
               </Box>
 
               <NotificationList />
@@ -147,19 +151,15 @@ const Navbar = () => {
                         Home
                       </MenuItem>
 
-                      {(role === 'jobseeker' || role === 'employer') && (
-                        <MenuItem onClick={handleChatNavigation} sx={{ color: theme.palette.text.menu }}>
-                          <ChatIcon sx={{ mr: 1 }} />
-                          Chat
-                        </MenuItem>
-                      )}
+                      <MenuItem onClick={handleChatNavigation} sx={{ color: theme.palette.text.menu }}>
+                        <ChatIcon sx={{ mr: 1 }} />
+                        Chat
+                      </MenuItem>
 
-                      {(role === 'jobseeker' || role === 'employer' || role === 'recruiter') && (
-                        <MenuItem onClick={handleDashboardNavigation} sx={{ color: theme.palette.text.menu }}>
-                          <DashboardIcon sx={{ mr: 1 }} />
-                          Dashboard
-                        </MenuItem>
-                      )}
+                      <MenuItem onClick={handleDashboardNavigation} sx={{ color: theme.palette.text.menu }}>
+                        <DashboardIcon sx={{ mr: 1 }} />
+                        Dashboard
+                      </MenuItem>
 
                       {user ? (
                         <>

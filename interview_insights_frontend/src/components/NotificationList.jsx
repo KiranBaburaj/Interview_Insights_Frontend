@@ -32,34 +32,36 @@ const NotificationList = () => {
 
   useEffect(() => {
     // Fetch initial notifications
-    dispatch(fetchNotifications(token));
+    if (token && userid) { // Check if user is logged in
+      dispatch(fetchNotifications(token));
 
-    // Connect WebSocket
-    const notificationSocket = connectNotificationWebSocket(token, userid, (notification) => {
-      if (notification.payload) {
-        const { id, message, is_read, user_id, notification_type, timestamp } = notification.payload;
-        dispatch(addNotification({
-          id,
-          message,
-          is_read,
-          user: user_id,
-          notification_type,
-          created_at: timestamp || notification.payload.created_at,
-        }));
-        // Update unread count if not read
-        if (!is_read) {
-          setUnreadCount(prevCount => prevCount + 1);
+      // Connect WebSocket
+      const notificationSocket = connectNotificationWebSocket(token, userid, (notification) => {
+        if (notification.payload) {
+          const { id, message, is_read, user_id, notification_type, timestamp } = notification.payload;
+          dispatch(addNotification({
+            id,
+            message,
+            is_read,
+            user: user_id,
+            notification_type,
+            created_at: timestamp || notification.payload.created_at,
+          }));
+          // Update unread count if not read
+          if (!is_read) {
+            setUnreadCount(prevCount => prevCount + 1);
+          }
+          console.log('Notification received:', notification.payload);
+        } else {
+          console.warn('Unexpected notification format:', notification);
         }
-        console.log('Notification received:', notification.payload);
-      } else {
-        console.warn('Unexpected notification format:', notification);
-      }
-    });
+      });
 
-    // Cleanup WebSocket on component unmount
-    return () => {
-      closeNotificationWebSocket();
-    };
+      // Cleanup WebSocket on component unmount
+      return () => {
+        closeNotificationWebSocket();
+      };
+    }
   }, [dispatch, token, userid]);
 
   useEffect(() => {
@@ -80,11 +82,10 @@ const NotificationList = () => {
     setCurrentNotification(notification);
     setOpen(true);
     if (role === 'jobseeker') {
-      navigate('/chat')}
-      else if (role === 'employer') {
-        navigate('/Employer/chat');
+      navigate('/chat');
+    } else if (role === 'employer') {
+      navigate('/Employer/chat');
     }
-
   };
 
   const handleMenuClick = (event) => {
