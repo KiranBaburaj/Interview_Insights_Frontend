@@ -47,6 +47,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const { user, role } = useSelector((state) => state.auth);
+  console.log(user)
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);

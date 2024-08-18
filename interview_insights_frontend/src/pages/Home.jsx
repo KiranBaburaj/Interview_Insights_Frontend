@@ -10,7 +10,7 @@ import {
   fetchMatchingJobs,
   selectMatchingJobs
 } from '../features/jobs/jobsSlice';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Container, 
   TextField, 
@@ -66,12 +66,13 @@ const theme = createTheme({
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const jobs = useSelector(selectAllJobs);
   const savedJobs = useSelector(selectSavedJobs);
   const matchingJobs = useSelector(selectMatchingJobs);
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
-  const role = useSelector((state) => state.auth.role);
+  const { user, role } = useSelector((state) => state.auth); // Get user and role from auth state
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [employmentType, setEmploymentType] = useState('');
@@ -88,13 +89,21 @@ const Home = () => {
 
   useEffect(() => {
     if (showSavedOnly && role !== 'employer') {
+      if (!user) {
+        navigate('/login'); // Redirect to login if user is not logged in
+        return;
+      }
       dispatch(fetchSavedJobs());
     } else if (showMatchingOnly && role !== 'employer') {
+      if (!user) {
+        navigate('/login'); // Redirect to login if user is not logged in
+        return;
+      }
       dispatch(fetchMatchingJobs());
     } else {
       dispatch(fetchJobs(searchQuery));
     }
-  }, [showSavedOnly, showMatchingOnly, searchQuery, dispatch, role]);
+  }, [showSavedOnly, showMatchingOnly, searchQuery, dispatch, role, user, navigate]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -143,6 +152,11 @@ const Home = () => {
   };
 
   const handleSaveJob = async (job) => {
+    if (!user) {
+      navigate('/login'); // Redirect to login if user is not logged in
+      return;
+    }
+
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'loading' }));
     if (isJobSaved(job.id)) {
       await dispatch(unsaveJob(job.id));
@@ -195,10 +209,12 @@ const Home = () => {
                   sx={{ mb: 1 }}
                 >
                   <MenuItem value="">All</MenuItem>
-                  <MenuItem value="full time">Full Time</MenuItem>
-                  <MenuItem value="part time">Part Time</MenuItem>
-                  <MenuItem value="contract">Contract</MenuItem>
-                  <MenuItem value="internship">Internship</MenuItem>
+                  <MenuItem value="Full-time">Full-Time</MenuItem>
+                  <MenuItem value="Part-time">Part-Time</MenuItem>
+                  <MenuItem value="Contract">Contract</MenuItem>
+                  <MenuItem value="Temporary">Temporary</MenuItem>
+                  <MenuItem value="Internship">Internship</MenuItem>
+                  <MenuItem value="Freelance">Freelance</MenuItem>
                 </TextField>
               </Box>
               <Box sx={{ mb: 2 }}>
@@ -212,10 +228,10 @@ const Home = () => {
                   sx={{ mb: 1 }}
                 >
                   <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Fresher">Fresher</MenuItem>
-                  <MenuItem value="1">1 Year</MenuItem>
-                  <MenuItem value="2">2 Years</MenuItem>
-                  <MenuItem value="3">3 Years</MenuItem>
+                  <MenuItem value="Entry level">Entry Level</MenuItem>
+                  <MenuItem value="Mid level">Mid Level</MenuItem>
+                  <MenuItem value="Senior level">Senior Level</MenuItem>
+                  <MenuItem value="Executive">Executive</MenuItem>
                 </TextField>
               </Box>
               <Box sx={{ mb: 2 }}>

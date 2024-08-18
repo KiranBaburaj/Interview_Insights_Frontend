@@ -71,7 +71,10 @@ const Login = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Box sx={{ mt: 8, textAlign: 'center' }}>
-        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+        {/* Wrap Avatar with Link */}
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+        </Link>
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Welcome to Interview Insights
         </Typography>
