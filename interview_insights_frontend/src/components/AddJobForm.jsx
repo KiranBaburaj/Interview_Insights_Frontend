@@ -41,6 +41,24 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+// Employment type choices according to Django model
+const EMPLOYMENT_TYPE_CHOICES = [
+  { value: 'Full-time', label: 'Full-time' },
+  { value: 'Part-time', label: 'Part-time' },
+  { value: 'Contract', label: 'Contract' },
+  { value: 'Temporary', label: 'Temporary' },
+  { value: 'Internship', label: 'Internship' },
+  { value: 'Freelance', label: 'Freelance' },
+];
+
+// Experience level choices according to Django model
+const EXPERIENCE_LEVEL_CHOICES = [
+  { value: 'Entry level', label: 'Entry level' },
+  { value: 'Mid level', label: 'Mid level' },
+  { value: 'Senior level', label: 'Senior level' },
+  { value: 'Executive', label: 'Executive' },
+];
+
 // Create a custom theme
 const theme = createTheme({
   palette: {
@@ -381,15 +399,21 @@ const JobManagement = () => {
                 multiline
                 rows={4}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Employment Type"
-                name="employment_type"
-                value={jobData.employment_type}
-                onChange={handleChange}
-                required
-              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Employment Type</InputLabel>
+                <Select
+                  name="employment_type"
+                  value={jobData.employment_type}
+                  onChange={handleChange}
+                  required
+                >
+                  {EMPLOYMENT_TYPE_CHOICES.map((type) => (
+                    <MenuItem key={type.value} value={type.value}>
+                      {type.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <TextField
                 fullWidth
                 margin="normal"
@@ -430,14 +454,21 @@ const JobManagement = () => {
                 type="date"
                 InputLabelProps={{ shrink: true }}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Experience Level"
-                name="experience_level"
-                value={jobData.experience_level}
-                onChange={handleChange}
-              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Experience Level</InputLabel>
+                <Select
+                  name="experience_level"
+                  value={jobData.experience_level}
+                  onChange={handleChange}
+                  required
+                >
+                  {EXPERIENCE_LEVEL_CHOICES.map((level) => (
+                    <MenuItem key={level.value} value={level.value}>
+                      {level.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <TextField
                 fullWidth
                 margin="normal"
