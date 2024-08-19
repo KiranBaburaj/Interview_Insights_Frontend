@@ -308,7 +308,9 @@ const JobManagement = () => {
       .catch((err) => setError(err.message || 'An error occurred while updating the job status.'));
   };
 
-  const filteredJobs = jobs.filter((job) => job.employer == userid);
+  const filteredJobs = jobs
+  .filter((job) => job.employer === userid)
+  .sort((a, b) => (a.status === 'open' ? -1 : 1)); // Sort "open" jobs first
 
   if (categoriesStatus === 'loading' || jobsStatus === 'loading') {
     return (

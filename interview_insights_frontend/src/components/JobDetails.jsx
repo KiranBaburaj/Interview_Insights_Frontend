@@ -95,6 +95,7 @@ const theme = createTheme({
 
 const JobDetails = () => {
   const role = useSelector((state) => state.auth.role); 
+  const isLoggedIn = useSelector((state) => !!state.auth.user); // Check if user is logged in
   const { jobId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -117,6 +118,9 @@ const JobDetails = () => {
   const [savingStatus, setSavingStatus] = useState({});
 
   useEffect(() => {
+    // Reset success message on component mount and when the job or application status changes
+    setShowSuccess(false);
+    
     if (!job && jobStatus === 'idle') {
       dispatch(fetchJobById(jobId));
     }
@@ -147,10 +151,17 @@ const JobDetails = () => {
       setShowSuccess(true);
       const timer = setTimeout(() => setShowSuccess(false), 5000);
       return () => clearTimeout(timer);
+    } else {
+      setShowSuccess(false); // Reset on failure or other status
     }
   }, [applicationStatus]);
 
   const handleApply = () => {
+    if (!isLoggedIn) {
+      navigate('/login'); // Redirect to login if user is not logged in
+      return;
+    }
+
     setIsApplying(true);
     const resume = useProfileResume ? userProfile.resume : customResume;
     dispatch(applyForJob({ jobId, resume, cover_letter: coverLetter, use_profile_resume: useProfileResume }));
@@ -161,6 +172,11 @@ const JobDetails = () => {
   };
 
   const handleChat = () => {
+    if (!isLoggedIn) {
+      navigate('/login'); // Redirect to login if user is not logged in
+      return;
+    }
+
     if (userid && job.employer) {
       dispatch(createChatRoom({ jobseekerId: userid, employerId: job.employer }))
         .unwrap()
@@ -174,6 +190,11 @@ const JobDetails = () => {
   };
 
   const handleSaveJob = async (job) => {
+    if (!isLoggedIn) {
+      navigate('/login'); // Redirect to login if user is not logged in
+      return;
+    }
+
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'loading' }));
     if (isJobSaved(job.id)) {
       await dispatch(unsaveJob(job.id));
@@ -252,36 +273,36 @@ const JobDetails = () => {
           <CardContent>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>Job Description</Typography>
+                <Typography variant="h6" gutterBottom>Job Description</Typography>
                 <Typography variant="body1">{job.description}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="h6" gutterBottom>
                   <CalendarToday sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Posted on:  </Typography>
-                  <Typography variant="body1" color="textSecondary">{isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}
+                  Posted on: 
                 </Typography>
+                <Typography variant="body1" color="textSecondary">{isPostedDateValid ? postedDate.toLocaleDateString() : 'Invalid date'}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="h6" gutterBottom>
                   <DateRange sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Application Deadline: </Typography>
-                  <Typography variant="body1" color="textSecondary"> {isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}
+                  Application Deadline: 
                 </Typography>
+                <Typography variant="body1" color="textSecondary">{isDeadlineDateValid ? deadlineDate.toLocaleDateString() : 'Invalid date'}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="h6" gutterBottom>
                   <LocationOn sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Location: </Typography>
-                  <Typography variant="body1" color="textSecondary"> {job.location}
+                  Location: 
                 </Typography>
+                <Typography variant="body1" color="textSecondary">{job.location}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="h6" gutterBottom>
                   <AttachMoney sx={{ verticalAlign: 'middle', fontSize: iconSize }} /> 
-                  Salary:  </Typography>
-                  <Typography variant="body1" color="textSecondary">{job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()}
+                  Salary: 
                 </Typography>
+                <Typography variant="body1" color="textSecondary">{job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="h6" gutterBottom>
@@ -341,11 +362,6 @@ const JobDetails = () => {
                 </Grid>
               )}
               <Grid item xs={12}>
-                {showError && (
-                  <Alert severity="error" onClose={() => setShowError(false)}>
-                    {applicationError || userApplicationStatus.error}
-                  </Alert>
-                )}
                 {showSuccess && (
                   <Alert severity="success" onClose={() => setShowSuccess(false)}>
                     Application submitted successfully!
@@ -383,7 +399,6 @@ const JobDetails = () => {
                     variant="contained"
                     color="secondary"
                     onClick={handleChat}
-                    disabled={!job.employer || !userid}
                   >
                     Chat with Employer
                   </Button>

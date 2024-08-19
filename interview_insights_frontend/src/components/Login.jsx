@@ -81,9 +81,15 @@ const Login = () => {
       </Box>
       <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
+
+        <Box sx={{ mt: 2 }}>
+              <GoogleLoginButton />
+            </Box>
+            
           <Typography component="h2" variant="h6" align="center" sx={{ mb: 2 }}>
             Login
           </Typography>
+          
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -130,9 +136,7 @@ const Login = () => {
                 Sign up
               </MuiLink>
             </Typography>
-            <Box sx={{ mt: 2 }}>
-              <GoogleLoginButton />
-            </Box>
+         
           </Box>
         </Paper>
       </Box>

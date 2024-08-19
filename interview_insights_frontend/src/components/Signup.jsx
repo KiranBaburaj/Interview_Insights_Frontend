@@ -31,8 +31,23 @@ const SignupForm = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading, error, role } = useSelector((state) => state.auth);
   const [openError, setOpenError] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is already logged in
+    if (role) {
+      if (role === 'jobseeker') {
+        navigate('/dashboard/jobseeker');
+      } else if (role === 'employer') {
+        navigate('/EmployerCompanyManagement');
+      } else if (role === 'recruiter') {
+        navigate('/dashboard/recruiter');
+      } else if (role === 'admin') {
+        navigate('/admindashboard');
+      }
+    }
+  }, [role, navigate]);
 
   useEffect(() => {
     if (error) {
@@ -81,29 +96,20 @@ const SignupForm = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Box sx={{ mt: 8, textAlign: 'center' }}>
-        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} /></Link>
         <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
           Welcome to Interview Insights
         </Typography>
       </Box>
       <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-      
-        <Box sx={{ mt: 2 }}>
-              <GoogleLoginButton/>
-            </Box>   
+          <Box sx={{ mt: 2 }}>
+            <GoogleLoginButton />
+          </Box>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
-            
-
-            
-          </Typography>
-          <Typography component="h1" variant="h5" align="center" gutterBottom>
-            
-
             Sign Up
           </Typography>
-
-       
           <Box component="form" onSubmit={handleSignupAndSendOTP} sx={{ mt: 2 }}>
             <TextField
               margin="normal"
@@ -152,7 +158,6 @@ const SignupForm = () => {
               >
                 <MenuItem value="job_seeker">Job Seeker</MenuItem>
                 <MenuItem value="employer">Employer</MenuItem>
-   
               </Select>
             </FormControl>
             <Button
@@ -172,11 +177,10 @@ const SignupForm = () => {
                 Log in
               </MuiLink>
             </Typography>
-            
           </Box>
         </Paper>
       </Box>
-   
+
       <Snackbar
         open={openError}
         autoHideDuration={5000}
