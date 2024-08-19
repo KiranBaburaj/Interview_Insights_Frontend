@@ -1,0 +1,8 @@
+# Handle line endings for all text files
+* text=auto
+
+# Ensure LF for shell scripts
+*.sh text eol=lf
+
+# Handle specific cases for files in node_modules (optional)
+/node_modules/* binary
