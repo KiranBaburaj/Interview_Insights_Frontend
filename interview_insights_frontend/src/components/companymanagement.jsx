@@ -178,17 +178,20 @@ const CompanyManagement = () => {
                 value={companyData.company_size}
                 onChange={handleChange}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                id="founded_date"
-                name="founded_date"
-                label="Founded Date"
-                type="date"
-                variant="outlined"
-                value={companyData.founded_date}
-                onChange={handleChange}
-              />
+             <TextField
+  fullWidth
+  margin="normal"
+  id="founded_date"
+  name="founded_date"
+  label="Founded Date"
+  type="date"
+  variant="outlined"
+  value={companyData.founded_date}
+  onChange={handleChange}
+  inputProps={{
+    max: new Date().toISOString().split("T")[0], // Prevent future dates
+  }}
+/>
               <TextField
                 fullWidth
                 margin="normal"

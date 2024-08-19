@@ -220,6 +220,7 @@ const authSlice = createSlice({
         localStorage.setItem('refreshToken', action.payload.refreshToken);
         localStorage.setItem('role', action.payload.role);
         localStorage.setItem('user', action.payload.user);
+        localStorage.setItem('userid', action.payload.user.id);
         localStorage.setItem('full_name', action.payload.user.full_name);
         localStorage.setItem('companyDetailsSubmitted', action.payload.companyDetailsSubmitted);
       })

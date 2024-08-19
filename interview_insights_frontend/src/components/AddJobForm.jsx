@@ -446,16 +446,19 @@ const JobManagement = () => {
                 control={<Checkbox checked={jobData.is_remote} onChange={handleChange} name="is_remote" />}
                 label="Remote"
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Application Deadline"
-                name="application_deadline"
-                value={jobData.application_deadline}
-                onChange={handleChange}
-                type="date"
-                InputLabelProps={{ shrink: true }}
-              />
+         <TextField
+  fullWidth
+  margin="normal"
+  label="Application Deadline"
+  name="application_deadline"
+  value={jobData.application_deadline}
+  onChange={handleChange}
+  type="date"
+  InputLabelProps={{ shrink: true }}
+  inputProps={{
+    min: new Date().toISOString().split("T")[0], // Get today's date in YYYY-MM-DD format
+  }}
+/>
               <FormControl fullWidth margin="normal">
                 <InputLabel>Experience Level</InputLabel>
                 <Select

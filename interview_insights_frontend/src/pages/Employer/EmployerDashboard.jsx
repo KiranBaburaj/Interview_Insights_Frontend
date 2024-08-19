@@ -35,6 +35,7 @@ const EmployerDashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const { userid } = useSelector((state) => state.auth);
   const employerId = userid; 
+  console.log(employerId)
 
   const jobs = useSelector(selectAllJobs);
   const applicants = useSelector((state) => state.applicants.applicants);
