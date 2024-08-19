@@ -88,9 +88,22 @@ const SignupForm = () => {
       </Box>
       <Box sx={{ mt: 2 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
+      
+        <Box sx={{ mt: 2 }}>
+              <GoogleLoginButton/>
+            </Box>   
           <Typography component="h1" variant="h5" align="center" gutterBottom>
+            
+
+            
+          </Typography>
+          <Typography component="h1" variant="h5" align="center" gutterBottom>
+            
+
             Sign Up
           </Typography>
+
+       
           <Box component="form" onSubmit={handleSignupAndSendOTP} sx={{ mt: 2 }}>
             <TextField
               margin="normal"
@@ -160,11 +173,10 @@ const SignupForm = () => {
               </MuiLink>
             </Typography>
             
-          </Box>     <Box sx={{ mt: 2 }}>
-              <GoogleLoginButton/>
-            </Box>
+          </Box>
         </Paper>
       </Box>
+   
       <Snackbar
         open={openError}
         autoHideDuration={5000}
