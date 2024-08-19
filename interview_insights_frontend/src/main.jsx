@@ -15,7 +15,7 @@ console.log("Origin:", window.location.origin); // Check the origin here
 
 root.render(
   <Provider store={store}>
-  <GoogleOAuthProvider clientId={'250807523474-f1r1ch6t4t0lgi42ar72ce3svngss5d5.apps.googleusercontent.com'}>
+  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
 
       <Router>
         <App />
