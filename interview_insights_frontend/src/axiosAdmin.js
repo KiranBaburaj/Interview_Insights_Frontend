@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const axiosAdmin = axios.create({
-  baseURL: 'http://localhost:8000/',  // Adjust baseURL as per your API endpoint
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',  // Adjust baseURL as per your API endpoint
   withCredentials: true,  // Enable if you need to send cookies or authentication headers with cross-origin requests
 });
 

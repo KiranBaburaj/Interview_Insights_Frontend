@@ -1,17 +1,20 @@
 // src/MyComponent.jsx
 import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
-import logo from '../assets/logo.PNG'; // Adjust the path as necessary
+import { Box, CircularProgress, Typography, Avatar } from '@mui/material';
 
 const MyComponent = () => {
+    const avatarImageUrl = '/logo.PNG'; // Path to your logo
+
     return (
-        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
-            <Avatar src={logo} sx={{ width: 56, height: 56, margin: 'auto' }} />
-            <Typography variant="h6" sx={{ mt: 2 }}>
-                Welcome to My Component!
+        <Box sx={{ position: 'relative', textAlign: 'center', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
+            <CircularProgress size={160} sx={{ position: 'absolute', top: '50%', left: '50%', margin: '-30px 0 0 -30px' }} />
+            <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto', position: 'relative', zIndex: 1 }} />
+           
+            <Typography variant="h6" sx={{ marginTop: '10px' }}>
+            Interview Insights
             </Typography>
-            <Typography variant="body1">
-                You've successfully loaded this component dynamically.
+            <Typography variant="h6" sx={{ marginTop: '200px' }}>
+                Loading...
             </Typography>
         </Box>
     );

@@ -29,7 +29,7 @@ const MyComponent = lazy(() => import('./MyComponent')); // Lazy load MyComponen
 
 const App = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<MyComponent />}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
