@@ -17,7 +17,7 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
     return notificationSocket;
   }
 
-  const notificationSocket = new WebSocket(`wss://www.interviewinsights.site/ws/notifications/${userId}/?token=${token}`);
+   notificationSocket = new WebSocket(`wss://www.interviewinsights.site/ws/notifications/${userId}/?token=${token}`);
 
 
   notificationSocket.onopen = () => {
