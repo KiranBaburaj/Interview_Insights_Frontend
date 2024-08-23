@@ -17,7 +17,8 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
     return notificationSocket;
   }
 
-  notificationSocket = new WebSocket(`ws://localhost:8000/ws/notifications/${userId}/?token=${token}`);
+  const notificationSocket = new WebSocket(`wss://www.interviewinsights.site/ws/notifications/${userId}/?token=${token}`);
+
 
   notificationSocket.onopen = () => {
     console.log('Notification WebSocket connection established.');
