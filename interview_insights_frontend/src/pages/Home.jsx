@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchJobs, 
-  selectAllJobs, 
-  saveJob, 
-  unsaveJob, 
-  fetchSavedJobs, 
+import {
+  fetchJobs,
+  selectAllJobs,
+  saveJob,
+  unsaveJob,
+  fetchSavedJobs,
   selectSavedJobs,
   fetchMatchingJobs,
-  selectMatchingJobs
+  selectMatchingJobs,
 } from '../features/jobs/jobsSlice';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Container, 
-  TextField, 
-  Button, 
-  Grid, 
-  Card, 
+import {
+  Container,
+  TextField,
+  Button,
+  Grid,
+  Card,
   CardContent,
   CardActions,
   Box,
@@ -29,13 +29,14 @@ import {
   Pagination,
   MenuItem,
   Slider,
-  Paper
+  Paper,
+  ThemeProvider,
+  createTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import Navbar from '../components/Navbar';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 // Create a custom theme
 const theme = createTheme({
@@ -49,19 +50,21 @@ const theme = createTheme({
     text: {
       primary: '#212121',
       secondary: '#757575',
-    }
+    },
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',
     h4: {
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
+      fontSize: '1.5rem', // Adjusted for mobile
     },
     h6: {
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
+      fontSize: '1.25rem', // Adjusted for mobile
     },
-  }
+  },
 });
 
 const Home = () => {
@@ -72,13 +75,13 @@ const Home = () => {
   const matchingJobs = useSelector(selectMatchingJobs);
   const jobsStatus = useSelector((state) => state.jobs.status);
   const jobsError = useSelector((state) => state.jobs.error);
-  const { user, role } = useSelector((state) => state.auth); // Get user and role from auth state
+  const { user, role } = useSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [employmentType, setEmploymentType] = useState('');
   const [experienceLevel, setExperienceLevel] = useState('');
   const [salaryRange, setSalaryRange] = useState([0, 500000]);
-  const [isRemote, setIsRemote] = useState(false); // New state for remote filter
+  const [isRemote, setIsRemote] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
@@ -90,13 +93,13 @@ const Home = () => {
   useEffect(() => {
     if (showSavedOnly && role !== 'employer') {
       if (!user) {
-        navigate('/login'); // Redirect to login if user is not logged in
+        navigate('/login');
         return;
       }
       dispatch(fetchSavedJobs());
     } else if (showMatchingOnly && role !== 'employer') {
       if (!user) {
-        navigate('/login'); // Redirect to login if user is not logged in
+        navigate('/login');
         return;
       }
       dispatch(fetchMatchingJobs());
@@ -148,12 +151,12 @@ const Home = () => {
   };
 
   const isJobSaved = (jobId) => {
-    return savedJobs.some(savedJob => savedJob.job === jobId);
+    return savedJobs.some((savedJob) => savedJob.job === jobId);
   };
 
   const handleSaveJob = async (job) => {
     if (!user) {
-      navigate('/login'); // Redirect to login if user is not logged in
+      navigate('/login');
       return;
     }
 
@@ -170,19 +173,22 @@ const Home = () => {
   const today = new Date().toISOString().split('T')[0];
 
   // Filter logic for displayed jobs
-  const displayedJobs = showSavedOnly && role !== 'employer'
-    ? jobs.filter(job => isJobSaved(job.id))
-    : showMatchingOnly && role !== 'employer'
-    ? matchingJobs
-    : jobs.filter(job =>
-        job.status === 'open' &&
-        job.application_deadline >= today &&
-        (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
-        (employmentType === '' || job.employment_type === employmentType) &&
-        (experienceLevel === '' || job.experience_level === experienceLevel) &&
-        (parseFloat(job.salary_min) >= salaryRange[0] && parseFloat(job.salary_max) <= salaryRange[1]) &&
-        (!isRemote || job.is_remote) // Apply remote filter
-      );
+  const displayedJobs =
+    showSavedOnly && role !== 'employer'
+      ? jobs.filter((job) => isJobSaved(job.id))
+      : showMatchingOnly && role !== 'employer'
+      ? matchingJobs
+      : jobs.filter(
+          (job) =>
+            job.status === 'open' &&
+            job.application_deadline >= today &&
+            (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
+            (employmentType === '' || job.employment_type === employmentType) &&
+            (experienceLevel === '' || job.experience_level === experienceLevel) &&
+            (parseFloat(job.salary_min) >= salaryRange[0] &&
+              parseFloat(job.salary_max) <= salaryRange[1]) &&
+            (!isRemote || job.is_remote)
+        );
 
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
@@ -194,10 +200,13 @@ const Home = () => {
     <ThemeProvider theme={theme}>
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Box sx={{ display: 'flex', mb: 4 }}>
-          <Box sx={{ width: '25%', pr: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 4 }}>
+          {/* Filters */}
+          <Box sx={{ width: { xs: '100%', sm: '25%' }, mb: { xs: 2, sm: 0 }, pr: { sm: 2 } }}>
             <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>Filters</Typography>
+              <Typography variant="h6" gutterBottom>
+                Filters
+              </Typography>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle1">Employment Type</Typography>
                 <TextField
@@ -257,17 +266,13 @@ const Home = () => {
               <Box sx={{ mb: 2 }}>
                 <FormControlLabel
                   control={
-                    <Checkbox
-                      checked={isRemote}
-                      onChange={handleIsRemoteChange}
-                      color="primary"
-                    />
+                    <Checkbox checked={isRemote} onChange={handleIsRemoteChange} color="primary" />
                   }
                   label="Remote Jobs"
                 />
               </Box>
               {role !== 'employer' && (
-                <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -293,15 +298,28 @@ const Home = () => {
             </Paper>
           </Box>
 
+          {/* Job Search Section */}
           <Box sx={{ flexGrow: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, px: 3, py: 2, backgroundColor: '#e0f7fa', borderRadius: 2, boxShadow: 1 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                mb: 4,
+                px: 3,
+                py: 2,
+                backgroundColor: '#e0f7fa',
+                borderRadius: 2,
+                boxShadow: 1,
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}
+            >
               <TextField
                 fullWidth
                 variant="outlined"
                 placeholder="Search for jobs..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                sx={{ mr: 2 }}
+                sx={{ mr: { sm: 2 }, mb: { xs: 2, sm: 0 } }}
                 size="small"
               />
               <TextField
@@ -309,19 +327,18 @@ const Home = () => {
                 placeholder="Location..."
                 value={locationQuery}
                 onChange={handleLocationChange}
-                sx={{ mr: 2 }}
+                sx={{ mr: { sm: 2 }, mb: { xs: 2, sm: 0 } }}
                 size="small"
               />
               <Button
                 variant="contained"
                 startIcon={<SearchIcon />}
                 onClick={handleSearch}
-                size="small"
                 sx={{
                   borderRadius: '20px',
                   px: 3,
                   '&:hover': { backgroundColor: '#004d40' },
-                  transition: 'background-color 0.3s'
+                  transition: 'background-color 0.3s',
                 }}
               >
                 Search
@@ -329,7 +346,7 @@ const Home = () => {
             </Box>
 
             <Typography variant="h4" gutterBottom align="center" sx={{ mb: 4 }}>
-              {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Featured Jobs'}
+              {showSavedOnly ? 'Saved Jobs' : showMatchingOnly ? 'Matching Jobs' : 'Jobs'}
             </Typography>
 
             {jobsStatus === 'loading' ? (
@@ -353,7 +370,7 @@ const Home = () => {
                         '&:hover': {
                           transform: 'scale(1.05)',
                           boxShadow: 12,
-                        }
+                        },
                       }}
                     >
                       <Link to={`/job/${job.id}`} style={{ textDecoration: 'none' }}>
@@ -402,7 +419,16 @@ const Home = () => {
         </Box>
       </Container>
 
-      <Box component="footer" sx={{ bgcolor: 'background.paper', p: 4, mt: 6, textAlign: 'center', borderTop: '1px solid #e0e0e0' }}>
+      <Box
+        component="footer"
+        sx={{
+          bgcolor: 'background.paper',
+          p: 4,
+          mt: 6,
+          textAlign: 'center',
+          borderTop: '1px solid #e0e0e0',
+        }}
+      >
         <Typography variant="body2" color="text.secondary">
           © 2024 Job Portal. All rights reserved.
         </Typography>
