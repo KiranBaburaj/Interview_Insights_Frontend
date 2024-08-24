@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  TextField, Button, Container, Grid, Typography, Paper, Avatar, Card, CardContent, CardMedia, CardActionArea,
-  Select, MenuItem, FormControl, InputLabel, IconButton, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+  TextField, Button, Container, Grid, Typography, Paper, Avatar, Card, CardContent, CardMedia,
+  Select, MenuItem, FormControl, InputLabel, IconButton, Chip, Divider
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -35,7 +35,6 @@ const Profile = () => {
     dispatch(fetchApplications());
     dispatch(fetchInterviews());
     dispatch(fetchFeedback());
-    
   }, [dispatch]);
 
   useEffect(() => {
@@ -236,61 +235,78 @@ const Profile = () => {
           <strong>Approved:</strong> {feedback.is_approved ? 'Yes' : 'No'}
         </Typography>
         <Button
-          variant="contained"
-          color={feedback.is_approved ? 'secondary' : 'primary'}
-          onClick={handleToggleApproval}
-        >
-          {feedback.is_approved ? 'Unapprove' : 'Approve'}
-        </Button>
+  variant="contained"
+  sx={{ backgroundColor: feedback.is_approved ? 'green' : 'red', color: 'white' }}
+  onClick={handleToggleApproval}
+>
+  {feedback.is_approved ? 'Feedback Shown in my public profile' : 'Feedback Hidden in my public profile'}
+</Button>
       </div>
     );
   };
-
   const renderApplications = () => (
     <div>
-      <Typography variant="h6" style={{ marginTop: '16px' }}>
+      <Typography variant="h6" style={{ marginTop: '16px', fontWeight: 'bold', color: '#333' }}>
         Job Applications
       </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Company</TableCell>
-              <TableCell>Job Title</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Date Applied</TableCell>
-              <TableCell>Interview</TableCell>
-              <TableCell>Feedback</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {applications.map((application) => {
-              const interview = getInterviewForApplication(application.id);
-              const feedback = interview ? getFeedbackForInterview(interview.id) : null;
-              return (
-                <TableRow key={application.id}>
-                  <TableCell>{application.job_details.company.name}</TableCell>
-                  <TableCell>{application.job_details.title}</TableCell>
-                  <TableCell><Chip label={application.status} /></TableCell>
-                  <TableCell>{new Date(application.applied_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
+      <Grid container spacing={2}>
+        {applications.map((application) => {
+          const interview = getInterviewForApplication(application.id);
+          const feedback = interview ? getFeedbackForInterview(interview.id) : null;
+  
+          return (
+            <Grid item xs={12} sm={6} md={4} key={application.id}>
+              <Card 
+                sx={{ 
+                  mb: 2, 
+                  p: 3, 
+                  borderRadius: 8, 
+                  transition: '0.3s', 
+                  '&:hover': { boxShadow: 10 },
+                  height: '350px', 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#f9f9f9', // Light background
+                }} 
+              >
+                <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#00796b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {application.job_details.title}
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    Company: {application.job_details.company.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ marginTop: 1 }}>
+                    Status: <Chip label={application.status} sx={{ bgcolor: '#00796b', color: 'white' }} />
+                  </Typography>
+                  <Typography variant="body2" sx={{ marginTop: 1 }}>
+                    Date Applied: {new Date(application.applied_at).toLocaleDateString()}
+                  </Typography>
+                  <div style={{ flexGrow: 1 }} /> {/* Spacer to push interview details down */}
+                  {/*  <Typography variant="body2" sx={{ marginTop: 1 }}>
                     {interview ? (
-                      <>
+                      <div>
+                        <strong>Interview Scheduled:</strong>
                         <div>Date: {new Date(interview.scheduled_time).toLocaleDateString()}</div>
                         <div>Time: {new Date(interview.scheduled_time).toLocaleTimeString()}</div>
                         <div>Location: {interview.location}</div>
-                      </>
-                    ) : 'No interview scheduled'}
-                  </TableCell>
-                  <TableCell>
+                      </div>
+                    ) : (
+                      'No interview scheduled'
+                    )}
+                  </Typography>*/}
+                </CardContent>
+                <CardContent sx={{ flexShrink: 0 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {feedback ? renderFeedback(feedback) : 'No feedback available'}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
     </div>
   );
 
@@ -300,7 +316,7 @@ const Profile = () => {
 
   return (
     <Container component="main" maxWidth="md">
-      <Paper elevation={3} style={{ padding: '16px' }}>
+      <Paper elevation={3} sx={{ padding: 4 }}>
         <Typography variant="h4" gutterBottom>
           Profile
         </Typography>
@@ -700,8 +716,8 @@ const Profile = () => {
           </form>
         ) : (
           <div>
-            <Card>
-              <CardActionArea>
+            <Card sx={{ mb: 2, p: 2, borderRadius: 3, transition: '.1s', '&:hover': { boxShadow: 6 } }}>
+              <CardContent>
                 <CardMedia
                   component="img"
                   height="200"
@@ -715,101 +731,99 @@ const Profile = () => {
                     margin: 'auto'
                   }}
                 />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {formData.full_name}
-                  </Typography>
+                <Typography gutterBottom variant="h5" component="div">
+                  {formData.full_name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Phone Number:</strong> {formData.phone_number}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Date of Birth:</strong> {formData.date_of_birth}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Bio:</strong> {formData.bio}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>LinkedIn URL:</strong> <a href={formData.linkedin_url}>{formData.linkedin_url}</a>
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Portfolio URL:</strong> <a href={formData.portfolio_url}>{formData.portfolio_url}</a>
+                </Typography>
+                {resumeURL && (
                   <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Phone Number:</strong> {formData.phone_number}
+                    <strong>Resume:</strong> <a href={resumeURL} target="_blank" rel="noopener noreferrer">View Resume</a>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Date of Birth:</strong> {formData.date_of_birth}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Bio:</strong> {formData.bio}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>LinkedIn URL:</strong> <a href={formData.linkedin_url}>{formData.linkedin_url}</a>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Portfolio URL:</strong> <a href={formData.portfolio_url}>{formData.portfolio_url}</a>
-                  </Typography>
-                  {resumeURL && (
+                )}
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Current Job Title:</strong> {formData.current_job_title}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  <strong>Job Preferences:</strong> {formData.job_preferences}
+                </Typography>
+
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Education</Typography>
+                {educations.map((education, index) => (
+                  <div key={index}>
                     <Typography variant="body2" color="textSecondary" component="p">
-                      <strong>Resume:</strong> <a href={resumeURL} target="_blank" rel="noopener noreferrer">View Resume</a>
+                      <strong>{education.degree_type} in {education.field_of_study}</strong>
                     </Typography>
-                  )}
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Current Job Title:</strong> {formData.current_job_title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    <strong>Job Preferences:</strong> {formData.job_preferences}
-                  </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      {education.institution}, {education.location}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      {education.start_date} - {education.end_date}
+                    </Typography>
+                    {education.grade_or_gpa && (
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        Grade/GPA: {education.grade_or_gpa}
+                      </Typography>
+                    )}
+                    {education.description && (
+                      <Typography variant="body2" color="textSecondary" component="p">
+                        {education.description}
+                      </Typography>
+                    )}
+                  </div>
+                ))}
 
-                  <Typography variant="h6" style={{ marginTop: '16px' }}>Education</Typography>
-                  {educations.map((education, index) => (
-                    <div key={index}>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        <strong>{education.degree_type} in {education.field_of_study}</strong>
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        {education.institution}, {education.location}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        {education.start_date} - {education.end_date}
-                      </Typography>
-                      {education.grade_or_gpa && (
-                        <Typography variant="body2" color="textSecondary" component="p">
-                          Grade/GPA: {education.grade_or_gpa}
-                        </Typography>
-                      )}
-                      {education.description && (
-                        <Typography variant="body2" color="textSecondary" component="p">
-                          {education.description}
-                        </Typography>
-                      )}
-                    </div>
-                  ))}
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
+                {workExperiences.map((experience, index) => (
+                  <div key={index}>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <strong>{experience.job_title}</strong>
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      {experience.company_name}, {experience.company_location}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      {experience.start_date} - {experience.end_date}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      Technologies: {experience.technologies_used}
+                    </Typography>
+                  </div>
+                ))}
 
-                  <Typography variant="h6" style={{ marginTop: '16px' }}>Work Experience</Typography>
-                  {workExperiences.map((experience, index) => (
-                    <div key={index}>
+                <Typography variant="h6" style={{ marginTop: '16px' }}>Skills</Typography>
+                {skills.map((skill, index) => (
+                  <div key={index}>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <strong>{skill.skill_name}</strong> - {skill.proficiency_level}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      Years of Experience: {skill.years_of_experience}
+                    </Typography>
+                    {skill.certification && (
                       <Typography variant="body2" color="textSecondary" component="p">
-                        <strong>{experience.job_title}</strong>
+                        Certification: {skill.certification}
                       </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        {experience.company_name}, {experience.company_location}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        {experience.start_date} - {experience.end_date}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        Technologies: {experience.technologies_used}
-                      </Typography>
-                    </div>
-                  ))}
-
-                  <Typography variant="h6" style={{ marginTop: '16px' }}>Skills</Typography>
-                  {skills.map((skill, index) => (
-                    <div key={index}>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        <strong>{skill.skill_name}</strong> - {skill.proficiency_level}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        Years of Experience: {skill.years_of_experience}
-                      </Typography>
-                      {skill.certification && (
-                        <Typography variant="body2" color="textSecondary" component="p">
-                          Certification: {skill.certification}
-                        </Typography>
-                      )}
-                      <Typography variant="body2" color="textSecondary" component="p">
-                        Type: {skill.skill_type}
-                      </Typography>
-                    </div>
-                  ))}
-                </CardContent>
-              </CardActionArea>
+                    )}
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      Type: {skill.skill_type}
+                    </Typography>
+                  </div>
+                ))}
+              </CardContent>
             </Card>
             {renderApplications()}
             <Button

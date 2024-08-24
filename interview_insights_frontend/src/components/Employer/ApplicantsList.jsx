@@ -11,13 +11,6 @@ import {
   Divider,
   TextField,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
   Button,
   Avatar,
   CssBaseline,
@@ -26,7 +19,12 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
+  DialogTitle,Table,
+  Grid,  IconButton,TableContainer, TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  useMediaQuery
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -35,7 +33,6 @@ import EmployerNavbar from '../EmployerNavbar';
 import { createChatRoom } from '../../features/chat/chatSlice';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-// Create a custom theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -66,9 +63,9 @@ const ApplicantsList = () => {
   const error = useSelector((state) => state.applicants.error);
   const navigate = useNavigate();
   const userid = useSelector((state) => state.auth.userid);
-  // State for modal
   const [open, setOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     dispatch(fetchApplicants(jobId));
@@ -76,7 +73,7 @@ const ApplicantsList = () => {
 
   const handleStatusChange = (applicantId, newStatus) => {
     dispatch(updateApplicantStatus({ applicantId, status: newStatus })).then(() => {
-      dispatch(fetchApplicants(jobId)); // Re-fetch applicants to get the updated status
+      dispatch(fetchApplicants(jobId));
     });
   };
 
@@ -95,16 +92,13 @@ const ApplicantsList = () => {
 
   const handleDownloadResume = (resumeUrl) => {
     window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${resumeUrl}`, '_blank');
-
   };
 
-  // Open the modal
   const handleClickOpen = (applicant) => {
     setSelectedApplicant(applicant);
     setOpen(true);
   };
 
-  // Close the modal
   const handleClose = () => {
     setOpen(false);
     setSelectedApplicant(null);
@@ -154,38 +148,23 @@ const ApplicantsList = () => {
                 </Box>
               </Box>
               <Divider />
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Full Name</TableCell>
-                      <TableCell>Hiring Stage</TableCell>
-                      <TableCell>Applied Date</TableCell>
-                      <TableCell>Schedule</TableCell>
-                      <TableCell>Action</TableCell>
-                      <TableCell>Chat</TableCell>
-                      <TableCell>Profile</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {applicants.map((applicant) => (
-                      <TableRow key={applicant.id}>
-                        <TableCell>
+              {isMobile ? (
+                <Grid container spacing={2}>
+                  {applicants.map((applicant) => (
+                    <Grid item xs={12} key={applicant.id}>
+                      <Card variant="outlined" sx={{ mb: 2 }}>
+                        <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Avatar
-                            
-                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${applicant.job_seeker.profile_photo}`}
-                              alt={applicant.job_seeker.user.full_name}
-                              sx={{ mr: 2, width: 40, height: 40 }}
-                            />
-                            {applicant.job_seeker.user.full_name}
+                            <Avatar src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${applicant.job_seeker.profile_photo}`}
+                              alt={applicant.job_seeker.user.full_name} sx={{ mr: 2 }} />
+                            <Typography variant="body1">{applicant.job_seeker.user.full_name}</Typography>
                           </Box>
-                        </TableCell>
-                        <TableCell>
                           <Select
                             value={applicant.status || 'N/A'}
                             onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
                             variant="outlined"
+                            fullWidth
+                            sx={{ mt: 2 }}
                           >
                             <MenuItem value="applied">Applied</MenuItem>
                             <MenuItem value="reviewed">Reviewed</MenuItem>
@@ -194,36 +173,99 @@ const ApplicantsList = () => {
                             <MenuItem value="hired">Hired</MenuItem>
                             <MenuItem value="rejected">Rejected</MenuItem>
                           </Select>
-                        </TableCell>
-                        <TableCell>{new Date(applicant.applied_at).toLocaleDateString()}</TableCell>
-                        <TableCell>
                           <Button
                             variant="outlined"
                             onClick={() => handleDownloadResume(applicant.resume)}
+                            sx={{ mt: 2 }}
                           >
                             See Application
                           </Button>
-                        </TableCell>
-                        <TableCell>
                           <Button
                             variant="contained"
                             color="primary"
                             onClick={() => navigate(`/schedule-interview/${applicant.id}`)}
+                            sx={{ mt: 2, ml: 1 }}
                           >
                             Schedule Interview
                           </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button onClick={() => handleChat(applicant.job_seeker.user.id)}> Chat</Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button onClick={() => handleClickOpen(applicant)}>Profile</Button>
-                        </TableCell>
+                          <Button onClick={() => handleChat(applicant.job_seeker.user.id)} sx={{ mt: 2, ml: 1 }}> Chat</Button>
+                          <Button onClick={() => handleClickOpen(applicant)} sx={{ mt: 2, ml: 1 }}>Profile</Button>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Full Name</TableCell>
+                        <TableCell>Hiring Stage</TableCell>
+                        <TableCell>Applied Date</TableCell>
+                        <TableCell>Schedule</TableCell>
+                        <TableCell>Action</TableCell>
+                        <TableCell>Chat</TableCell>
+                        <TableCell>Profile</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {applicants.map((applicant) => (
+                        <TableRow key={applicant.id}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Avatar
+                                src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${applicant.job_seeker.profile_photo}`}
+                                alt={applicant.job_seeker.user.full_name}
+                                sx={{ mr: 2, width: 40, height: 40 }}
+                              />
+                              {applicant.job_seeker.user.full_name}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={applicant.status || 'N/A'}
+                              onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
+                              variant="outlined"
+                            >
+                              <MenuItem value="applied">Applied</MenuItem>
+                              <MenuItem value="reviewed">Reviewed</MenuItem>
+                              <MenuItem value="interview_scheduled">Interview Scheduled</MenuItem>
+                              <MenuItem value="interviewed">Interviewed</MenuItem>
+                              <MenuItem value="hired">Hired</MenuItem>
+                              <MenuItem value="rejected">Rejected</MenuItem>
+                            </Select>
+                          </TableCell>
+                          <TableCell>{new Date(applicant.applied_at).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleDownloadResume(applicant.resume)}
+                            >
+                              See Application
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={() => navigate(`/schedule-interview/${applicant.id}`)}
+                            >
+                              Schedule Interview
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button onClick={() => handleChat(applicant.job_seeker.user.id)}> Chat</Button>
+                          </TableCell>
+                          <TableCell>
+                            <Button onClick={() => handleClickOpen(applicant)}>Profile</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
             </CardContent>
           </Card>
 
@@ -235,9 +277,7 @@ const ApplicantsList = () => {
                 <div>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Avatar
-                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${selectedApplicant.job_seeker.profile_photo}`}
-
-                     
+                      src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${selectedApplicant.job_seeker.profile_photo}`}
                       alt={selectedApplicant.job_seeker.user.full_name}
                       sx={{ mr: 2, width: 80, height: 80 }}
                     />
@@ -285,7 +325,7 @@ const ApplicantsList = () => {
                   <Typography variant="h6" style={{ marginTop: '16px' }}>Interview Feedback</Typography>
                   {selectedApplicant.job_seeker.interview_feedback && selectedApplicant.job_seeker.interview_feedback.length > 0 ? (
                     selectedApplicant.job_seeker.interview_feedback
-                      .filter(feedback => feedback.is_approved) // Filter for approved feedback
+                      .filter(feedback => feedback.is_approved)
                       .map((feedback) => {
                         const interviewSchedule = selectedApplicant.job_seeker.interview_schedule?.find(schedule => schedule.id === feedback.interview_schedule);
                         const jobApplication = selectedApplicant.job_seeker.myapplications?.find(application => application.id === selectedApplicant.id);
@@ -295,10 +335,8 @@ const ApplicantsList = () => {
                         return (
                           <div key={feedback.id}>
                             <Typography variant="body1"><strong>Stage:</strong> {feedback.stage}</Typography>
-                          
                             <Typography variant="body1"><strong>Feedback:</strong> {feedback.feedback}</Typography>
                             <Typography variant="body1"><strong>Provided At:</strong> {new Date(feedback.provided_at).toLocaleDateString()}</Typography>
-                          
                             {jobDetails && companyDetails && (
                               <div>
                                 <Typography variant="body1"><strong>Job Title:</strong> {jobDetails.title}</Typography>
