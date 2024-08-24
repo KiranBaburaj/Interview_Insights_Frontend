@@ -25,6 +25,7 @@ import NotificationList from './NotificationList';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
+
 const drawerWidth = 240;
 
 const EmployerNavbar = () => {

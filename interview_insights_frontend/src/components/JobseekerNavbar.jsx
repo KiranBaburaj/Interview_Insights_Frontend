@@ -24,10 +24,13 @@ import { clearError } from '../features/auth/authSlice';
 import NotificationList from './NotificationList';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
 const JobseekerNavbar = () => {
+
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { full_name } = useSelector((state) => state.auth);
   const theme = useTheme();
@@ -39,7 +42,7 @@ const JobseekerNavbar = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('role');
-    window.location.replace('/login');
+    navigate('/login');
   };
 
   const avatarImageUrl = '/logo.PNG'; // Path to avatar image

@@ -7,10 +7,12 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearError } from '../../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
 const AdminNavbar = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { full_name } = useSelector((state) => state.auth); // Assuming user information is in auth state
 
@@ -19,7 +21,7 @@ const AdminNavbar = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('role');
-    window.location.replace('/login');
+    navigate('/login');
   };
 
   const avatarImageUrl = '/logo.PNG'; // Path to avatar image
