@@ -20,7 +20,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError } from '../features/auth/authSlice';
+import { clearError,logout } from '../features/auth/authSlice';
 import NotificationList from './NotificationList';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -38,10 +38,8 @@ const JobseekerNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = () => {
+    dispatch(logout());
     dispatch(clearError());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
     navigate('/login');
   };
 

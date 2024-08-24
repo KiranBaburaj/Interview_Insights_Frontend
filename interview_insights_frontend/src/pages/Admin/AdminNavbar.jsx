@@ -6,7 +6,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError } from '../../features/auth/authSlice';
+import { clearError ,logout} from '../../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
@@ -17,10 +17,9 @@ const AdminNavbar = () => {
   const { full_name } = useSelector((state) => state.auth); // Assuming user information is in auth state
 
   const handleLogout = () => {
+  
+    dispatch(logout());
     dispatch(clearError());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
     navigate('/login');
   };
 
