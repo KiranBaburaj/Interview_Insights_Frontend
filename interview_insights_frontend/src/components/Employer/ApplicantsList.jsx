@@ -66,7 +66,6 @@ const ApplicantsList = () => {
   const error = useSelector((state) => state.applicants.error);
   const navigate = useNavigate();
   const userid = useSelector((state) => state.auth.userid);
-
   // State for modal
   const [open, setOpen] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
@@ -95,7 +94,8 @@ const ApplicantsList = () => {
   };
 
   const handleDownloadResume = (resumeUrl) => {
-    window.open(`http://localhost:8000${resumeUrl}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${resumeUrl}`, '_blank');
+
   };
 
   // Open the modal
@@ -173,7 +173,8 @@ const ApplicantsList = () => {
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Avatar
-                              src={`http://localhost:8000${applicant.job_seeker.profile_photo}`}
+                            
+                            src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${applicant.job_seeker.profile_photo}`}
                               alt={applicant.job_seeker.user.full_name}
                               sx={{ mr: 2, width: 40, height: 40 }}
                             />
@@ -234,7 +235,9 @@ const ApplicantsList = () => {
                 <div>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <Avatar
-                      src={`http://localhost:8000${selectedApplicant.job_seeker.profile_photo}`}
+                    src={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}${selectedApplicant.job_seeker.profile_photo}`}
+
+                     
                       alt={selectedApplicant.job_seeker.user.full_name}
                       sx={{ mr: 2, width: 80, height: 80 }}
                     />
