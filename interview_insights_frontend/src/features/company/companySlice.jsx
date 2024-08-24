@@ -3,11 +3,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../axiosConfig';
 
-const apiUrl = 'http://localhost:8000/api';  // Django API URL
+const apiUrl = import.meta.env.VITE_API_URL   // Django API URL
 
 export const fetchCompanies = createAsyncThunk('company/fetchCompanies', async (_, thunkAPI) => {
   try {
-    const response = await axios.get(`${apiUrl}/companies/`, {
+    const response = await axios.get(`${apiUrl}/api/companies/`, {
       headers: {
         Authorization: `Bearer ${thunkAPI.getState().auth.adminAccessToken}`
       }
@@ -20,7 +20,7 @@ export const fetchCompanies = createAsyncThunk('company/fetchCompanies', async (
 
 export const createCompany = createAsyncThunk('company/createCompany', async (companyData, thunkAPI) => {
   try {
-    const response = await axios.post(`${apiUrl}/companies/`, companyData, {
+    const response = await axios.post(`${apiUrl}/api/companies/`, companyData, {
       headers: {
         Authorization: `Bearer ${thunkAPI.getState().auth.accessToken}`
       }
@@ -33,7 +33,7 @@ export const createCompany = createAsyncThunk('company/createCompany', async (co
 
 export const approveCompany = createAsyncThunk('company/approveCompany', async (companyId, thunkAPI) => {
     try {
-      const response = await axios.patch(`${apiUrl}/companies/${companyId}/`, { is_approved: true }, {
+      const response = await axios.patch(`${apiUrl}/api/companies/${companyId}/`, { is_approved: true }, {
         headers: {
           Authorization: `Bearer ${thunkAPI.getState().auth.accessToken}`
         }
@@ -49,7 +49,7 @@ export const approveCompany = createAsyncThunk('company/approveCompany', async (
 export const updateCompany = createAsyncThunk('company/updateCompany', async (companyData, thunkAPI) => {
   try {
     const { id, ...rest } = companyData;
-    const response = await axios.put(`${apiUrl}/companies/${id}/`, rest, {
+    const response = await axios.put(`${apiUrl}/api/companies/${id}/`, rest, {
       headers: {
         Authorization: `Bearer ${thunkAPI.getState().auth.accessToken}`
       }
