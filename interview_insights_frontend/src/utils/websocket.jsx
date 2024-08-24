@@ -16,7 +16,8 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
   }
 
 
-  socket = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/?token=${token}`);
+  socket = new WebSocket(`wss://www.interview-insights.site/ws/chat/${roomId}/?token=${token}`);
+
 
   socket.onopen = () => {
     console.log('WebSocket connection established.');
