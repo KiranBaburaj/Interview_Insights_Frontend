@@ -163,10 +163,7 @@ const Navbar = () => {
 
                       {user ? (
                         <>
-                          <MenuItem onClick={() => navigate('/profile')} sx={{ color: theme.palette.text.menu }}>
-                            <AccountCircleIcon sx={{ mr: 1 }} />
-                            Profile
-                          </MenuItem>
+             
                           <MenuItem onClick={handleLogout} sx={{ color: theme.palette.text.menu }}>
                             <ExitToAppIcon sx={{ mr: 1 }} />
                             Logout
