@@ -15,13 +15,7 @@ import {
   Button,
   TextField,
   IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Grid,
   Chip,
   Avatar,
   Select,
@@ -29,23 +23,24 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { useTheme } from '@mui/material/styles';
 
 const MyApplications = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+  const theme = useTheme();
+
   const applications = useSelector((state) => state.myapplications.applications);
   const applicationsStatus = useSelector((state) => state.myapplications.status);
   const applicationsError = useSelector((state) => state.myapplications.error);
-  
+
   const interviews = useSelector((state) => state.interviews.interviews);
   const interviewsStatus = useSelector((state) => state.interviews.status);
   const interviewsError = useSelector((state) => state.interviews.error);
-  
+
   const currentFeedback = useSelector((state) => state.interviews.currentFeedback);
-  
   const userid = useSelector((state) => state.auth.userid);
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredApplications, setFilteredApplications] = useState(applications);
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -121,33 +116,29 @@ const MyApplications = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4">My Applications</Typography>
-      <Card sx={{ mt: 2, mb: 2 }}>
-        <CardContent>
-          {/* Additional content can go here */}
-        </CardContent>
-      </Card>
-  
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', my: 2 }}>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Typography variant="h4" align="center" sx={{ mb: 2, color: '#004d40' }}>My Applications</Typography>
+      <Divider sx={{ mb: 2, backgroundColor: '#004d40' }} />
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <TextField
           placeholder="Search Jobs"
           variant="outlined"
           size="small"
-          sx={{ mr: 2 }}
+          sx={{ flexGrow: 1, mr: 1, borderRadius: 2 }}
           InputProps={{
             startAdornment: <SearchIcon />,
           }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        
+
         <Select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
           displayEmpty
           variant="outlined"
           size="small"
-          sx={{ mr: 2 }}
+          sx={{ mr: 1, minWidth: 120, borderRadius: 2 }}
         >
           <MenuItem value="">
             <em>All Status</em>
@@ -165,88 +156,88 @@ const MyApplications = () => {
           <FilterListIcon />
         </IconButton>
       </Box>
-      <Divider />
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>Company Name</TableCell>
-              <TableCell>Roles</TableCell>
-              <TableCell>Date Applied</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Interview</TableCell>
-              <TableCell>Feedback</TableCell>
-              <TableCell>Action</TableCell>
-              <TableCell>Chat</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredApplications.map((application, index) => {
-              const interview = getInterviewForApplication(application.id);
-              const interviewFeedback = interview ? getFeedbackForInterview(interview.id) : null;
-              return (
-                <TableRow key={application.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+
+      <Grid container spacing={2}>
+        {filteredApplications.map((application) => {
+          const interview = getInterviewForApplication(application.id);
+          const interviewFeedback = interview ? getFeedbackForInterview(interview.id) : null;
+
+          return (
+            <Grid item xs={12} sm={6} md={4} key={application.id}>
+              <Card sx={{ mb: 2, p: 2, borderRadius: 7, transition: '.1s', '&:hover': { boxShadow: 20 }, height: 360 }}>
+                <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Avatar
                         src={application.job_details.company.logoUrl}
                         alt={application.job_details.company.name}
-                        sx={{ mr: 2 }}
+                        sx={{ mr: 2, width: 56, height: 56 }}
                       />
-                      {application.job_details.company.name}
+                      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#004d40' }}>{application.job_details.company.name}</Typography>
                     </Box>
-                  </TableCell>
-                  <TableCell>{application.job_details.title}</TableCell>
-                  <TableCell>
-                    {new Date(application.applied_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={application.status} />
-                  </TableCell>
-                  <TableCell>
-                    {interview ? (
-                      <Box>
-                        <Typography variant="body2">
-                          {new Date(interview.scheduled_time).toLocaleDateString()} at {new Date(interview.scheduled_time).toLocaleTimeString()}
-                        </Typography>
-                        <Typography variant="body2">{interview.location}</Typography>
-                      </Box>
-                    ) : (
-                      'No Interview Scheduled'
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {interviewFeedback ? (
-                      <Box>
-                        <Typography variant="body2">Score: {interviewFeedback.score}</Typography>
-                        <Typography variant="body2">Feedback: {interviewFeedback.feedback}</Typography>
-                        <Typography variant="body2">Stage: {interviewFeedback.stage}</Typography>
-                      </Box>
-                    ) : (
-                      'No Feedback Available'
-                    )}
-                  </TableCell>
-                  <TableCell>
+                    <Typography variant="subtitle1">{application.job_details.title}</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      Applied on: {new Date(application.applied_at).toLocaleDateString()}
+                    </Typography>
+                    <Chip label={application.status} sx={{ mt: 1, bgcolor: '#00796b', color: 'white' }} />
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="body2">
+                      {interview ? (
+                        <Box>
+                          Scheduled: {new Date(interview.scheduled_time).toLocaleString()}
+                          <br />
+                          Location: {interview.location}
+                        </Box>
+                      ) : (
+                        <Box sx={{ color: 'text.secondary', fontStyle: 'italic' }}>No Interview Scheduled</Box>
+                      )}
+                    </Typography>
+                    <Typography variant="body2">
+                      {interviewFeedback ? (
+                        <Box>
+                          Score: {interviewFeedback.score}
+                          <br />
+                          Feedback: {interviewFeedback.feedback}
+                        </Box>
+                      ) : (
+                        <Box sx={{ color: 'text.secondary', fontStyle: 'italic' }}>No Feedback Available</Box>
+                      )}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
                     <Button
                       variant="outlined"
                       onClick={() => handleDownloadResume(application.resume)}
+                      size="small"
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: '#b2dfdb', color: '#004d40' }
+                      }}
                     >
                       See Application
                     </Button>
-                  </TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleChat(userid, application.job_details.employer)}>
+                    <Button
+                      variant="contained"
+                      onClick={() => handleChat(userid, application.job_details.employer)}
+                      size="small"
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        backgroundColor: '#00796b',
+                        color: 'white',
+                        '&:hover': { backgroundColor: '#004d40', color: '#fff' }
+                      }}
+                    >
                       Chat
                     </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
     </Container>
   );
 };
