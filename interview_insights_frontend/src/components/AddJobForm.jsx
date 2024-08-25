@@ -111,6 +111,7 @@ const JobManagement = () => {
   });
 
   const { userid } = useSelector((state) => state.auth);
+  console.log(userid)
   const { user } = useSelector((state) => state.auth);
   const [openDialog, setOpenDialog] = useState(false);
   const [newCategory, setNewCategory] = useState('');
@@ -125,6 +126,7 @@ const JobManagement = () => {
   const categoriesStatus = useSelector((state) => state.jobCategories.status);
   const categoriesError = useSelector((state) => state.jobCategories.error);
   const jobs = useSelector(selectAllJobs);
+  console.log(jobs)
   const jobsStatus = useSelector((state) => state.jobs.status);
 
   useEffect(() => {
@@ -165,7 +167,7 @@ const JobManagement = () => {
     e.preventDefault();
     setError(null);
 
-    if (!user || !user.id) {
+    if (!userid) {
       console.error('User data is missing or incomplete');
       setError('User data is missing. Please try logging in again.');
       return;
@@ -173,7 +175,7 @@ const JobManagement = () => {
 
     const jobDataToSend = {
       ...jobData,
-      employer: user.id,
+      employer: userid,
     };
 
     if (jobData.id) {
@@ -309,8 +311,9 @@ const JobManagement = () => {
   };
 
   const filteredJobs = jobs
-  .filter((job) => job.employer === userid)
+  .filter((job) => job.employer == userid)
   .sort((a, b) => (a.status === 'open' ? -1 : 1)); // Sort "open" jobs first
+  console.log(filteredJobs)
 
   if (categoriesStatus === 'loading' || jobsStatus === 'loading') {
     return (
