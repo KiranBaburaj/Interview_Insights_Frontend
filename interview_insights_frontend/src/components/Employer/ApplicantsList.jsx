@@ -328,7 +328,9 @@ const ApplicantsList = () => {
                       .filter(feedback => feedback.is_approved)
                       .map((feedback) => {
                         const interviewSchedule = selectedApplicant.job_seeker.interview_schedule?.find(schedule => schedule.id === feedback.interview_schedule);
-                        const jobApplication = selectedApplicant.job_seeker.myapplications?.find(application => application.id === selectedApplicant.id);
+                        console.log(interviewSchedule)
+                        const jobApplication = selectedApplicant.job_seeker.myapplications?.find(application => application.id === interviewSchedule.job_application);
+                        const nterviewSchedule = selectedApplicant.job_seeker.interview_schedule?.find(schedule => schedule.id === feedback.interview_schedule);
                         const jobDetails = jobApplication ? jobApplication.job_details : null;
                         const companyDetails = jobDetails ? jobDetails.company : null;
 
