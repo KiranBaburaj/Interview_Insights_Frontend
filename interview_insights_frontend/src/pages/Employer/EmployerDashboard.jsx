@@ -68,11 +68,13 @@ const EmployerDashboard = () => {
       (!dateRange[1] || postedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
   });
+  console.log(filteredJobs)
+  console.log(applicants)
 
   const filteredApplicants = applicants.filter((applicant) => {
     const appliedDate = dayjs(applicant.applied_at);
     return (
-      applicant.job_details.employer==employerId &&
+      applicant.job_details.employer == employerId &&
       (!dateRange[0] || appliedDate.isAfter(dayjs(dateRange[0]).subtract(1, 'day'))) &&
       (!dateRange[1] || appliedDate.isBefore(dayjs(dateRange[1]).add(1, 'day')))
     );
