@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from '../axiosConfig';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -12,12 +13,15 @@ import {
 } from '@mui/material';
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+    const handleLoginRedirect = () => {
+    navigate('/login');}
 
   const handleRequestOtp = async () => {
     setLoading(true);
@@ -75,7 +79,9 @@ const ForgotPassword = () => {
               {loading ? <CircularProgress size={24} /> : 'Request OTP'}
             </Button>
             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Remembered your password? <Link href="/login">Log in here</Link>
+              Remembered your password?   <Button onClick={handleLoginRedirect} color="primary">
+        Log in here
+      </Button>
             </Typography>
           </Box>
         )}
