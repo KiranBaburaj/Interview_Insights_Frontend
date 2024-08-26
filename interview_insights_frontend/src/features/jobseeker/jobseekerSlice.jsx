@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getJobSeekers, getJobSeeker, createJobSeeker, updateJobSeeker, deleteJobSeeker } from '../../api';
+import { getJobSeekers, getJobSeeker, createJobSeeker, updateJobSeeker, deleteUser } from '../../api';
 import axiosInstance from '../../axiosConfig'; // Adjust the path
 
 
@@ -24,7 +24,7 @@ export const editJobSeeker = createAsyncThunk('jobSeeker/editJobSeeker', async (
 });
 
 export const removeJobSeeker = createAsyncThunk('jobSeeker/removeJobSeeker', async (id) => {
-  await deleteJobSeeker(id);
+  await deleteUser(id);
   return id;
 });
 

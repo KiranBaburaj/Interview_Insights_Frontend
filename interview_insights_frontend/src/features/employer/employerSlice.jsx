@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getEmployers, getEmployer, createEmployer, updateEmployer, deleteEmployer } from '../../api';
+import { getEmployers, getEmployer, createEmployer, updateEmployer, deleteUser } from '../../api';
 
 // Async thunks for CRUD operations
 export const fetchEmployers = createAsyncThunk('employer/fetchEmployers', async () => {
@@ -23,7 +23,7 @@ export const editEmployer = createAsyncThunk('employer/editEmployer', async ({ i
 });
 
 export const removeEmployer = createAsyncThunk('employer/removeEmployer', async (id) => {
-  await deleteEmployer(id);
+  await deleteUser(id);
   return id;
 });
 
