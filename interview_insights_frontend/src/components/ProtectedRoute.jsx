@@ -6,6 +6,8 @@ import { useSelector } from 'react-redux';
 const ProtectedRoute = ({ children, roleRequired, checkCompanyDetails }) => {
   const { role, companyDetailsSubmitted } = useSelector((state) => state.auth);
 
+  console.log(companyDetailsSubmitted)
+
   if (!role || role !== roleRequired) {
     // Redirect to login if user is not authenticated or does not have the required role
     return <Navigate to="/login" />;

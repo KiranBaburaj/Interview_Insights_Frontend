@@ -146,7 +146,7 @@ export const fetchRecruiters = createAsyncThunk(
 );
 
 const initialState = {
-  user:localStorage.getItem('user') || {},
+  user:localStorage.getItem('user') ||null ,
   role: localStorage.getItem('role') || null,
   accessToken: localStorage.getItem('accessToken') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
