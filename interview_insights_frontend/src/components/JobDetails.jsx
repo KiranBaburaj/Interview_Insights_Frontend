@@ -113,7 +113,7 @@ const JobDetails = () => {
   const [isApplying, setIsApplying] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [useProfileResume, setUseProfileResume] = useState(true);
+  const [useProfileResume, setUseProfileResume] = useState(false);
   const [customResume, setCustomResume] = useState(null);
   const [savingStatus, setSavingStatus] = useState({});
 
@@ -127,6 +127,13 @@ const JobDetails = () => {
     dispatch(fetchProfile());
   }, [job, jobId, dispatch, jobStatus]);
 
+
+  useEffect(() => {
+    if (userProfile && userProfile.resume) {
+      setUseProfileResume(true);
+    }
+  }, [userProfile]);
+  
   useEffect(() => {
     if (job) {
       dispatch(checkApplicationStatus(jobId));
