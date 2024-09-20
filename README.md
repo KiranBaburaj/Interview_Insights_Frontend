@@ -34,7 +34,7 @@ The platform also supports direct chat between job seekers and employers, with f
 - **Job Listings**: Search and filter job opportunities.
 - **Interview Feedback**: Post and view interview feedback from employers.
 - **Chat**: Real-time chat functionality between job seekers and employers.
-- - **Notification System**: Real-time notifications for chat and interview feedback.
+- **Notification System**: Real-time notifications for chat and interview feedback.
 - **Profile Management**: Job seekers can showcase their feedback and experiences.
 - **Responsive Design**: Optimized for both desktop and mobile use.
 - **Search and Filter**: Advanced filtering for job listings to match skills and location.
