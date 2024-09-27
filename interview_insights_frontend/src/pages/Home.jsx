@@ -281,7 +281,7 @@ const Home = () => {
                         color="primary"
                       />
                     }
-                    label="Saved Jobs"
+                    label="Saved Job"
                   />
                   <FormControlLabel
                     control={
