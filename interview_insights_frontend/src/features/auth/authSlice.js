@@ -186,6 +186,7 @@ const authSlice = createSlice({
       localStorage.removeItem('userid');
       localStorage.removeItem('full_name');
       localStorage.removeItem('companyDetailsSubmitted');
+      localStorage.removeItem('job_Id');
     }
   },
   extraReducers: (builder) => {
