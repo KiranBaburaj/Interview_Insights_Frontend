@@ -282,7 +282,7 @@ const Home = () => {
                       />
                     }
                     label="Saved Job"
-                  />
+                  /> {/* 
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -292,7 +292,7 @@ const Home = () => {
                       />
                     }
                     label="Matching Jobs"
-                  />
+                  /> */}
                 </Box>
               )}
             </Paper>
