@@ -108,7 +108,23 @@ const JobDetails = () => {
   const userApplicationStatus = useSelector(selectUserApplicationStatus);
   const userProfile = useSelector((state) => state.profile.data);
   const userid = useSelector(state => state.auth.userid);
+
+  // Add this state to track if a valid file is uploaded
+const [isValidFileUploaded, setIsValidFileUploaded] = useState(false);
+
+// Modify the file upload handler
+const handleFileUpload = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setCustomResume(file);
+    setIsValidFileUploaded(true);
+  } else {
+    setCustomResume(null);
+    setIsValidFileUploaded(false);
+  }
+};
   
+  console.log("hi", userProfile)
   const [coverLetter, setCoverLetter] = useState('');
   const [isApplying, setIsApplying] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -129,8 +145,10 @@ const JobDetails = () => {
 
 
   useEffect(() => {
-    if (userProfile && userProfile.resume) {
+    if (userProfile && userProfile.resume != null) {
       setUseProfileResume(true);
+    }else {
+      setUseProfileResume(false);  // Reset to false if there's no valid resume
     }
   }, [userProfile]);
   
@@ -379,29 +397,36 @@ const JobDetails = () => {
                     <Checkbox
                       checked={useProfileResume}
                       onChange={(e) => setUseProfileResume(e.target.checked)}
-                      disabled={isApplying || userApplicationStatus.hasApplied}
+                      disabled={isApplying || userApplicationStatus.hasApplied || !userProfile?.resume}
                     />
                   }
                   label="Use profile resume"
                 />
                 {!useProfileResume && (
-                  <TextField
-                    type="file"
-                    onChange={(e) => setCustomResume(e.target.files[0])}
-                    disabled={isApplying || userApplicationStatus.hasApplied}
-                    sx={{ mt: 2 }}
-                  />
+                <TextField
+                type="file"
+                onChange={handleFileUpload}
+                disabled={isApplying || userApplicationStatus.hasApplied}
+                sx={{ mt: 2 }}
+              />
                 )}
                 <Box sx={{ mt: 2 }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleApply}
-                    disabled={isApplying || userApplicationStatus.hasApplied}
-                    sx={{ mr: 2 }}
-                  >
-                    {userApplicationStatus.hasApplied ? 'Already Applied' : 'Apply Now'}
-                  </Button>
+                <Button
+  variant="contained"
+  color="primary"
+  onClick={handleApply}
+  disabled={
+    isApplying || 
+    userApplicationStatus.hasApplied || 
+    // Disable if using profile resume but no resume exists
+    (useProfileResume && !userProfile?.resume) ||
+    // Disable if not using profile resume and no file uploaded
+    (!useProfileResume && !isValidFileUploaded)
+  }
+  sx={{ mr: 2 }}
+>
+  {userApplicationStatus.hasApplied ? 'Already Applied' : 'Apply Now'}
+</Button>
                   <Button
                     variant="contained"
                     color="secondary"

@@ -15,8 +15,8 @@ export const connectWebSocket = (roomId, onMessageReceived, token) => {
     return socket;
   }
 
-
-  socket = new WebSocket(`wss://www.interview-insights.site/ws/chat/${roomId}/?token=${token}`);
+ {/* wss://www.interview-insights.site/ws/chat */}
+  socket = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/?token=${token}`);
 
 
   socket.onopen = () => {
