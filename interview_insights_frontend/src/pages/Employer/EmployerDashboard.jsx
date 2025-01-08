@@ -122,10 +122,11 @@ const EmployerDashboard = () => {
     applicationsByJob: {},
     applicationsByDate: {},
     statusDistribution: {
-      pending: 0,
-      reviewing: 0,
+      applied: 0,
+      reviewed: 0,
+      interview_scheduled: 0,
       interviewed: 0,
-      accepted: 0,
+      hired: 0,
       rejected: 0
     },
     skillsDistribution: {}
@@ -146,7 +147,10 @@ const EmployerDashboard = () => {
     applicantMetrics.applicationsByDate[dateKey]++;
 
     // Count applications by status
-    applicantMetrics.statusDistribution[applicant.status.toLowerCase()]++;
+    const status = applicant.status?.toLowerCase() || 'applied';
+    if (applicantMetrics.statusDistribution.hasOwnProperty(status)) {
+      applicantMetrics.statusDistribution[status]++;
+    }
 
     // Count skills (if available)
     if (applicant.job_seeker?.skills) {
@@ -159,18 +163,28 @@ const EmployerDashboard = () => {
     }
   });
 
+  // Update the status labels to be more readable
+  const statusLabels = {
+    applied: 'Applied',
+    reviewed: 'Reviewed',
+    interview_scheduled: 'Interview Scheduled',
+    interviewed: 'Interviewed',
+    hired: 'Hired',
+    rejected: 'Rejected'
+  };
+
+  const statusDistributionData = Object.entries(applicantMetrics.statusDistribution)
+    .filter(([_, count]) => count > 0)
+    .map(([status, count]) => ({
+      name: statusLabels[status] || status,
+      value: count
+    }));
+
   // Prepare chart data
   const applicationsByJobData = Object.entries(applicantMetrics.applicationsByJob).map(([job, count]) => ({
     name: job,
     value: count
   }));
-
-  const statusDistributionData = Object.entries(applicantMetrics.statusDistribution)
-    .filter(([_, count]) => count > 0)
-    .map(([status, count]) => ({
-      name: status.charAt(0).toUpperCase() + status.slice(1),
-      value: count
-    }));
 
   const timeSeriesData = Object.entries(applicantMetrics.applicationsByDate)
     .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
@@ -388,15 +402,7 @@ const EmployerDashboard = () => {
                 Object.values(aggregatedApplicants)
                   .flat()
                   .flatMap(applicant =>
-                    applicant.job_seeker.interview_schedule
-                      .filter(interview => {
-                        // Only include interviews for this employer's jobs
-                        const relatedApplication = applicant.job_seeker.myapplications?.find(
-                          app => app.id === interview.job_application
-                        );
-                        return relatedApplication && filteredJobs.some(job => job.id === relatedApplication.job);
-                      })
-                      .map(interview => interview.id)
+                    applicant.job_seeker.interview_schedule.map(interview => interview.id)
                   )
               )).map(interviewId => {
                 const applicant = Object.values(aggregatedApplicants)
