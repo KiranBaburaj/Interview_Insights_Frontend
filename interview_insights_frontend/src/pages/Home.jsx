@@ -71,6 +71,7 @@ const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const jobs = useSelector(selectAllJobs);
+  console.log(jobs)
   const savedJobs = useSelector(selectSavedJobs);
   const matchingJobs = useSelector(selectMatchingJobs);
   const jobsStatus = useSelector((state) => state.jobs.status);
@@ -190,6 +191,7 @@ const Home = () => {
             (!isRemote || job.is_remote)
         );
 
+        console.log(displayedJobs)
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;

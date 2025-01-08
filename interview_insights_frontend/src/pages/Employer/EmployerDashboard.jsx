@@ -384,54 +384,75 @@ const EmployerDashboard = () => {
               Upcoming Interviews
             </Typography>
             <List>
-              {Object.values(aggregatedApplicants).flat().flatMap(applicant =>
-                applicant.job_seeker.interview_schedule
-                  .filter(interview => 
-                    dayjs(interview.scheduled_time).isAfter(dayjs()) || 
-                    dayjs(interview.scheduled_time).isSame(dayjs(), 'day')
+              {Array.from(new Set(
+                Object.values(aggregatedApplicants)
+                  .flat()
+                  .flatMap(applicant =>
+                    applicant.job_seeker.interview_schedule
+                      .filter(interview => {
+                        // Only include interviews for this employer's jobs
+                        const relatedApplication = applicant.job_seeker.myapplications?.find(
+                          app => app.id === interview.job_application
+                        );
+                        return relatedApplication && filteredJobs.some(job => job.id === relatedApplication.job);
+                      })
+                      .map(interview => interview.id)
                   )
-                  .map(interview => {
-                    const jobDetails = filteredJobs.find(job => 
-                      applicant.job_seeker.myapplications?.some(app => 
-                        app.job === job.id && app.id === interview.job_application
-                      )
-                    );
+              )).map(interviewId => {
+                const applicant = Object.values(aggregatedApplicants)
+                  .flat()
+                  .find(app => 
+                    app.job_seeker.interview_schedule.some(interview => 
+                      interview.id === interviewId
+                    )
+                  );
+                const interview = applicant.job_seeker.interview_schedule.find(int => int.id === interviewId);
+                
+                const jobDetails = filteredJobs.find(job => 
+                  applicant.job_seeker.myapplications?.some(app => 
+                    app.job === job.id && app.id === interview.job_application
+                  )
+                );
 
-                    return (
-                      <ListItem key={interview.id} divider>
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item xs={12} md={8}>
-                            <ListItemText
-                              primary={
-                                <Typography variant="subtitle1">
-                                  Interview with {applicant.job_seeker.user.full_name}
-                                </Typography>
-                              }
-                              secondary={
-                                <React.Fragment>
-                                  <Typography component="span" variant="body2" display="block">
-                                    Job: {jobDetails ? jobDetails.title : 'Unknown Job'}
-                                  </Typography>
-                                  <Typography component="span" variant="body2" display="block">
-                                    Date: {new Date(interview.scheduled_time).toLocaleString()}
-                                  </Typography>
-                                  <Typography component="span" variant="body2" display="block">
-                                    Location: {interview.location || 'TBD'}
-                                  </Typography>
-                                </React.Fragment>
-                              }
-                            />
-                          </Grid>
-                          <Grid item xs={12} md={4}>
-                            <Typography variant="body2" color="text.secondary">
-                              Duration: {interview.duration ? `${interview.duration} minutes` : 'Not Specified'}
+                if (!dayjs(interview.scheduled_time).isAfter(dayjs()) && 
+                    !dayjs(interview.scheduled_time).isSame(dayjs(), 'day')) {
+                  return null;
+                }
+
+                return (
+                  <ListItem key={interview.id} divider>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} md={8}>
+                        <ListItemText
+                          primary={
+                            <Typography variant="subtitle1">
+                              Interview with {applicant.job_seeker.user.full_name}
                             </Typography>
-                          </Grid>
-                        </Grid>
-                      </ListItem>
-                    );
-                  })
-              )}
+                          }
+                          secondary={
+                            <React.Fragment>
+                              <Typography component="span" variant="body2" display="block">
+                                Job: {jobDetails ? jobDetails.title : 'Unknown Job'}
+                              </Typography>
+                              <Typography component="span" variant="body2" display="block">
+                                Date: {new Date(interview.scheduled_time).toLocaleString()}
+                              </Typography>
+                              <Typography component="span" variant="body2" display="block">
+                                Location: {interview.location || 'TBD'}
+                              </Typography>
+                            </React.Fragment>
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Typography variant="body2" color="text.secondary">
+                          Duration: {interview.duration ? `${interview.duration} minutes` : 'Not Specified'}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                );
+              })}
               {Object.values(aggregatedApplicants).flat().every(applicant => 
                 applicant.job_seeker.interview_schedule.length === 0
               ) && (
