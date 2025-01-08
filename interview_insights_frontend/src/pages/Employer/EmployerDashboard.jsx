@@ -402,7 +402,16 @@ const EmployerDashboard = () => {
                 Object.values(aggregatedApplicants)
                   .flat()
                   .flatMap(applicant =>
-                    applicant.job_seeker.interview_schedule.map(interview => interview.id)
+                    applicant.job_seeker.interview_schedule
+                      .filter(interview => {
+                        // Find the job application associated with this interview
+                        const jobApplication = applicant.job_seeker.myapplications?.find(
+                          app => app.id === interview.job_application
+                        );
+                        // Only include if the job belongs to the current employer
+                        return jobApplication && filteredJobs.some(job => job.id === jobApplication.job);
+                      })
+                      .map(interview => interview.id)
                   )
               )).map(interviewId => {
                 const applicant = Object.values(aggregatedApplicants)
