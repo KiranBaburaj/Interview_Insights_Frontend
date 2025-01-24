@@ -42,14 +42,22 @@ import Navbar from '../components/Navbar';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#00796b',
+      main: '#4a148c', // Darker purple
+      light: '#7c43bd',
+      dark: '#12005e',
     },
     secondary: {
-      main: '#b2dfdb',
+      main: '#6a1b9a', // Deep purple
+      light: '#9c4dcc',
+      dark: '#38006b',
     },
     text: {
-      primary: '#212121',
-      secondary: '#757575',
+      primary: '#12005e', // Very dark purple
+      secondary: '#4a148c', // Dark purple
+    },
+    background: {
+      default: '#ffffff',
+      paper: '#f6f2ff',
     },
   },
   typography: {
@@ -57,12 +65,14 @@ const theme = createTheme({
     h4: {
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
-      fontSize: '1.5rem', // Adjusted for mobile
+      fontSize: '1.5rem',
+      color: '#4a148c',
     },
     h6: {
       fontFamily: 'Montserrat, sans-serif',
       fontWeight: 'bold',
-      fontSize: '1.25rem', // Adjusted for mobile
+      fontSize: '1.25rem',
+      color: '#6a1b9a',
     },
   },
 });
@@ -309,9 +319,9 @@ const Home = () => {
                 mb: 4,
                 px: 3,
                 py: 2,
-                backgroundColor: '#e0f7fa',
+                backgroundColor: '#ede7f6', // Light purple background
                 borderRadius: 2,
-                boxShadow: 1,
+                boxShadow: '0 2px 4px rgba(74, 20, 140, 0.2)',
                 flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
@@ -339,7 +349,7 @@ const Home = () => {
                 sx={{
                   borderRadius: '20px',
                   px: 3,
-                  '&:hover': { backgroundColor: '#004d40' },
+                  '&:hover': { backgroundColor: '#4a148c' },
                   transition: 'background-color 0.3s',
                 }}
               >
@@ -367,11 +377,12 @@ const Home = () => {
                       elevation={4}
                       sx={{
                         borderRadius: 2,
-                        backgroundColor: isJobSaved(job.id) ? '#b2ebf2' : 'white',
+                        backgroundColor: isJobSaved(job.id) ? '#ede7f6' : '#ffffff',
                         transition: 'background-color 0.3s, transform 0.3s',
                         '&:hover': {
                           transform: 'scale(1.05)',
                           boxShadow: 12,
+                          backgroundColor: isJobSaved(job.id) ? '#d1c4e9' : '#f8f6fa',
                         },
                       }}
                     >
@@ -393,10 +404,16 @@ const Home = () => {
                         {role !== 'employer' && (
                           <IconButton
                             onClick={() => handleSaveJob(job)}
-                            sx={{ ml: 'auto' }}
+                            sx={{ 
+                              ml: 'auto',
+                              color: isJobSaved(job.id) ? '#4a148c' : '#757575',
+                              '&:hover': {
+                                color: '#6a1b9a'
+                              }
+                            }}
                             disabled={savingStatus[job.id] === 'loading'}
                           >
-                            {isJobSaved(job.id) ? <BookmarkIcon color="primary" /> : <BookmarkBorderIcon />}
+                            {isJobSaved(job.id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                           </IconButton>
                         )}
                       </CardActions>
@@ -424,15 +441,15 @@ const Home = () => {
       <Box
         component="footer"
         sx={{
-          bgcolor: 'background.paper',
+          bgcolor: '#f6f2ff',
           p: 4,
           mt: 6,
           textAlign: 'center',
-          borderTop: '1px solid #e0e0e0',
+          borderTop: '1px solid #6a1b9a',
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          © 2024 Job Portal. All rights reserved.
+          2024 Job Portal. All rights reserved.
         </Typography>
       </Box>
     </ThemeProvider>

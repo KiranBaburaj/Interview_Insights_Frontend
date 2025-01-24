@@ -89,6 +89,8 @@ REACT_APP_GOOGLE_CLIENT_ID=your_google_oauth_client_id
 
 ```bash
 npm start
+
+npm run dev -- --port 3000
 ```
 
 This will start the frontend on `http://localhost:3000`. Ensure that the backend is running on the configured URL.

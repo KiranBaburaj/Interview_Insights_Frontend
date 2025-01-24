@@ -30,14 +30,22 @@ import NotificationList from './NotificationList';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#00796b', // Deep teal for primary color
+      main: '#4a148c', // Darker purple
+      light: '#7c43bd',
+      dark: '#12005e',
     },
     secondary: {
-      main: '#b2dfdb', // Light teal for secondary color
+      main: '#6a1b9a', // Deep purple
+      light: '#9c4dcc',
+      dark: '#38006b',
     },
     text: {
       primary: '#ffffff', // White text for Navbar
-      menu: '#000000', // Black text for Menu Items
+      menu: '#12005e', // Dark purple text for Menu Items
+    },
+    background: {
+      default: '#ffffff',
+      paper: '#f6f2ff',
     },
   },
 });
@@ -90,29 +98,66 @@ const Navbar = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ 
+        background: 'linear-gradient(45deg, #4a148c 30%, #6a1b9a 90%)',
+        boxShadow: '0 3px 5px 2px rgba(74, 20, 140, 0.3)'
+      }}>
         <Container maxWidth="xl">
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar src={avatarImageUrl} sx={{ mr: 2 }} />
-              <Typography variant="h6" component="div" sx={{ display: { xs: 'none', md: 'block' }, color: 'white' }}>
+              <Avatar src={avatarImageUrl} sx={{ 
+                mr: 2, 
+                border: '2px solid #9c4dcc',
+                boxShadow: '0 0 4px rgba(156, 77, 204, 0.5)'
+              }} />
+              <Typography 
+                variant="h6" 
+                component="div" 
+                sx={{ 
+                  display: { xs: 'none', md: 'block' }, 
+                  color: 'white',
+                  fontWeight: 600,
+                  letterSpacing: '0.5px',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+                }}>
                 Interview Insights
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 4 }}>
-                <Button color="inherit" onClick={() => navigate('/')} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
+                <Button color="inherit" onClick={() => navigate('/')} sx={{ 
+                  '&:hover': { 
+                    backgroundColor: '#6a1b9a', 
+                    transition: 'all 0.3s ease' 
+                  },
+                  borderRadius: '8px',
+                  mx: 0.5,
+                }}>
                   <HomeIcon sx={{ mr: 1 }} />
                   Home
                 </Button>
 
-                <Button color="inherit" onClick={handleChatNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
+                <Button color="inherit" onClick={handleChatNavigation} sx={{ 
+                  '&:hover': { 
+                    backgroundColor: '#6a1b9a', 
+                    transition: 'all 0.3s ease' 
+                  },
+                  borderRadius: '8px',
+                  mx: 0.5,
+                }}>
                   <ChatIcon sx={{ mr: 1 }} />
                   Chat
                 </Button>
 
-                <Button color="inherit" onClick={handleDashboardNavigation} sx={{ '&:hover': { backgroundColor: '#004d40', transition: '0.3s' } }}>
+                <Button color="inherit" onClick={handleDashboardNavigation} sx={{ 
+                  '&:hover': { 
+                    backgroundColor: '#6a1b9a', 
+                    transition: 'all 0.3s ease' 
+                  },
+                  borderRadius: '8px',
+                  mx: 0.5,
+                }}>
                   <DashboardIcon sx={{ mr: 1 }} />
                   Dashboard
                 </Button>
@@ -126,7 +171,12 @@ const Navbar = () => {
                 color="inherit"
                 aria-label="menu"
                 onClick={handleMenu}
-                sx={{ ml: 2 }}
+                sx={{ 
+                  ml: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(156, 77, 204, 0.2)'
+                  }
+                }}
               >
                 <MenuIcon />
               </IconButton>
@@ -145,20 +195,28 @@ const Navbar = () => {
                   }}
                   open={Boolean(anchorEl)}
                   onClose={handleClose}
+                  PaperProps={{
+                    sx: {
+                      bgcolor: '#f6f2ff',
+                      '& .MuiMenuItem-root:hover': {
+                        bgcolor: '#ede7f6',
+                      }
+                    }
+                  }}
                 >
                   <Slide direction="down" in={Boolean(anchorEl)} mountOnEnter unmountOnExit>
                     <Box>
-                      <MenuItem onClick={() => navigate('/')} sx={{ color: theme.palette.text.menu }}>
+                      <MenuItem onClick={() => navigate('/')} sx={{ color: theme.palette.text.menu, py: 1.5 }}>
                         <HomeIcon sx={{ mr: 1 }} />
                         Home
                       </MenuItem>
 
-                      <MenuItem onClick={handleChatNavigation} sx={{ color: theme.palette.text.menu }}>
+                      <MenuItem onClick={handleChatNavigation} sx={{ color: theme.palette.text.menu, py: 1.5 }}>
                         <ChatIcon sx={{ mr: 1 }} />
                         Chat
                       </MenuItem>
 
-                      <MenuItem onClick={handleDashboardNavigation} sx={{ color: theme.palette.text.menu }}>
+                      <MenuItem onClick={handleDashboardNavigation} sx={{ color: theme.palette.text.menu, py: 1.5 }}>
                         <DashboardIcon sx={{ mr: 1 }} />
                         Dashboard
                       </MenuItem>
@@ -166,13 +224,13 @@ const Navbar = () => {
                       {user ? (
                         <>
              
-                          <MenuItem onClick={handleLogout} sx={{ color: theme.palette.text.menu }}>
+                          <MenuItem onClick={handleLogout} sx={{ color: theme.palette.text.menu, py: 1.5 }}>
                             <ExitToAppIcon sx={{ mr: 1 }} />
                             Logout
                           </MenuItem>
                         </>
                       ) : (
-                        <MenuItem onClick={() => navigate('/login')} sx={{ color: theme.palette.text.menu }}>
+                        <MenuItem onClick={() => navigate('/login')} sx={{ color: theme.palette.text.menu, py: 1.5 }}>
                           <AccountCircleIcon sx={{ mr: 1 }} />
                           Login
                         </MenuItem>
