@@ -70,8 +70,6 @@ const Navbar = () => {
     handleClose();
   };
 
-  const avatarImageUrl = '/logo.PNG';
-
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="static" sx={{ 
@@ -80,23 +78,45 @@ const Navbar = () => {
       }}>
         <Container maxWidth="xl">
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar src={avatarImageUrl} sx={{ 
-                mr: 2, 
-                border: '2px solid #9c4dcc',
-                boxShadow: '0 0 4px rgba(156, 77, 204, 0.5)'
-              }} />
-              <Typography 
-                variant="h6" 
-                component="div" 
-                sx={{ 
-                  display: { xs: 'none', md: 'block' }, 
-                  color: 'white',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
-                }}>
-                Interview Insights
+            <Box 
+              component="a" 
+              href="/"
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                textDecoration: 'none',
+                mr: { xs: 2, md: 16 }
+              }}
+            >
+              <Box
+                component="img"
+                src="https://d3dxvti62y5mgw.cloudfront.net/ccp_logo_icon.webp"
+                alt="Navigation Logo"
+                sx={{
+                  width: { xs: '48px', '2xl': '96px' },
+                  height: 'auto',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              />
+              <Typography
+                variant="h4"
+                sx={{
+                  ml: 2,
+                  fontWeight: 800,
+                  fontFamily: 'sans-serif',
+                  fontSize: { xs: '1.875rem', '2xl': '3rem' },
+                  color: '#ffffff',
+                  '& .gradient-text': {
+                    background: 'linear-gradient(to top left, #2563eb, #7c3aed)', 
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }
+                }}
+              >
+                CC<span className="gradient-text">P</span>
               </Typography>
             </Box>
 
