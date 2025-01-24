@@ -30,52 +30,13 @@ import {
   MenuItem,
   Slider,
   Paper,
-  ThemeProvider,
-  createTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import Navbar from '../components/Navbar';
-
-// Create a custom theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#4a148c', // Darker purple
-      light: '#7c43bd',
-      dark: '#12005e',
-    },
-    secondary: {
-      main: '#6a1b9a', // Deep purple
-      light: '#9c4dcc',
-      dark: '#38006b',
-    },
-    text: {
-      primary: '#12005e', // Very dark purple
-      secondary: '#4a148c', // Dark purple
-    },
-    background: {
-      default: '#ffffff',
-      paper: '#f6f2ff',
-    },
-  },
-  typography: {
-    fontFamily: 'Roboto, sans-serif',
-    h4: {
-      fontFamily: 'Montserrat, sans-serif',
-      fontWeight: 'bold',
-      fontSize: '1.5rem',
-      color: '#4a148c',
-    },
-    h6: {
-      fontFamily: 'Montserrat, sans-serif',
-      fontWeight: 'bold',
-      fontSize: '1.25rem',
-      color: '#6a1b9a',
-    },
-  },
-});
+import { ThemeProvider } from '@mui/material';
+import theme from '../theme/theme';
 
 const Home = () => {
   const dispatch = useDispatch();

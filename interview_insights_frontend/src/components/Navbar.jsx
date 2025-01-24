@@ -13,7 +13,6 @@ import {
   Fade,
   Slide,
   ThemeProvider,
-  createTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
@@ -25,30 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
 import NotificationList from './NotificationList';
-
-// Create a custom theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#4a148c', // Darker purple
-      light: '#7c43bd',
-      dark: '#12005e',
-    },
-    secondary: {
-      main: '#6a1b9a', // Deep purple
-      light: '#9c4dcc',
-      dark: '#38006b',
-    },
-    text: {
-      primary: '#ffffff', // White text for Navbar
-      menu: '#12005e', // Dark purple text for Menu Items
-    },
-    background: {
-      default: '#ffffff',
-      paper: '#f6f2ff',
-    },
-  },
-});
+import theme from '../theme/theme';
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -99,8 +75,8 @@ const Navbar = () => {
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="static" sx={{ 
-        background: 'linear-gradient(45deg, #4a148c 30%, #6a1b9a 90%)',
-        boxShadow: '0 3px 5px 2px rgba(74, 20, 140, 0.3)'
+        background: theme.palette.common.purple.gradient,
+        boxShadow: theme.palette.common.purple.shadow
       }}>
         <Container maxWidth="xl">
           <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -128,7 +104,7 @@ const Navbar = () => {
               <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 4 }}>
                 <Button color="inherit" onClick={() => navigate('/')} sx={{ 
                   '&:hover': { 
-                    backgroundColor: '#6a1b9a', 
+                    backgroundColor: theme.palette.common.purple.hover, 
                     transition: 'all 0.3s ease' 
                   },
                   borderRadius: '8px',
@@ -140,7 +116,7 @@ const Navbar = () => {
 
                 <Button color="inherit" onClick={handleChatNavigation} sx={{ 
                   '&:hover': { 
-                    backgroundColor: '#6a1b9a', 
+                    backgroundColor: theme.palette.common.purple.hover, 
                     transition: 'all 0.3s ease' 
                   },
                   borderRadius: '8px',
@@ -152,7 +128,7 @@ const Navbar = () => {
 
                 <Button color="inherit" onClick={handleDashboardNavigation} sx={{ 
                   '&:hover': { 
-                    backgroundColor: '#6a1b9a', 
+                    backgroundColor: theme.palette.common.purple.hover, 
                     transition: 'all 0.3s ease' 
                   },
                   borderRadius: '8px',
@@ -197,9 +173,9 @@ const Navbar = () => {
                   onClose={handleClose}
                   PaperProps={{
                     sx: {
-                      bgcolor: '#f6f2ff',
+                      bgcolor: theme.palette.background.paper,
                       '& .MuiMenuItem-root:hover': {
-                        bgcolor: '#ede7f6',
+                        bgcolor: theme.palette.background.light,
                       }
                     }
                   }}
