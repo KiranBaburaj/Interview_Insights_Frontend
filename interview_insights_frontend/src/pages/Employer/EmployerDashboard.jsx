@@ -191,12 +191,31 @@ const EmployerDashboard = () => {
     value: count
   }));
 
-  const timeSeriesData = Object.entries(applicantMetrics.applicationsByDate)
-    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-    .map(([date, count]) => ({
-      date: dayjs(date).format('MMM DD'),
-      applications: count
-    }));
+  // Fill in missing dates with zero applications
+  const timeSeriesData = (() => {
+    if (filteredApplicants.length === 0) return [];
+    
+    // Get min and max dates from the filtered applicants
+    const dates = Object.keys(applicantMetrics.applicationsByDate).sort();
+    if (dates.length === 0) return [];
+    
+    const minDate = dayjs(dates[0]);
+    const maxDate = dayjs(dates[dates.length - 1]);
+    const result = [];
+    
+    // Fill in all dates between min and max
+    let currentDate = minDate;
+    while (currentDate.isBefore(maxDate) || currentDate.isSame(maxDate, 'day')) {
+      const dateKey = currentDate.format('YYYY-MM-DD');
+      result.push({
+        date: currentDate.format('MMM DD'),
+        applications: applicantMetrics.applicationsByDate[dateKey] || 0
+      });
+      currentDate = currentDate.add(1, 'day');
+    }
+    
+    return result;
+  })();
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -275,11 +294,30 @@ const EmployerDashboard = () => {
             <Box display="flex" justifyContent="center">
               <LineChart width={800} height={300} data={timeSeriesData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis 
+                  dataKey="date" 
+                  height={60}
+                  tick={{ fontSize: 12 }}
+                  tickLine={true}
+                  axisLine={true}
+                />
+                <YAxis
+                  width={60}
+                  tick={{ fontSize: 12 }}
+                  tickLine={true}
+                  axisLine={true}
+                  allowDecimals={false}
+                />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="applications" stroke="#8884d8" strokeWidth={2} />
+                <Line 
+                  type="linear" 
+                  dataKey="applications" 
+                  stroke="#8884d8" 
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  connectNulls={false}
+                />
               </LineChart>
             </Box>
           </Paper>
