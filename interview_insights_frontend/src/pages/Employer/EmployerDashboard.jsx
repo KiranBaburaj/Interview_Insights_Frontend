@@ -20,10 +20,11 @@ import { CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 import { ArrowForwardIos as ArrowForwardIosIcon } from '@mui/icons-material';
 import { fetchJobs, selectAllJobs } from '../../features/jobs/jobsSlice';
 import { fetchApplicants } from '../../features/applicants/applicantsSlice';
-import { DateRangePicker, LocalizationProvider } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -51,15 +52,19 @@ const EmployerDashboard = () => {
         const applicantsData = {};
 
         try {
-          const fetchPromises = jobs.map(async (job) => {
-            const response = await dispatch(fetchApplicants(job.id)).unwrap();
-            applicantsData[job.id] = response;
-          });
-
-          await Promise.all(fetchPromises);
+          for (const job of jobs) {
+            try {
+              const response = await dispatch(fetchApplicants(job.id)).unwrap();
+              applicantsData[job.id] = Array.isArray(response) ? response : [];
+            } catch (error) {
+              console.error(`Error fetching applicants for job ${job.id}:`, error);
+              applicantsData[job.id] = [];
+            }
+          }
           setAggregatedApplicants(applicantsData);
         } catch (error) {
-          console.error('Error fetching applicants:', error);
+          console.error('Error in fetchAndAggregateApplicants:', error);
+          setAggregatedApplicants({});
         }
 
         setIsLoadingApplicants(false);
@@ -70,7 +75,7 @@ const EmployerDashboard = () => {
   }, [dispatch, jobs]);
 
   const handleDateChange = (newDateRange) => {
-    setDateRange(newDateRange);
+    setDateRange(newDateRange || [null, null]);
   };
 
   // Show loading state while either jobs or applicants are loading
@@ -209,17 +214,9 @@ const EmployerDashboard = () => {
             <Box display="flex" alignItems="center">
               <CalendarTodayIcon sx={{ mr: 1 }} />
               <DateRangePicker
-                startText="Start Date"
-                endText="End Date"
                 value={dateRange}
                 onChange={handleDateChange}
-                renderInput={(startProps, endProps) => (
-                  <>
-                    <TextField {...startProps} />
-                    <Box sx={{ mx: 2 }}> to </Box>
-                    <TextField {...endProps} />
-                  </>
-                )}
+                localeText={{ start: 'Start Date', end: 'End Date' }}
               />
             </Box>
           </Box>
@@ -402,30 +399,35 @@ const EmployerDashboard = () => {
                 Object.values(aggregatedApplicants)
                   .flat()
                   .flatMap(applicant =>
-                    applicant.job_seeker.interview_schedule
+                    (applicant?.job_seeker?.interview_schedule || [])
                       .filter(interview => {
                         // Find the job application associated with this interview
-                        const jobApplication = applicant.job_seeker.myapplications?.find(
-                          app => app.id === interview.job_application
+                        const jobApplication = applicant?.job_seeker?.myapplications?.find(
+                          app => app?.id === interview?.job_application
                         );
                         // Only include if the job belongs to the current employer
-                        return jobApplication && filteredJobs.some(job => job.id === jobApplication.job);
+                        return jobApplication && filteredJobs.some(job => job?.id === jobApplication?.job);
                       })
-                      .map(interview => interview.id)
+                      .map(interview => interview?.id)
                   )
               )).map(interviewId => {
                 const applicant = Object.values(aggregatedApplicants)
                   .flat()
                   .find(app => 
-                    app.job_seeker.interview_schedule.some(interview => 
-                      interview.id === interviewId
+                    app?.job_seeker?.interview_schedule?.some(interview => 
+                      interview?.id === interviewId
                     )
                   );
-                const interview = applicant.job_seeker.interview_schedule.find(int => int.id === interviewId);
+
+                if (!applicant) return null;
+
+                const interview = applicant?.job_seeker?.interview_schedule?.find(int => int?.id === interviewId);
                 
+                if (!interview) return null;
+
                 const jobDetails = filteredJobs.find(job => 
-                  applicant.job_seeker.myapplications?.some(app => 
-                    app.job === job.id && app.id === interview.job_application
+                  applicant?.job_seeker?.myapplications?.some(app => 
+                    app?.job === job?.id && app?.id === interview?.job_application
                   )
                 );
 

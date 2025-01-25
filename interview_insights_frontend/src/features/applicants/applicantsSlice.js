@@ -42,11 +42,11 @@ const applicantsSlice = createSlice({
       .addCase(fetchApplicants.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.applicants = action.payload;
-        state.job_Id=action.payload[0].job;
-        localStorage.setItem('job_Id', action.payload[0].job);
-        console.log(action.payload[0].job)
-        console.log(state.job_Id)
-  
+        // Only set job_Id if there are applicants
+        if (action.payload && action.payload.length > 0) {
+          state.job_Id = action.payload[0].job;
+          localStorage.setItem('job_Id', action.payload[0].job);
+        }
       })
       .addCase(fetchApplicants.rejected, (state, action) => {
         state.status = 'failed';
