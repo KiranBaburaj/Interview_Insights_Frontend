@@ -116,18 +116,47 @@ const MyApplications = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" align="center" sx={{ mb: 2, color: '#004d40' }}>My Applications</Typography>
-      <Divider sx={{ mb: 2, backgroundColor: '#004d40' }} />
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ 
+        background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
+        borderRadius: '15px',
+        p: 3,
+        mb: 4,
+        boxShadow: '0 3px 5px 2px rgba(74, 20, 140, 0.3)'
+      }}>
+        <Typography variant="h4" align="center" sx={{ mb: 1, color: '#fff', fontWeight: 700 }}>
+          My Applications
+        </Typography>
+        <Typography variant="subtitle1" align="center" sx={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+          Track your job applications and interview progress
+        </Typography>
+      </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        mb: 4,
+        gap: 2,
+        flexWrap: 'wrap'
+      }}>
         <TextField
-          placeholder="Search Jobs"
+          placeholder="Search by company or job title..."
           variant="outlined"
           size="small"
-          sx={{ flexGrow: 1, mr: 1, borderRadius: 2 }}
+          fullWidth
+          sx={{ 
+            flexGrow: 1,
+            maxWidth: { xs: '100%', sm: '60%' },
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              backgroundColor: theme.palette.background.paper,
+              '&:hover': {
+                backgroundColor: theme.palette.background.light,
+              }
+            }
+          }}
           InputProps={{
-            startAdornment: <SearchIcon />,
+            startAdornment: <SearchIcon sx={{ color: theme.palette.primary.main }} />,
           }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -138,7 +167,14 @@ const MyApplications = () => {
           displayEmpty
           variant="outlined"
           size="small"
-          sx={{ mr: 1, minWidth: 120, borderRadius: 2 }}
+          sx={{ 
+            minWidth: { xs: '100%', sm: 200 },
+            borderRadius: 3,
+            backgroundColor: theme.palette.background.paper,
+            '&:hover': {
+              backgroundColor: theme.palette.background.light,
+            }
+          }}
         >
           <MenuItem value="">
             <em>All Status</em>
@@ -151,60 +187,139 @@ const MyApplications = () => {
           <MenuItem value="hired">Hired</MenuItem>
           <MenuItem value="rejected">Rejected</MenuItem>
         </Select>
-
-        <IconButton>
-          <FilterListIcon />
-        </IconButton>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {filteredApplications.map((application) => {
           const interview = getInterviewForApplication(application.id);
           const interviewFeedback = interview ? getFeedbackForInterview(interview.id) : null;
 
           return (
-            <Grid item xs={12} sm={6} md={4} key={application.id}>
-              <Card sx={{ mb: 2, p: 2, borderRadius: 7, transition: '.1s', '&:hover': { boxShadow: 20 }, height: 360 }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-                  <Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Avatar
-                        src={application.job_details.company.logoUrl}
-                        alt={application.job_details.company.name}
-                        sx={{ mr: 2, width: 56, height: 56 }}
-                      />
-                      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#004d40' }}>{application.job_details.company.name}</Typography>
+            <Grid item xs={12} sm={6} lg={4} key={application.id}>
+              <Card 
+                sx={{ 
+                  height: '100%',
+                  borderRadius: 4,
+                  transition: 'all 0.3s ease',
+                  '&:hover': { 
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 16px rgba(74, 20, 140, 0.2)'
+                  },
+                  bgcolor: theme.palette.background.paper,
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar
+                      src={application.job_details.company.logoUrl}
+                      alt={application.job_details.company.name}
+                      sx={{ 
+                        mr: 2, 
+                        width: 60, 
+                        height: 60,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="h6" sx={{ 
+                        fontWeight: 'bold',
+                        color: theme.palette.primary.main,
+                        lineHeight: 1.2
+                      }}>
+                        {application.job_details.company.name}
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ color: theme.palette.text.secondary }}>
+                        {application.job_details.title}
+                      </Typography>
                     </Box>
-                    <Typography variant="subtitle1">{application.job_details.title}</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  </Box>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ 
+                      color: theme.palette.text.secondary,
+                      display: 'flex',
+                      alignItems: 'center',
+                      mb: 1
+                    }}>
                       Applied on: {new Date(application.applied_at).toLocaleDateString()}
                     </Typography>
-                    <Chip label={application.status} sx={{ mt: 1, bgcolor: '#00796b', color: 'white' }} />
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2">
+                    <Chip 
+                      label={application.status.replace('_', ' ').toUpperCase()} 
+                      sx={{ 
+                        bgcolor: theme.palette.secondary.main,
+                        color: theme.palette.text.white,
+                        fontWeight: 600,
+                        textTransform: 'capitalize'
+                      }} 
+                    />
+                  </Box>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 2 }}>
                       {interview ? (
-                        <Box>
+                        <Box sx={{ 
+                          p: 1.5,
+                          bgcolor: theme.palette.background.light,
+                          borderRadius: 2
+                        }}>
+                          <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, mb: 1 }}>
+                            Interview Details
+                          </Typography>
                           Scheduled: {new Date(interview.scheduled_time).toLocaleString()}
                           <br />
                           Location: {interview.location}
                         </Box>
                       ) : (
-                        <Box sx={{ color: 'text.secondary', fontStyle: 'italic' }}>No Interview Scheduled</Box>
+                        <Box sx={{ 
+                          color: theme.palette.text.secondary,
+                          fontStyle: 'italic',
+                          textAlign: 'center',
+                          py: 1
+                        }}>
+                          No Interview Scheduled
+                        </Box>
                       )}
                     </Typography>
+
                     <Typography variant="body2">
                       {interviewFeedback ? (
-                        <Box>
+                        <Box sx={{ 
+                          p: 1.5,
+                          bgcolor: theme.palette.background.light,
+                          borderRadius: 2
+                        }}>
+                          <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, mb: 1 }}>
+                            Feedback
+                          </Typography>
                           Score: {interviewFeedback.score}
                           <br />
-                          Feedback: {interviewFeedback.feedback}
+                          {interviewFeedback.feedback}
                         </Box>
                       ) : (
-                        <Box sx={{ color: 'text.secondary', fontStyle: 'italic' }}>No Feedback Available</Box>
+                        <Box sx={{ 
+                          color: theme.palette.text.secondary,
+                          fontStyle: 'italic',
+                          textAlign: 'center',
+                          py: 1
+                        }}>
+                          No Feedback Available
+                        </Box>
                       )}
                     </Typography>
                   </Box>
-                  <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+
+                  <Box sx={{ 
+                    mt: 3,
+                    pt: 2,
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    gap: 2
+                  }}>
                     <Button
                       variant="outlined"
                       onClick={() => handleDownloadResume(application.resume)}
@@ -212,7 +327,14 @@ const MyApplications = () => {
                       sx={{
                         borderRadius: 2,
                         textTransform: 'none',
-                        '&:hover': { backgroundColor: '#b2dfdb', color: '#004d40' }
+                        flex: 1,
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                        '&:hover': { 
+                          backgroundColor: theme.palette.background.light,
+                          borderColor: theme.palette.primary.dark,
+                          color: theme.palette.primary.dark 
+                        }
                       }}
                     >
                       See Application
@@ -224,9 +346,12 @@ const MyApplications = () => {
                       sx={{
                         borderRadius: 2,
                         textTransform: 'none',
-                        backgroundColor: '#00796b',
-                        color: 'white',
-                        '&:hover': { backgroundColor: '#004d40', color: '#fff' }
+                        flex: 1,
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.text.white,
+                        '&:hover': { 
+                          backgroundColor: theme.palette.primary.dark
+                        }
                       }}
                     >
                       Chat
