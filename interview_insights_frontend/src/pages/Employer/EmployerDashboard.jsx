@@ -24,7 +24,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -211,12 +211,34 @@ const EmployerDashboard = () => {
             <Typography variant="h4" component="h1">
               Welcome, {user ? full_name : 'Employer'}
             </Typography>
-            <Box display="flex" alignItems="center">
+            <Box display="flex" alignItems="center" gap={2}>
               <CalendarTodayIcon sx={{ mr: 1 }} />
-              <DateRangePicker
-                value={dateRange}
-                onChange={handleDateChange}
-                localeText={{ start: 'Start Date', end: 'End Date' }}
+              <DatePicker
+                label="Start Date"
+                value={dateRange[0]}
+                onChange={(newValue) => {
+                  setDateRange([newValue, dateRange[1]]);
+                }}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: { width: 200 }
+                  }
+                }}
+              />
+              <DatePicker
+                label="End Date"
+                value={dateRange[1]}
+                onChange={(newValue) => {
+                  setDateRange([dateRange[0], newValue]);
+                }}
+                minDate={dateRange[0] || undefined}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: { width: 200 }
+                  }
+                }}
               />
             </Box>
           </Box>
