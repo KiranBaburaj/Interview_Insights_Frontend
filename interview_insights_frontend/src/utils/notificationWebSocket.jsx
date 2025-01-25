@@ -16,8 +16,8 @@ export const connectNotificationWebSocket = (token, userId, dispatch) => {
     console.warn('Notification WebSocket already connected.');
     return notificationSocket;
   }
- {/* wss://www.interview-insights.site/ws/notifications*/}
-   notificationSocket = new WebSocket(`ws://localhost:8000/ws/notifications/${userId}/?token=${token}`);
+ {/*ws://localhost:8000/ws/notifications */}
+   notificationSocket = new WebSocket(`wss://www.interview-insights.site/ws/notifications/${userId}/?token=${token}`);
 
 
   notificationSocket.onopen = () => {
