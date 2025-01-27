@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   TextField, Button, Container, Grid, Typography, Paper, Avatar, Card, CardContent, CardMedia,
@@ -27,6 +27,7 @@ const Profile = () => {
   const [applications, setApplications] = useState([]);
   const [formErrors, setFormErrors] = useState({});
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const applicationData = useSelector((state) => state.myapplications.applications);
   const interviews = useSelector((state) => state.interviews.interviews);
@@ -48,7 +49,7 @@ const Profile = () => {
   }, [dispatch, interviews]);
 
   useEffect(() => {
-    if (profile && !isEditing) {
+    if (profile && !isInitialized) {
       setFormData({
         full_name: profile.user?.full_name || '',
         phone_number: profile.phone_number || '',
@@ -62,16 +63,11 @@ const Profile = () => {
       setEducations(profile.educations?.map(edu => ({ ...edu })) || []);
       setWorkExperiences(profile.work_experience?.map(exp => ({ ...exp })) || []);
       setSkills(profile.skills?.map(skill => ({ ...skill })) || []);
-      
-      // Only update file states if they're not already set or if we're not in editing mode
-      if (!isProfilePhotoChanged) {
-        setProfilePhoto(profile.profile_photo);
-      }
-      if (!isResumeChanged) {
-        setResume(profile.resume);
-      }
+      setProfilePhoto(profile.profile_photo);
+      setResume(profile.resume);
+      setIsInitialized(true);
     }
-  }, [profile, isEditing, isProfilePhotoChanged, isResumeChanged]);
+  }, [profile, isInitialized]);
 
   useEffect(() => {
     if (applicationData) {
@@ -109,10 +105,94 @@ const Profile = () => {
     };
   }, [resume]);
 
+  const handleFileChange = useCallback((e) => {
+    const { name, files } = e.target;
+    const file = files[0];
+    
+    if (!file) return;
+
+    if (name === 'profile_photo') {
+      if (!file.type.startsWith('image/')) {
+        setSnackbar({
+          open: true,
+          message: 'Please upload an image file',
+          severity: 'error'
+        });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setSnackbar({
+          open: true,
+          message: 'Profile photo must be less than 5MB',
+          severity: 'error'
+        });
+        return;
+      }
+      setProfilePhoto(file);
+      setIsProfilePhotoChanged(true);
+      
+      const photoFormData = new FormData();
+      photoFormData.append('profile_photo', file);
+      photoFormData.append('educations', JSON.stringify(educations));
+      photoFormData.append('work_experience', JSON.stringify(workExperiences));
+      photoFormData.append('skills', JSON.stringify(skills));
+      Object.keys(formData).forEach(key => {
+        photoFormData.append(key, formData[key]);
+      });
+
+      dispatch(updateProfile(photoFormData))
+        .unwrap()
+        .then(() => {
+          setSnackbar({
+            open: true,
+            message: 'Profile photo updated successfully',
+            severity: 'success'
+          });
+        })
+        .catch((error) => {
+          setSnackbar({
+            open: true,
+            message: error.message || 'Failed to update profile photo',
+            severity: 'error'
+          });
+        });
+    } else if (name === 'resume') {
+      if (file.type !== 'application/pdf') {
+        setSnackbar({
+          open: true,
+          message: 'Please upload a PDF file',
+          severity: 'error'
+        });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setSnackbar({
+          open: true,
+          message: 'Resume must be less than 10MB',
+          severity: 'error'
+        });
+        return;
+      }
+      setResume(file);
+      setIsResumeChanged(true);
+    }
+  }, [dispatch, educations, workExperiences, skills, formData]);
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    if (name === 'profile_photo' || name === 'resume') {
+      handleFileChange(e);
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+      if (formErrors[name]) {
+        setFormErrors(prev => ({ ...prev, [name]: null }));
+      }
+    }
+  }, [handleFileChange, formErrors]);
+
   const validateForm = () => {
     const errors = {};
     
-    // Validate required fields
     if (!formData.full_name?.trim()) {
       errors.full_name = 'Full name is required';
     }
@@ -122,21 +202,18 @@ const Profile = () => {
       errors.phone_number = 'Invalid phone number format';
     }
     
-    // Validate LinkedIn URL format
     if (formData.linkedin_url && !/^https?:\/\/[^\s/$.?#].[^\s]*$/.test(formData.linkedin_url)) {
       errors.linkedin_url = 'Invalid LinkedIn URL format';
     }
     
-    // Validate Portfolio URL format
     if (formData.portfolio_url && !/^https?:\/\/[^\s/$.?#].[^\s]*$/.test(formData.portfolio_url)) {
       errors.portfolio_url = 'Invalid Portfolio URL format';
     }
 
-    // Validate file types and sizes
     if (profilePhoto instanceof File) {
       if (!profilePhoto.type.startsWith('image/')) {
         errors.profile_photo = 'Please upload an image file';
-      } else if (profilePhoto.size > 5 * 1024 * 1024) { // 5MB limit
+      } else if (profilePhoto.size > 5 * 1024 * 1024) { 
         errors.profile_photo = 'Profile photo must be less than 5MB';
       }
     }
@@ -144,12 +221,11 @@ const Profile = () => {
     if (resume instanceof File) {
       if (resume.type !== 'application/pdf') {
         errors.resume = 'Please upload a PDF file';
-      } else if (resume.size > 10 * 1024 * 1024) { // 10MB limit
+      } else if (resume.size > 10 * 1024 * 1024) { 
         errors.resume = 'Resume must be less than 10MB';
       }
     }
 
-    // Validate educations
     const educationErrors = [];
     educations.forEach((education, index) => {
       const eduError = {};
@@ -166,7 +242,6 @@ const Profile = () => {
         eduError.location = 'Location is required';
       }
       
-      // Validate date format and logic
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!education.start_date) {
         eduError.start_date = 'Start date is required';
@@ -180,7 +255,6 @@ const Profile = () => {
         eduError.end_date = 'Use format: YYYY-MM-DD';
       }
       
-      // Validate start date is before end date
       if (education.start_date && education.end_date && 
           dateRegex.test(education.start_date) && dateRegex.test(education.end_date)) {
         if (new Date(education.start_date) > new Date(education.end_date)) {
@@ -197,7 +271,6 @@ const Profile = () => {
       errors.educations = educationErrors;
     }
 
-    // Validate work experiences
     const workExperienceErrors = [];
     workExperiences.forEach((experience, index) => {
       const expError = {};
@@ -214,7 +287,6 @@ const Profile = () => {
         expError.company_location = 'Company location is required';
       }
       
-      // Validate date format and logic
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!experience.start_date) {
         expError.start_date = 'Start date is required';
@@ -228,7 +300,6 @@ const Profile = () => {
         expError.end_date = 'Use format: YYYY-MM-DD';
       }
       
-      // Validate start date is before end date
       if (experience.start_date && experience.end_date && 
           dateRegex.test(experience.start_date) && dateRegex.test(experience.end_date)) {
         if (new Date(experience.start_date) > new Date(experience.end_date)) {
@@ -249,7 +320,6 @@ const Profile = () => {
       errors.workExperiences = workExperienceErrors;
     }
 
-    // Validate skills
     const skillErrors = [];
     skills.forEach((skill, index) => {
       const skillError = {};
@@ -285,66 +355,11 @@ const Profile = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleChange = (e) => {
-    if (e.target.name === 'profile_photo') {
-      const file = e.target.files[0];
-      if (file) {
-        if (!file.type.startsWith('image/')) {
-          setSnackbar({
-            open: true,
-            message: 'Please upload an image file',
-            severity: 'error'
-          });
-          return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          setSnackbar({
-            open: true,
-            message: 'Profile photo must be less than 5MB',
-            severity: 'error'
-          });
-          return;
-        }
-        setProfilePhoto(file);
-        setIsProfilePhotoChanged(true);
-      }
-    } else if (e.target.name === 'resume') {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.type !== 'application/pdf') {
-          setSnackbar({
-            open: true,
-            message: 'Please upload a PDF file',
-            severity: 'error'
-          });
-          return;
-        }
-        if (file.size > 10 * 1024 * 1024) {
-          setSnackbar({
-            open: true,
-            message: 'Resume must be less than 10MB',
-            severity: 'error'
-          });
-          return;
-        }
-        setResume(file);
-        setIsResumeChanged(true);
-      }
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-      // Clear error when user starts typing
-      if (formErrors[e.target.name]) {
-        setFormErrors({ ...formErrors, [e.target.name]: null });
-      }
-    }
-  };
-
   const handleEducationChange = (index, field, value) => {
     const newEducations = [...educations];
     newEducations[index][field] = value;
     setEducations(newEducations);
     
-    // Clear error when user starts typing
     if (formErrors.educations?.[index]?.[field]) {
       const newErrors = { ...formErrors };
       if (newErrors.educations?.[index]) {
@@ -365,7 +380,6 @@ const Profile = () => {
     newWorkExperiences[index][field] = value;
     setWorkExperiences(newWorkExperiences);
     
-    // Clear error when user starts typing
     if (formErrors.workExperiences?.[index]?.[field]) {
       const newErrors = { ...formErrors };
       if (newErrors.workExperiences?.[index]) {
@@ -386,7 +400,6 @@ const Profile = () => {
     newSkills[index][field] = value;
     setSkills(newSkills);
     
-    // Clear error when user starts typing
     if (formErrors.skills?.[index]?.[field]) {
       const newErrors = { ...formErrors };
       if (newErrors.skills?.[index]) {
@@ -466,41 +479,20 @@ const Profile = () => {
     try {
       const updatedProfile = new FormData();
       
-      // Append basic form data
-      for (const key in formData) {
+      Object.keys(formData).forEach(key => {
         updatedProfile.append(key, formData[key]);
-      }
+      });
 
-      // Append files only if they've changed
-      if (isProfilePhotoChanged && profilePhoto instanceof File) {
-        updatedProfile.append('profile_photo', profilePhoto);
-      }
       if (isResumeChanged && resume instanceof File) {
         updatedProfile.append('resume', resume);
       }
 
-      // Always append the current state of educations, work experience, and skills
       updatedProfile.append('educations', JSON.stringify(educations));
       updatedProfile.append('work_experience', JSON.stringify(workExperiences));
       updatedProfile.append('skills', JSON.stringify(skills));
 
-      const result = await dispatch(updateProfile(updatedProfile)).unwrap();
-      
-      // Don't exit editing mode if only files were changed
-      const onlyFilesChanged = (isProfilePhotoChanged || isResumeChanged) && 
-                             !Object.keys(formData).some(key => formData[key] !== profile[key]);
-      
-      if (!onlyFilesChanged) {
-        setIsEditing(false);
-      }
-
-      // Update local state with the returned data
-      setEducations(result.localData.educations);
-      setWorkExperiences(result.localData.work_experience);
-      setSkills(result.localData.skills);
-
-      // Reset file change flags after successful update
-      setIsProfilePhotoChanged(false);
+      await dispatch(updateProfile(updatedProfile)).unwrap();
+      setIsEditing(false);
       setIsResumeChanged(false);
 
       setSnackbar({
@@ -531,7 +523,7 @@ const Profile = () => {
     const handleToggleApproval = () => {
       const updatedFeedbackData = {
         ...feedback,
-        is_approved: !feedback.is_approved // Toggle the approval state
+        is_approved: !feedback.is_approved 
       };
 
       dispatch(updateFeedback({ id: feedback.id, feedbackData: updatedFeedbackData }));
@@ -561,6 +553,7 @@ const Profile = () => {
       </div>
     );
   };
+
   const renderApplications = () => (
     <div>
       <Typography variant="h6" style={{ marginTop: '16px', fontWeight: 'bold', color: '#333' }}>
@@ -584,7 +577,7 @@ const Profile = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  backgroundColor: '#f9f9f9', // Light background
+                  backgroundColor: '#f9f9f9', 
                 }} 
               >
                 <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
@@ -600,22 +593,8 @@ const Profile = () => {
                   <Typography variant="body2" sx={{ marginTop: 1 }}>
                     Date Applied: {new Date(application.applied_at).toLocaleDateString()}
                   </Typography>
-                  <div style={{ flexGrow: 1 }} /> {/* Spacer to push interview details down */}
-                  {/*  <Typography variant="body2" sx={{ marginTop: 1 }}>
-                    {interview ? (
-                      <div>
-                        <strong>Interview Scheduled:</strong>
-                        <div>Date: {new Date(interview.scheduled_time).toLocaleDateString()}</div>
-                        <div>Time: {new Date(interview.scheduled_time).toLocaleTimeString()}</div>
-                        <div>Location: {interview.location}</div>
-                      </div>
-                    ) : (
-                      'No interview scheduled'
-                    )}
-                  </Typography>*/}
-                </CardContent>
-                <CardContent sx={{ flexShrink: 0 }}>
-                  <Typography variant="body2" color="textSecondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ flexGrow: 1 }} /> 
+                  <Typography variant="body2" sx={{ marginTop: 1 }}>
                     {feedback ? renderFeedback(feedback) : 'No feedback available'}
                   </Typography>
                 </CardContent>
