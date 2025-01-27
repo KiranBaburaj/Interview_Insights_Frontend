@@ -25,7 +25,14 @@ const JobseekerProfile = lazy(() => import('./pages/Jobseeker/JobseekerProfile')
 const JobseekerJobs = lazy(() => import('./pages/Jobseeker/JobseekerJobs'));
 const InterviewScheduler = lazy(() => import('./components/Employer/InterviewScheduler'));
 const InterviewFeedbackForm = lazy(() => import('./components/Employer/InterviewFeedbackForm'));
-const MyComponent = lazy(() => import('./MyComponent')); // Lazy load MyComponent
+const MyComponent = lazy(() => import('./MyComponent'));
+
+// Employer routes wrapper component
+const EmployerRouteWrapper = ({ children }) => (
+  <Suspense fallback={<MyComponent />}>
+    {children}
+  </Suspense>
+);
 
 const App = () => {
   return (
@@ -106,12 +113,13 @@ const App = () => {
   }
 />
 
-
       <Route
         path="/dashboard/employer"
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-            <EmployerDashboard />
+            <EmployerRouteWrapper>
+              <EmployerDashboard />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />
@@ -119,7 +127,9 @@ const App = () => {
         path="/EmployerCompanyManagement"
         element={
           <ProtectedRoute roleRequired="employer">
-            <EmployerCompanyManagement />
+            <EmployerRouteWrapper>
+              <EmployerCompanyManagement />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />
@@ -146,7 +156,9 @@ const App = () => {
   path="/employer/chat"
   element={
     <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-      <Chat />
+      <EmployerRouteWrapper>
+        <Chat />
+      </EmployerRouteWrapper>
     </ProtectedRoute>
   }
 />
@@ -155,7 +167,9 @@ const App = () => {
   path="/employer/chat/:roomId"
   element={
     <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-      <ChatRoom />
+      <EmployerRouteWrapper>
+        <ChatRoom />
+      </EmployerRouteWrapper>
     </ProtectedRoute>
   }
 />
@@ -168,12 +182,13 @@ const App = () => {
   }
 />
 
-
       <Route
         path="/EmployerJobManagement"
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-            <EmployerJobs />
+            <EmployerRouteWrapper>
+              <EmployerJobs />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />
@@ -181,7 +196,9 @@ const App = () => {
         path="/EmployerJobapplicants/:jobId"
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-            <ApplicantsList />
+            <EmployerRouteWrapper>
+              <ApplicantsList />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />
@@ -189,7 +206,9 @@ const App = () => {
         path="/schedule-interview/:applicantId"
         element={
           <ProtectedRoute roleRequired="employer" checkCompanyDetails={true}>
-            <InterviewScheduler />
+            <EmployerRouteWrapper>
+              <InterviewScheduler />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />
@@ -198,7 +217,9 @@ const App = () => {
         path="/interview-feedback/:interviewId"
         element={
           <ProtectedRoute roleRequired="employer">
-            <InterviewFeedbackForm />
+            <EmployerRouteWrapper>
+              <InterviewFeedbackForm />
+            </EmployerRouteWrapper>
           </ProtectedRoute>
         }
       />

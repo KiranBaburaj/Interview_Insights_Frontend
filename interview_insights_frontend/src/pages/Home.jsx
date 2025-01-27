@@ -30,10 +30,13 @@ import {
   MenuItem,
   Slider,
   Paper,
+  Collapse,
+  useMediaQuery,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import Navbar from '../components/Navbar';
 import { ThemeProvider } from '@mui/material';
 import theme from '../theme/theme';
@@ -57,6 +60,8 @@ const Home = () => {
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showMatchingOnly, setShowMatchingOnly] = useState(false);
   const [savingStatus, setSavingStatus] = useState({});
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -174,101 +179,131 @@ const Home = () => {
       <Navbar />
       <Container maxWidth="lg" sx={{ mt: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, mb: 4 }}>
+          {/* Mobile Filter Toggle Button */}
+          {isMobile && (
+            <Button
+              variant="outlined"
+              startIcon={<FilterListIcon />}
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              sx={{ 
+                mb: 2,
+                borderRadius: '20px',
+                borderColor: '#4a148c',
+                color: '#4a148c',
+                '&:hover': {
+                  borderColor: '#6a1b9a',
+                  backgroundColor: 'rgba(74, 20, 140, 0.04)'
+                }
+              }}
+            >
+              {isFilterOpen ? 'Hide Filters' : 'Show Filters'}
+            </Button>
+          )}
+
           {/* Filters */}
-          <Box sx={{ width: { xs: '100%', sm: '25%' }, mb: { xs: 2, sm: 0 }, pr: { sm: 2 } }}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Filters
-              </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle1">Employment Type</Typography>
-                <TextField
-                  select
-                  fullWidth
-                  value={employmentType}
-                  onChange={handleEmploymentTypeChange}
-                  variant="outlined"
-                  sx={{ mb: 1 }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Full-time">Full-Time</MenuItem>
-                  <MenuItem value="Part-time">Part-Time</MenuItem>
-                  <MenuItem value="Contract">Contract</MenuItem>
-                  <MenuItem value="Temporary">Temporary</MenuItem>
-                  <MenuItem value="Internship">Internship</MenuItem>
-                  <MenuItem value="Freelance">Freelance</MenuItem>
-                </TextField>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle1">Experience Level</Typography>
-                <TextField
-                  select
-                  fullWidth
-                  value={experienceLevel}
-                  onChange={handleExperienceLevelChange}
-                  variant="outlined"
-                  sx={{ mb: 1 }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Entry level">Entry Level</MenuItem>
-                  <MenuItem value="Mid level">Mid Level</MenuItem>
-                  <MenuItem value="Senior level">Senior Level</MenuItem>
-                  <MenuItem value="Executive">Executive</MenuItem>
-                </TextField>
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle1">Salary Range</Typography>
-                <Slider
-                  value={salaryRange}
-                  onChange={handleSalaryRangeChange}
-                  valueLabelDisplay="auto"
-                  min={0}
-                  max={500000}
-                  step={10000}
-                  marks={[
-                    { value: 0, label: '0' },
-                    { value: 50000, label: '50k' },
-                    { value: 100000, label: '100k' },
-                    { value: 200000, label: '200k' },
-                    { value: 300000, label: '300k' },
-                    { value: 400000, label: '400k' },
-                    { value: 500000, label: '500k' },
-                  ]}
-                />
-              </Box>
-              <Box sx={{ mb: 2 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox checked={isRemote} onChange={handleIsRemoteChange} color="primary" />
-                  }
-                  label="Remote Jobs"
-                />
-              </Box>
-              {role !== 'employer' && (
-                <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={showSavedOnly}
-                        onChange={handleSavedFilterChange}
-                        color="primary"
-                      />
-                    }
-                    label="Saved Job"
-                  /> {/* 
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={showMatchingOnly}
-                        onChange={handleMatchingFilterChange}
-                        color="primary"
-                      />
-                    }
-                    label="Matching Jobs"
-                  /> */}
+          <Box 
+            sx={{ 
+              width: { xs: '100%', sm: '25%' }, 
+              mb: { xs: 2, sm: 0 }, 
+              pr: { sm: 2 },
+              display: { xs: 'block', sm: 'block' }
+            }}
+          >
+            <Collapse in={isMobile ? isFilterOpen : true}>
+              <Paper elevation={3} sx={{ p: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Filters
+                </Typography>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">Employment Type</Typography>
+                  <TextField
+                    select
+                    fullWidth
+                    value={employmentType}
+                    onChange={handleEmploymentTypeChange}
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="Full-time">Full-Time</MenuItem>
+                    <MenuItem value="Part-time">Part-Time</MenuItem>
+                    <MenuItem value="Contract">Contract</MenuItem>
+                    <MenuItem value="Temporary">Temporary</MenuItem>
+                    <MenuItem value="Internship">Internship</MenuItem>
+                    <MenuItem value="Freelance">Freelance</MenuItem>
+                  </TextField>
                 </Box>
-              )}
-            </Paper>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">Experience Level</Typography>
+                  <TextField
+                    select
+                    fullWidth
+                    value={experienceLevel}
+                    onChange={handleExperienceLevelChange}
+                    variant="outlined"
+                    sx={{ mb: 1 }}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="Entry level">Entry Level</MenuItem>
+                    <MenuItem value="Mid level">Mid Level</MenuItem>
+                    <MenuItem value="Senior level">Senior Level</MenuItem>
+                    <MenuItem value="Executive">Executive</MenuItem>
+                  </TextField>
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="subtitle1">Salary Range</Typography>
+                  <Slider
+                    value={salaryRange}
+                    onChange={handleSalaryRangeChange}
+                    valueLabelDisplay="auto"
+                    min={0}
+                    max={500000}
+                    step={10000}
+                    marks={[
+                      { value: 0, label: '0' },
+                      { value: 50000, label: '50k' },
+                      { value: 100000, label: '100k' },
+                      { value: 200000, label: '200k' },
+                      { value: 300000, label: '300k' },
+                      { value: 400000, label: '400k' },
+                      { value: 500000, label: '500k' },
+                    ]}
+                  />
+                </Box>
+                <Box sx={{ mb: 2 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox checked={isRemote} onChange={handleIsRemoteChange} color="primary" />
+                    }
+                    label="Remote Jobs"
+                  />
+                </Box>
+                {role !== 'employer' && (
+                  <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column' }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={showSavedOnly}
+                          onChange={handleSavedFilterChange}
+                          color="primary"
+                        />
+                      }
+                      label="Saved Job"
+                    /> {/* 
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={showMatchingOnly}
+                          onChange={handleMatchingFilterChange}
+                          color="primary"
+                        />
+                      }
+                      label="Matching Jobs"
+                    /> */}
+                  </Box>
+                )}
+              </Paper>
+            </Collapse>
           </Box>
 
           {/* Job Search Section */}
