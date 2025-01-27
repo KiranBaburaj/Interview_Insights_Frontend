@@ -32,7 +32,8 @@ const Chat = () => {
           xs={4} 
           sx={{ 
             borderRight: '1px solid rgba(0, 0, 0, 0.08)',
-            height: 'calc(100vh - 64px)', // Subtract navbar height
+            height: 'calc(100vh - 120px)', 
+            mt: 4, 
           }}
         >
           <Paper
@@ -53,7 +54,8 @@ const Chat = () => {
           item 
           xs={8} 
           sx={{ 
-            height: 'calc(100vh - 64px)', // Subtract navbar height
+            height: 'calc(100vh - 120px)', 
+            mt: 4, 
           }}
         >
           <Paper

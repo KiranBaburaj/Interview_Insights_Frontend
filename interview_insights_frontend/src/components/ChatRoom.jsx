@@ -111,6 +111,10 @@ const ChatRoom = () => {
           alignItems: 'center',
           borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
           bgcolor: '#fff',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
         }}
       >
         <Avatar
