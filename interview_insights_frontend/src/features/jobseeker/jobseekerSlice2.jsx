@@ -1,4 +1,3 @@
-
 import axiosInstance from '../../axiosConfig'; // Adjust the path as needed
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
@@ -35,7 +34,8 @@ export const updateProfile = createAsyncThunk(
       // Then, update with new data from profileData
       for (let [key, value] of profileData.entries()) {
         if (['educations', 'work_experience', 'skills'].includes(key)) {
-          formData.set(key, JSON.stringify(JSON.parse(value)));
+          const parsedValue = JSON.parse(value);
+          formData.set(key, JSON.stringify(parsedValue));
         } else if (key === 'profile_photo' || key === 'resume') {
           if (value instanceof File) {
             formData.set(key, value, value.name);
@@ -71,7 +71,16 @@ export const updateProfile = createAsyncThunk(
         });
       }
 
-      return response.data;
+      // Return both the response data and the form data we sent
+      return {
+        serverData: response.data,
+        localData: {
+          educations: JSON.parse(formData.get('educations')),
+          work_experience: JSON.parse(formData.get('work_experience')),
+          skills: JSON.parse(formData.get('skills')),
+          ...response.data
+        }
+      };
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -82,7 +91,8 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState: {
     data: null,
-    status: 'idle',profile: null,
+    status: 'idle',
+    profile: null,
     error: null,
   },
   reducers: {},
@@ -104,7 +114,8 @@ const profileSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.data = action.payload;
+        // Use the combined data from both server and local state
+        state.data = action.payload.localData;
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.status = 'failed';
