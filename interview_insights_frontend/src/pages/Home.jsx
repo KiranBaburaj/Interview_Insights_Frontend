@@ -32,6 +32,7 @@ import {
   Paper,
   Collapse,
   useMediaQuery,
+  Autocomplete,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -53,8 +54,8 @@ const Home = () => {
   const { user, role } = useSelector((state) => state.auth);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
-  const [employmentType, setEmploymentType] = useState('');
-  const [experienceLevel, setExperienceLevel] = useState('');
+  const [employmentType, setEmploymentType] = useState('All');
+  const [experienceLevel, setExperienceLevel] = useState('All');
   const [salaryRange, setSalaryRange] = useState([0, 500000]);
   const [isRemote, setIsRemote] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
@@ -62,6 +63,16 @@ const Home = () => {
   const [savingStatus, setSavingStatus] = useState({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const today = new Date().toISOString().split('T')[0];
+
+  // Get unique job titles and locations for autocomplete from active jobs only
+  const activeJobs = jobs.filter(job => 
+    job.status === 'open' && 
+    job.application_deadline >= today
+  );
+  
+  const jobTitles = [...new Set(activeJobs.map(job => job.title))];
+  const locations = [...new Set(activeJobs.map(job => job.location))];
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,12 +96,12 @@ const Home = () => {
     }
   }, [showSavedOnly, showMatchingOnly, searchQuery, dispatch, role, user, navigate]);
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (event, newValue) => {
+    setSearchQuery(newValue || '');
   };
 
-  const handleLocationChange = (event) => {
-    setLocationQuery(event.target.value);
+  const handleLocationChange = (event, newValue) => {
+    setLocationQuery(newValue || '');
   };
 
   const handleEmploymentTypeChange = (event) => {
@@ -147,8 +158,6 @@ const Home = () => {
     setSavingStatus((prevStatus) => ({ ...prevStatus, [job.id]: 'idle' }));
   };
 
-  const today = new Date().toISOString().split('T')[0];
-
   // Filter logic for displayed jobs
   const displayedJobs =
     showSavedOnly && role !== 'employer'
@@ -160,8 +169,8 @@ const Home = () => {
             job.status === 'open' &&
             job.application_deadline >= today &&
             (job.location.toLowerCase().includes(locationQuery.toLowerCase()) || locationQuery === '') &&
-            (employmentType === '' || job.employment_type === employmentType) &&
-            (experienceLevel === '' || job.experience_level === experienceLevel) &&
+            (employmentType === 'All' || job.employment_type === employmentType) &&
+            (experienceLevel === 'All' || job.experience_level === experienceLevel) &&
             (parseFloat(job.salary_min) >= salaryRange[0] &&
               parseFloat(job.salary_max) <= salaryRange[1]) &&
             (!isRemote || job.is_remote)
@@ -224,7 +233,7 @@ const Home = () => {
                     variant="outlined"
                     sx={{ mb: 1 }}
                   >
-                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="All">All</MenuItem>
                     <MenuItem value="Full-time">Full-Time</MenuItem>
                     <MenuItem value="Part-time">Part-Time</MenuItem>
                     <MenuItem value="Contract">Contract</MenuItem>
@@ -243,7 +252,7 @@ const Home = () => {
                     variant="outlined"
                     sx={{ mb: 1 }}
                   >
-                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="All">All</MenuItem>
                     <MenuItem value="Entry level">Entry Level</MenuItem>
                     <MenuItem value="Mid level">Mid Level</MenuItem>
                     <MenuItem value="Senior level">Senior Level</MenuItem>
@@ -321,22 +330,44 @@ const Home = () => {
                 flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Search for jobs..."
+              <Autocomplete
+                freeSolo
+                options={jobTitles}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                sx={{ mr: { sm: 2 }, mb: { xs: 2, sm: 0 } }}
-                size="small"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Search for jobs..."
+                    size="small"
+                  />
+                )}
+                sx={{ 
+                  mr: { sm: 2 }, 
+                  mb: { xs: 2, sm: 0 },
+                  width: { xs: '100%', sm: '40%' }
+                }}
               />
-              <TextField
-                variant="outlined"
-                placeholder="Location..."
+              <Autocomplete
+                freeSolo
+                options={locations}
                 value={locationQuery}
                 onChange={handleLocationChange}
-                sx={{ mr: { sm: 2 }, mb: { xs: 2, sm: 0 } }}
-                size="small"
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    placeholder="Location..."
+                    size="small"
+                  />
+                )}
+                sx={{ 
+                  mr: { sm: 2 }, 
+                  mb: { xs: 2, sm: 0 },
+                  width: { xs: '100%', sm: '30%' }
+                }}
               />
               <Button
                 variant="contained"
