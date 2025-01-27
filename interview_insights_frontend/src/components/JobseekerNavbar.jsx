@@ -11,6 +11,7 @@ import {
   Avatar,
   Typography,
   IconButton,
+  ThemeProvider,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import WorkIcon from '@mui/icons-material/Work';
@@ -25,6 +26,7 @@ import NotificationList from './NotificationList';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import theme from '../theme/theme';
 
 const drawerWidth = 240;
 
@@ -33,7 +35,6 @@ const JobseekerNavbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { full_name } = useSelector((state) => state.auth);
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -42,8 +43,6 @@ const JobseekerNavbar = () => {
     dispatch(clearError());
     navigate('/login');
   };
-
-  const avatarImageUrl = '/logo.PNG'; // Path to avatar image
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -57,29 +56,43 @@ const JobseekerNavbar = () => {
         py: 1, 
         px: 1.5,
         textAlign: 'center',
-        background: 'linear-gradient(45deg, #9c27b0 30%, #673ab7 90%)',
-        boxShadow: '0 2px 4px rgba(156, 39, 176, .3)',
+        background: theme.palette.common.purple.gradient,
+        boxShadow: theme.palette.common.purple.shadow,
         mx: 1.5,
         borderRadius: 1,
         mb: 0.5,
         maxWidth: '100%'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Avatar src={avatarImageUrl} sx={{ 
-            width: 40, 
-            height: 40, 
-            mr: 1,
-            border: '2px solid #9c27b0',
-            boxShadow: '0 0 4px rgba(156, 39, 176, 0.5)'
-          }} />
-          <Typography variant="h6" noWrap sx={{ 
-            fontWeight: 'bold', 
-            color: '#fff',
-            letterSpacing: '0.5px',
-            textShadow: '1px 1px 2px rgba(0,0,0,0.2)',
-            fontSize: '1.1rem'
-          }}>
-            Interview Insights
+          <Box
+            component="img"
+            src="https://d3dxvti62y5mgw.cloudfront.net/ccp_logo_icon.webp"
+            alt="Navigation Logo"
+            sx={{
+              width: '48px',
+              height: 'auto',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'scale(1.05)'
+              }
+            }}
+          />
+          <Typography
+            variant="h4"
+            sx={{
+              ml: 2,
+              fontWeight: 800,
+              fontFamily: 'sans-serif',
+              fontSize: '1.875rem',
+              color: '#ffffff',
+              '& .gradient-text': {
+                background: 'linear-gradient(to top left, #2563eb, #7c3aed)', 
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }
+            }}
+          >
+            CC<span className="gradient-text">P</span>
           </Typography>
         </Box>
       </Box>
@@ -343,27 +356,60 @@ const JobseekerNavbar = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', width: drawerWidth }}>
-      {isMobile ? (
-        <>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
+    <ThemeProvider theme={theme}>
+      <Box sx={{ display: 'flex', width: drawerWidth }}>
+        {isMobile ? (
+          <>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Drawer
+              variant="temporary"
+              open={mobileOpen}
+              onClose={handleDrawerToggle}
+              ModalProps={{
+                keepMounted: true,
+              }}
+              sx={{
+                '& .MuiDrawer-paper': {
+                  width: drawerWidth,
+                  boxSizing: 'border-box',
+                  backgroundColor: '#4a148c',
+                  color: '#fff',
+                  boxShadow: '4px 0 8px rgba(0,0,0,0.15)',
+                  overflowX: 'hidden',
+                  '&::-webkit-scrollbar': {
+                    width: '6px',
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    background: '#4a148c',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    background: '#9c27b0',
+                    borderRadius: '3px',
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    background: '#673ab7',
+                  }
+                },
+              }}
+            >
+              {drawerContent}
+            </Drawer>
+          </>
+        ) : (
           <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
+            variant="permanent"
             sx={{
-              '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              flexShrink: 0,
+              [`& .MuiDrawer-paper`]: {
                 width: drawerWidth,
                 boxSizing: 'border-box',
                 backgroundColor: '#4a148c',
@@ -388,40 +434,9 @@ const JobseekerNavbar = () => {
           >
             {drawerContent}
           </Drawer>
-        </>
-      ) : (
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              backgroundColor: '#4a148c',
-              color: '#fff',
-              boxShadow: '4px 0 8px rgba(0,0,0,0.15)',
-              overflowX: 'hidden',
-              '&::-webkit-scrollbar': {
-                width: '6px',
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#4a148c',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#9c27b0',
-                borderRadius: '3px',
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                background: '#673ab7',
-              }
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      )}
-    </Box>
+        )}
+      </Box>
+    </ThemeProvider>
   );
 };
 

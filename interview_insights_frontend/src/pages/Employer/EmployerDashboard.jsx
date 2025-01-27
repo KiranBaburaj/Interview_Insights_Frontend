@@ -195,17 +195,24 @@ const EmployerDashboard = () => {
   const timeSeriesData = (() => {
     if (filteredApplicants.length === 0) return [];
     
-    // Get min and max dates from the filtered applicants
-    const dates = Object.keys(applicantMetrics.applicationsByDate).sort();
-    if (dates.length === 0) return [];
+    // Get date range
+    let startDate = dateRange[0] ? dayjs(dateRange[0]) : null;
+    let endDate = dateRange[1] ? dayjs(dateRange[1]) : null;
     
-    const minDate = dayjs(dates[0]);
-    const maxDate = dayjs(dates[dates.length - 1]);
+    // If no date range is selected, use the min/max dates from applications
+    if (!startDate || !endDate) {
+      const dates = Object.keys(applicantMetrics.applicationsByDate).sort();
+      if (dates.length === 0) return [];
+      
+      startDate = startDate || dayjs(dates[0]);
+      endDate = endDate || dayjs(dates[dates.length - 1]);
+    }
+    
     const result = [];
+    let currentDate = startDate;
     
-    // Fill in all dates between min and max
-    let currentDate = minDate;
-    while (currentDate.isBefore(maxDate) || currentDate.isSame(maxDate, 'day')) {
+    // Fill in all dates between start and end
+    while (currentDate.isBefore(endDate.add(1, 'day'))) {
       const dateKey = currentDate.format('YYYY-MM-DD');
       result.push({
         date: currentDate.format('MMM DD'),
@@ -291,35 +298,44 @@ const EmployerDashboard = () => {
             <Typography variant="h6" gutterBottom>
               Applications Over Time
             </Typography>
-            <Box display="flex" justifyContent="center">
-              <LineChart width={800} height={300} data={timeSeriesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
-                  height={60}
-                  tick={{ fontSize: 12 }}
-                  tickLine={true}
-                  axisLine={true}
-                />
-                <YAxis
-                  width={60}
-                  tick={{ fontSize: 12 }}
-                  tickLine={true}
-                  axisLine={true}
-                  allowDecimals={false}
-                />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="linear" 
-                  dataKey="applications" 
-                  stroke="#8884d8" 
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                  connectNulls={false}
-                />
-              </LineChart>
-            </Box>
+            {timeSeriesData.length > 0 ? (
+              <Box display="flex" justifyContent="center">
+                <LineChart width={800} height={300} data={timeSeriesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    height={60}
+                    tick={{ fontSize: 12 }}
+                    tickLine={true}
+                    axisLine={true}
+                    interval={Math.ceil(timeSeriesData.length / 10)}
+                  />
+                  <YAxis
+                    width={60}
+                    tick={{ fontSize: 12 }}
+                    tickLine={true}
+                    axisLine={true}
+                    allowDecimals={false}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="linear" 
+                    dataKey="applications" 
+                    stroke="#8884d8" 
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    connectNulls={false}
+                  />
+                </LineChart>
+              </Box>
+            ) : (
+              <Box display="flex" justifyContent="center" alignItems="center" height={300}>
+                <Typography variant="body1" color="text.secondary">
+                  No application data available for the selected date range
+                </Typography>
+              </Box>
+            )}
           </Paper>
 
           {/* Applications by Job and Status Distribution */}
