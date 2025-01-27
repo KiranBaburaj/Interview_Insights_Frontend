@@ -18,6 +18,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import HomeIcon from '@mui/icons-material/Home';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import MenuIcon from '@mui/icons-material/Menu';
+import ChatIcon from '@mui/icons-material/Chat';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearError, logout } from '../features/auth/authSlice';
@@ -150,6 +151,53 @@ const EmployerNavbar = () => {
           </ListItemIcon>
           <ListItemText 
             primary="Dashboard" 
+            primaryTypographyProps={{ 
+              style: { 
+                fontWeight: 'bold', 
+                color: '#fff',
+                fontSize: '1rem',
+                letterSpacing: '0.3px'
+              } 
+            }} 
+          />
+        </ListItem>
+        <ListItem 
+          button 
+          component={Link} 
+          to="/employer/chat" 
+          sx={{ 
+            '&:hover': { 
+              background: 'linear-gradient(45deg, #9c27b0 30%, #673ab7 90%)',
+              transform: 'translateX(4px)',
+              boxShadow: '0 2px 4px rgba(156, 39, 176, .3)',
+              '& .MuiListItemIcon-root': {
+                transform: 'scale(1.1)',
+                '& svg': {
+                  color: '#fff'
+                }
+              },
+              '& .MuiTypography-root': {
+                color: '#fff',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+              }
+            },
+            transition: 'all 0.3s ease',
+            borderRadius: 1,
+            mx: 1,
+            my: 0.25,
+            minHeight: '36px',
+            bgcolor: 'transparent',
+            '& .MuiListItemIcon-root': {
+              transition: 'transform 0.2s ease',
+              minWidth: '36px'
+            }
+          }}
+        >
+          <ListItemIcon>
+            <ChatIcon sx={{ color: '#fff', fontSize: '1.3rem' }} />
+          </ListItemIcon>
+          <ListItemText 
+            primary="Chat" 
             primaryTypographyProps={{ 
               style: { 
                 fontWeight: 'bold', 
