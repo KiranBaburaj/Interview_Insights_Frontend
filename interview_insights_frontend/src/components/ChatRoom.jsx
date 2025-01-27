@@ -2,24 +2,19 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMessages, addMessage } from '../features/chat/chatSlice';
 import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from '../utils/websocket';
-import { Box, Button, Paper, TextField, Typography, Divider } from '@mui/material';
+import { 
+  Box, 
+  TextField, 
+  Typography, 
+  Paper,
+  Avatar,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 import { connectNotificationWebSocket, sendNotificationWebSocketMessage } from '../utils/notificationWebSocket';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-// Create a custom theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#00796b', // Deep teal
-    },
-    secondary: {
-      main: '#b2dfdb', // Light teal
-    },
-  },
-  typography: {
-    fontFamily: 'Roboto, sans-serif',
-  },
-});
+import SendIcon from '@mui/icons-material/Send';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 const ChatRoom = () => {
   const dispatch = useDispatch();
@@ -78,91 +73,208 @@ const ChatRoom = () => {
     }
   };
 
-  if (!currentChatRoom) return <Typography>Select a chat room</Typography>;
+  if (!currentChatRoom) {
+    return (
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          bgcolor: '#fff'
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          Select a conversation to start messaging
+        </Typography>
+      </Box>
+    );
+  }
 
   const otherPerson = currentChatRoom.jobseeker.id === user.id ? currentChatRoom.employer : currentChatRoom.jobseeker;
 
   return (
-    <ThemeProvider theme={theme}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        bgcolor: '#fff',
+      }}
+    >
+      {/* Chat Header */}
       <Box
         sx={{
+          p: 2,
           display: 'flex',
-          flexDirection: 'column',
-          height: '80vh',
-          maxWidth: '800px',
-          width: '100%',
-          margin: '0 auto',
-          padding: 2,
-          backgroundColor: '#f5f5f5',
-          borderRadius: 2,
-          boxShadow: 2,
+          alignItems: 'center',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+          bgcolor: '#fff',
         }}
       >
-        <Typography variant="h5" gutterBottom>
-          Chat with {otherPerson.full_name}
-        </Typography>
+        <Avatar
+          src={`http://localhost:8000${otherPerson.profile_photo}`}
+          alt={otherPerson.full_name}
+          sx={{ width: 40, height: 40, mr: 2 }}
+        />
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1a1a1a' }}>
+            {otherPerson.full_name}
+          </Typography>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {otherPerson.email}
+          </Typography>
+        </Box>
+        <IconButton size="small">
+          <MoreVertIcon />
+        </IconButton>
+      </Box>
 
-        <Box
-          sx={{
-            flexGrow: 1,
-            overflowY: 'auto',
-            mb: 2,
-            border: '1px solid #ddd',
-            borderRadius: 1,
-            p: 2,
-            backgroundColor: '#fafafa',
-            display: 'flex',
-            flexDirection: 'column',
-            // Removed fixed height to allow for dynamic height
-          }}
-        >
-          {messages.map(message => (
-            <Paper
+      {/* Messages Area */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          p: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          bgcolor: '#f8f9fa',
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f8f9fa',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#cfd8dc',
+            borderRadius: '3px',
+            '&:hover': {
+              background: '#b0bec5',
+            },
+          },
+        }}
+      >
+        {messages.map(message => {
+          const isOwnMessage = message.sender.id === userid;
+          return (
+            <Box
               key={message.id || `temp-${message.timestamp}`}
               sx={{
+                display: 'flex',
+                justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
                 mb: 1,
-                p: 1,
-                borderRadius: 1,
-                backgroundColor: message.sender.id === userid ? '#e3f2fd' : '#f1f8e9',
-                alignSelf: message.sender.id === userid ? 'flex-end' : 'flex-start',
-                maxWidth: '75%',
-                wordBreak: 'break-word',
               }}
             >
-              <Typography variant="body2" gutterBottom>
-                <strong>{message.sender.full_name || `${message.sender.name}`}:</strong> {message.content || 'No content'}
-              </Typography>
-              <Typography variant="caption" color="textSecondary">
-                {new Date(message.timestamp).toLocaleString()}
-              </Typography>
-            </Paper>
-          ))}
-          <div ref={messagesEndRef} />
-        </Box>
-
-        <Divider sx={{ mb: 2 }} />
-
-        <Box component="form" onSubmit={handleSendMessage} sx={{ display: 'flex' }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            sx={{ mr: 1 }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="small"
-          >
-            Send
-          </Button>
-        </Box>
+              {!isOwnMessage && (
+                <Avatar
+                  src={`http://localhost:8000${message.sender.profile_photo}`}
+                  alt={message.sender.full_name}
+                  sx={{ width: 32, height: 32, mr: 1 }}
+                />
+              )}
+              <Box
+                sx={{
+                  maxWidth: '70%',
+                  minWidth: '100px',
+                  position: 'relative',
+                }}
+              >
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: isOwnMessage ? '#1976d2' : '#fff',
+                    color: isOwnMessage ? '#fff' : 'inherit',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>
+                    {message.content || 'No content'}
+                  </Typography>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      display: 'block',
+                      textAlign: 'right',
+                      mt: 0.5,
+                      color: isOwnMessage ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary',
+                      fontSize: '0.75rem',
+                    }}
+                  >
+                    {new Date(message.timestamp).toLocaleString([], { 
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true 
+                    })}
+                  </Typography>
+                </Paper>
+              </Box>
+            </Box>
+          );
+        })}
+        <div ref={messagesEndRef} />
       </Box>
-    </ThemeProvider>
+
+      {/* Message Input */}
+      <Box
+        component="form"
+        onSubmit={handleSendMessage}
+        sx={{
+          p: 2,
+          bgcolor: '#fff',
+          borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          gap: 1,
+          alignItems: 'center',
+        }}
+      >
+        <IconButton size="small" sx={{ color: 'action.active' }}>
+          <AttachFileIcon />
+        </IconButton>
+        <TextField
+          fullWidth
+          variant="outlined"
+          size="small"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Type a message..."
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              bgcolor: '#f8f9fa',
+              '&.Mui-focused': {
+                '& fieldset': {
+                  borderColor: '#1976d2',
+                },
+              },
+            },
+          }}
+        />
+        <IconButton 
+          type="submit"
+          disabled={!newMessage.trim()}
+          sx={{
+            bgcolor: '#1976d2',
+            color: '#fff',
+            '&:hover': {
+              bgcolor: '#1565c0',
+            },
+            '&.Mui-disabled': {
+              bgcolor: 'rgba(25, 118, 210, 0.5)',
+              color: '#fff',
+            },
+          }}
+        >
+          <SendIcon />
+        </IconButton>
+      </Box>
+    </Box>
   );
 };
 

@@ -10,36 +10,61 @@ const Chat = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh', // Use full height for a more immersive experience
-        bgcolor: '#f0f0f0', // Light background to mimic WhatsApp's theme
+        height: '100vh',
+        bgcolor: '#f8f9fa',
       }}
     >
       <Navbar />
-      <Grid container spacing={0} sx={{ flexGrow: 1 }}>
-        <Grid item xs={4} sx={{ borderRight: '1px solid #ddd', height: '100%' }}>
+      <Grid 
+        container 
+        spacing={0} 
+        sx={{ 
+          flexGrow: 1,
+          overflow: 'hidden',
+          maxWidth: '1600px',
+          mx: 'auto',
+          width: '100%',
+          p: { xs: 0, md: 2 },
+        }}
+      >
+        <Grid 
+          item 
+          xs={4} 
+          sx={{ 
+            borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+            height: 'calc(100vh - 64px)', // Subtract navbar height
+          }}
+        >
           <Paper
+            elevation={0}
             sx={{
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              p: 2,
-              bgcolor: '#ffffff', // White background for the chat list
-              overflowY: 'auto',
+              bgcolor: '#fff',
+              borderRadius: { xs: 0, md: 2 },
+              overflow: 'hidden',
             }}
           >
             <ChatList />
           </Paper>
         </Grid>
-        <Grid item xs={8} sx={{ height: '100%' }}>
+        <Grid 
+          item 
+          xs={8} 
+          sx={{ 
+            height: 'calc(100vh - 64px)', // Subtract navbar height
+          }}
+        >
           <Paper
+            elevation={0}
             sx={{
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
-              p: 2,
-              bgcolor: '#ffffff', // White background for the chat room
-              overflowY: 'auto',
-              flexGrow: 1, // Ensure it grows to fill available space
+              bgcolor: '#fff',
+              borderRadius: { xs: 0, md: 2 },
+              overflow: 'hidden',
             }}
           >
             <ChatRoom />
