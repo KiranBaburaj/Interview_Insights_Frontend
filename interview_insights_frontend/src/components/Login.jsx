@@ -14,9 +14,10 @@ import {
   Alert,
   AlertTitle,
   Link as MuiLink,
-  Avatar
+  ThemeProvider
 } from '@mui/material';
 import GoogleLoginButton from './GoogleLoginButton';
+import theme from '../theme/theme';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -66,92 +67,209 @@ const Login = () => {
     dispatch(clearError());
   };
 
-  const avatarImageUrl = '/logo.PNG';
-
   return (
-    <Container component="main" maxWidth="xs">
-      <Box sx={{ mt: 8, textAlign: 'center' }}>
-        {/* Wrap Avatar with Link */}
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <Avatar src={avatarImageUrl} sx={{ width: 56, height: 56, margin: 'auto' }} />
-        </Link>
-        <Typography component="h1" variant="h5" sx={{ mt: 2 }}>
-          Welcome to Interview Insights
-        </Typography>
-      </Box>
-      <Box sx={{ mt: 2 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          background: theme.palette.common.purple.gradient,
+        }}
+      >
+        <Container component="main" maxWidth="xs">
+          <Box
+            sx={{
+              mt: 8,
+              mb: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
+            <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <Box
+                component="img"
+                src="https://d3dxvti62y5mgw.cloudfront.net/ccp_logo_icon.webp"
+                alt="Navigation Logo"
+                sx={{
+                  width: '64px',
+                  height: 'auto',
+                  transition: 'transform 0.2s',
+                  filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2))',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              />
+              <Typography
+                variant="h3"
+                sx={{
+                  ml: 2,
+                  fontWeight: 800,
+                  fontFamily: 'sans-serif',
+                  color: '#ffffff',
+                  textShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+                  '& .gradient-text': {
+                    background: 'linear-gradient(to top left, #2563eb, #7c3aed)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }
+                }}
+              >
+                CC<span className="gradient-text">P</span>
+              </Typography>
+            </Link>
+          </Box>
 
-        <Box sx={{ mt: 2 }}>
+          <Paper 
+            elevation={6} 
+            sx={{ 
+              p: 4, 
+              borderRadius: 2,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <Box sx={{ mb: 3 }}>
               <GoogleLoginButton />
             </Box>
-            
-          <Typography component="h2" variant="h6" align="center" sx={{ mb: 2 }}>
-            Login
-          </Typography>
-          
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+
+            <Typography 
+              component="h2" 
+              variant="h5" 
+              align="center" 
+              sx={{ 
+                mb: 3,
+                color: theme.palette.common.purple.main,
+                fontWeight: 600
+              }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Login'}
-            </Button>
-          </Box>
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Typography variant="body2">
-              <MuiLink component={Link} to="/forgot-password" variant="body2">
+              Login to Your Account
+            </Typography>
+
+            <Box component="form" onSubmit={handleSubmit}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={formData.email}
+                onChange={handleChange}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: theme.palette.common.purple.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.common.purple.main,
+                    },
+                  },
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={formData.password}
+                onChange={handleChange}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: theme.palette.common.purple.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: theme.palette.common.purple.main,
+                    },
+                  },
+                }}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 3,
+                  mb: 2,
+                  py: 1.5,
+                  background: theme.palette.common.purple.gradient,
+                  boxShadow: theme.palette.common.purple.shadow,
+                  '&:hover': {
+                    background: theme.palette.common.purple.gradient,
+                    opacity: 0.9,
+                  },
+                }}
+                disabled={loading}
+              >
+                {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Login'}
+              </Button>
+            </Box>
+
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <MuiLink 
+                component={Link} 
+                to="/forgot-password" 
+                sx={{ 
+                  color: theme.palette.common.purple.main,
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
                 Forgot Password?
               </MuiLink>
-              <br />
-              Don't have an account?{' '}
-              <MuiLink component={Link} to="/signup" variant="body2">
-                Sign up
-              </MuiLink>
-            </Typography>
-         
-          </Box>
-        </Paper>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Don't have an account?{' '}
+                <MuiLink 
+                  component={Link} 
+                  to="/signup" 
+                  sx={{ 
+                    color: theme.palette.common.purple.main,
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  Sign up
+                </MuiLink>
+              </Typography>
+            </Box>
+          </Paper>
+        </Container>
       </Box>
+
       <Snackbar
         open={openError}
         autoHideDuration={5000}
         onClose={handleCloseError}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+        <Alert 
+          onClose={handleCloseError} 
+          severity="error" 
+          sx={{ 
+            width: '100%',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}
+        >
           <AlertTitle>Error</AlertTitle>
           {error?.detail ? error.detail : ""}
         </Alert>
       </Snackbar>
-    </Container>
+    </ThemeProvider>
   );
 };
 
